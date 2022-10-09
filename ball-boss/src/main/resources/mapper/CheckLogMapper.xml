@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ball.boss.dao.ext.CheckLogMapper">
+    <resultMap id="BaseResultMap" type="com.ball.boss.dao.entity.BossCheckLog">
+        <result column="id" property="id"/>
+        <result column="biz_code" property="bizCode"/>
+        <result column="biz_id" property="bizId"/>
+        <result column="check_type" property="checkType"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_user_name" property="checkUserName"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        id,
+      biz_code,
+      biz_id,
+      check_type,
+      check_result,
+      check_user_id,
+      check_user_name,
+      remark,
+      create_time
+    </sql>
+
+    <select id="selectByBizIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column"/>
+        from boss_check_log
+        where biz_code = #{bizCode}
+        and biz_id in
+        <foreach collection="bizIds" separator="," open="(" close=")" item="bizId">
+            #{bizId}
+        </foreach>
+    </select>
+
+</mapper>

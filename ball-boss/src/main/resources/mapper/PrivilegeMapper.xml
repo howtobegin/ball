@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ball.boss.dao.ext.PrivilegeMapper">
+    <resultMap id="MenuResultMap" type="com.ball.boss.dao.entity.BossMenu">
+        <result column="id" property="id"/>
+        <result column="menu_id" property="menuId"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="icon_cls" property="iconCls"/>
+        <result column="expanded" property="expanded"/>
+        <result column="request" property="request"/>
+        <result column="menu_level" property="menuLevel"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="remark" property="remark"/>
+        <result column="icon" property="icon"/>
+        <result column="menu_type" property="menuType"/>
+        <result column="shortcut" property="shortcut"/>
+        <result column="width" property="width"/>
+        <result column="height" property="height"/>
+        <result column="scrollbar" property="scrollbar"/>
+    </resultMap>
+
+    <resultMap id="RoleResultMap" type="com.ball.boss.dao.entity.BossRole">
+        <result column="id" property="id"/>
+        <result column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_type" property="roleType"/>
+        <result column="role_grade" property="roleGrade"/>
+        <result column="remark" property="remark"/>
+        <result column="locked" property="locked"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="queryMenuByRoleIds" resultMap="MenuResultMap">
+        select distinct t2.* from boss_role_authorize t1 join boss_menu t2
+        on t1.menu_id = t2.menu_id
+        where t1.role_id in
+        <foreach collection="roleIds" separator="," item="roleId" open="(" close=")">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <select id="queryRoleByUserId" resultMap="RoleResultMap">
+        select distinct t2.*
+        from boss_user_authorize t1
+                 join boss_role t2
+                      on t1.role_id = t2.role_id
+        where t1.user_id = #{userId}
+          and t2.locked = '0'
+    </select>
+</mapper>
