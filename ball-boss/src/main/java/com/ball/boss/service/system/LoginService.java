@@ -20,7 +20,7 @@ import com.ball.boss.service.system.model.UserInfo;
  * @author littlehow
  */
 public interface LoginService {
-    String SPRING_SESSION_KEY_PREFIX = "otc:boss:token:sessions:";
+    String SPRING_SESSION_KEY_PREFIX = "ball:boss:token:sessions:";
     String SPRING_SESSION_EXPIRE_PREFIX = SPRING_SESSION_KEY_PREFIX + "expires:";
     /**
      * 用户登录
