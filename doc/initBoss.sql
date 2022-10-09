@@ -1,5 +1,5 @@
 insert into boss_user_info (user_id, user_name, account, password, dept_id, mobile_phone, user_type)
-values ('1', 'admin', 'admin', '5e795203aa8dd370080663d79595a95e', 'SYSTEM', '18888888888', 3);
+values ('1', 'admin', 'admin', 'f59008c5e34764315716554c53e4307b', 'SYSTEM', '18888888888', 3);
 
 insert into boss_login_session(user_id, ip, session_id) values('1', '127.0.0.1', 'SYSTEM');
 
