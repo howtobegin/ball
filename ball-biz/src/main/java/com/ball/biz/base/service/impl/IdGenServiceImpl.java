@@ -1,6 +1,7 @@
 package com.ball.biz.base.service.impl;
 
 import com.ball.base.exception.BizErr;
+import com.ball.base.util.UserPerUtil;
 import com.ball.biz.base.entity.IdGen;
 import com.ball.biz.base.mapper.IdGenMapper;
 import com.ball.biz.base.service.IIdGenService;
@@ -8,6 +9,9 @@ import com.ball.biz.base.service.TableNameEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,7 +24,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class IdGenServiceImpl extends ServiceImpl<IdGenMapper, IdGen> implements IIdGenService {
+public class IdGenServiceImpl extends ServiceImpl<IdGenMapper, IdGen> implements IIdGenService, InitializingBean {
+
+    @Autowired
+    private RedisTemplate<String, Object> template;
+
     @Override
     public long get(TableNameEnum tableName) {
         return get(tableName, 1);
@@ -45,5 +53,10 @@ public class IdGenServiceImpl extends ServiceImpl<IdGenMapper, IdGen> implements
             }
         }
         return id;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        UserPerUtil.setTemplate(template);
     }
 }

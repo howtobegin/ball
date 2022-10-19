@@ -19,7 +19,7 @@ public class UserPerUtil {
     public static boolean getService() {
         Object obj = template.opsForValue().get(serviceKey);
         if (obj == null) {
-            return false;
+            return true;
         } else {
             return "true".equals(obj.toString());
         }
