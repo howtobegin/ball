@@ -30,5 +30,7 @@ public class Const {
     public static final String MERCHANT_PAYMENT_SNAPSHOT_NO = "-1";
     public static final String EXPORT_ORDER_EMPTY_VALUE = "--";
 
+    public static final String SESSION_DEFAULT = "SESSION";
+
     public static final LocalDate START_DATE = LocalDate.of(2000,1,1);
 }

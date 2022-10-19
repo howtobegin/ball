@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@MapperScan({"com.ball.biz.mapper"})
+@MapperScan({"com.ball.biz.*.mapper"})
 @Slf4j
 public class MybatisPlusConfig {
 

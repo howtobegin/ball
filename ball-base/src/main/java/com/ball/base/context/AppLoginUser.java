@@ -12,4 +12,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AppLoginUser {
     private Long userNo;
+
+    private String account;
+
+    private String userName;
+
+    private String loginAccount;
 }

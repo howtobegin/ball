@@ -15,9 +15,14 @@ public enum BizErrCode implements IBizErrCode {
     USER_PASSWORD_ERROR("15009", "user password error"),
     USER_SECRET_PASSWORD_NOT_SET("15010", "user secret password not set"),
     USER_SECRET_PASSWORD_ERROR("15011", "user secret password error"),
+    USER_PASSWORD_INVALID("15031", "用户密码格式不合法"),
+    USER_OR_PASSWORD_ERROR("15032", "账号或密码不正确"),
+    USER_LOGIN_KICK_OUT("15051", "user login kick out"),
+
     USER_OLD_PASSWORD_ERROR("21003", "user old password error"),
     BALANCE_NOT_ENOUGH("22007", "balance not enough"),
     CHANGE_AMOUNT_IS_LESS_ZERO("22033", "CHANGE AMOUNT IS LESS ZERO"),
+
 
     INCOME_ADDRESS_NOT_EXIST("49001", "income address not exist"),
     CREATE_TX_PO_NOT_EXIST("49002", "tron create tx po not exist"),
@@ -46,6 +51,8 @@ public enum BizErrCode implements IBizErrCode {
 
     PERIOD_HOUR_MINIMUM("40005", "小时周期，最小为0.2"),
 
+    WEBSOCKET_SESSION_NOT_EXISTS("50001", "session not exists"),
+
     USER_CARD_EXISTS("U801", "用户收款信息已存在"),
     USER_CARD_NOT_EXISTS("U802", "用户未设置收款信息"),
     USER_CARD_MORE("U803", "银行卡数量超限"),
@@ -55,6 +62,7 @@ public enum BizErrCode implements IBizErrCode {
     ORDER_BUY_LIMIT("T1001", "每日預購最多{0}單"),
 
     NEED_BIND_GOOGLE_CODE("C8901", "未绑定谷歌验证码"),
+
     ;
 
 
