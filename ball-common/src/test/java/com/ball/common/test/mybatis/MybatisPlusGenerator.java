@@ -18,7 +18,7 @@ public class MybatisPlusGenerator {
 
         GlobalConfig globalConfig = new GlobalConfig()
                 .setOutputDir(projectPath + "/" + moduleName + "/src/main/java")
-                .setAuthor("littlehow")
+                .setAuthor("atom")
                 .setOpen(false);
 
         //2. 数据源配置
@@ -71,9 +71,9 @@ public class MybatisPlusGenerator {
         //包名
         String pkgName = "com.ball.biz";
         // 子包名(按模块分包)
-        String packageName = "user";
+        String packageName = "account";
         //表
-        String[] tablesName = {"user_info"};
+        String[] tablesName = {"asset_change_log"};
         run(parentModule, dbName, pkgName, tablesName, packageName);
     }
 }

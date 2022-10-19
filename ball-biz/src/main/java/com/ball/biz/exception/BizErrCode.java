@@ -63,6 +63,10 @@ public enum BizErrCode implements IBizErrCode {
 
     NEED_BIND_GOOGLE_CODE("C8901", "未绑定谷歌验证码"),
 
+    ACCOUNT_NOT_EXIST("A101", "账户不存在"),
+    ACCOUNT_CONCURRENT("A102", "操作异常，请重试"),
+    ACCOUNT_ALLOWANCE_TOO_LOW("A103", "设置失败，该用户已经使用了{0}"),
+
     ;
 
 
