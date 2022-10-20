@@ -4,6 +4,10 @@ package com.ball.biz.exception;
 import com.ball.base.exception.IBizErrCode;
 
 public enum BizErrCode implements IBizErrCode {
+    NOT_FOUND_IMPL("B00001","未找到对应的实现"),
+    NOT_SET_WIN_OPTIION("B00002","未设置最终结果（输赢选项）"),
+    NOT_SUPPORT_WIN_OPTION("B00003","不支持此输赢选项"),
+    BET_RESULT_UNSETTLED("B00004","未结算"),
 
     DATA_ERROR("14000", "data error"),
     DATA_NOT_EXISTS("14002", "data not exists"),
