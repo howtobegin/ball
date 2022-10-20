@@ -52,6 +52,16 @@ public interface IUserAccountService extends IService<UserAccount>, IBaseService
      */
     void income(Long userId, BigDecimal amount,String orderNo, AccountTransactionType transactionType);
 
+    /**
+     * 用户入金
+     * @param userId 用户id
+     * @param amount 金额
+     * @param orderNo 订单号
+     * @param transactionType 交易类型
+     * @param oldBalance 原余额
+     */
+    void incomeWithCheck(Long userId, BigDecimal amount,String orderNo, AccountTransactionType transactionType,BigDecimal oldBalance);
+
 
     /**
      * 用户出金
@@ -63,6 +73,16 @@ public interface IUserAccountService extends IService<UserAccount>, IBaseService
     void payout(Long userId, BigDecimal amount,String orderNo, AccountTransactionType transactionType);
 
     /**
+     * 用户出金
+     * @param userId 用户id
+     * @param amount 金额
+     * @param orderNo 订单号
+     * @param transactionType 交易类型
+     * @param oldBalance 原余额
+     */
+    void payoutWithCheck(Long userId, BigDecimal amount,String orderNo, AccountTransactionType transactionType,BigDecimal oldBalance);
+
+    /**
      * 冻结
      * @param userId 用户id
      * @param amount 金额
@@ -70,20 +90,20 @@ public interface IUserAccountService extends IService<UserAccount>, IBaseService
      * @param fee 手续费
      * @param transactionType 交易类型
      */
-    void freeze(Long userId, BigDecimal amount, String orderNo, BigDecimal fee, String transactionType);
+    void freeze(Long userId, BigDecimal amount, String orderNo, BigDecimal fee, AccountTransactionType transactionType);
 
     /**
      * 解冻
      * @param orderNo 订单号
      * @param transactionType 交易类型
      */
-    void unfreeze(String orderNo, String transactionType);
+    void unfreeze(String orderNo, AccountTransactionType transactionType);
 
     /**
      * 解冻出金
      * @param orderNo 订单号
      * @param transactionType 交易类型
      */
-    void unfreezePayout(String orderNo, String transactionType);
+    void unfreezePayout(String orderNo, AccountTransactionType transactionType);
 
 }

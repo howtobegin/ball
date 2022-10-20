@@ -5,9 +5,9 @@ package com.ball.biz.account.enums;
  */
 public enum AccountTransactionType {
     INIT,
-    OP_UPDATE,
-    DEPOSIT,
-    WITHDRAW,
-    TRADE
+    ADJUSTMENT,//调账
+    DEPOSIT,//充值
+    WITHDRAW,//提现
+    TRADE//交易
     ;
 }

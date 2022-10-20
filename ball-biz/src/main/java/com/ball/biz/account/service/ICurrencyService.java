@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import com.ball.common.service.IBaseService;
 
+import java.math.BigDecimal;
+
 /**
  * <p>
  * 币种 服务类
@@ -14,5 +16,12 @@ import com.ball.common.service.IBaseService;
  * @since 2022-10-19
  */
 public interface ICurrencyService extends IService<Currency>, IBaseService {
+
+    /**
+     * 查询汇率
+     * @param currencyCode 币种
+     * @return
+     */
+    BigDecimal getRate(String currencyCode);
 
 }
