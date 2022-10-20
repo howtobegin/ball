@@ -18,7 +18,7 @@ public enum BizErrCode implements IBizErrCode {
     USER_PASSWORD_INVALID("15031", "用户密码格式不合法"),
     USER_OR_PASSWORD_ERROR("15032", "账号或密码不正确"),
     USER_LOGIN_KICK_OUT("15051", "user login kick out"),
-
+    USER_ACCOUNT_RULE_ERROR("15060", "用户账户格式有误"),
     USER_OLD_PASSWORD_ERROR("21003", "user old password error"),
     BALANCE_NOT_ENOUGH("22007", "balance not enough"),
     CHANGE_AMOUNT_IS_LESS_ZERO("22033", "CHANGE AMOUNT IS LESS ZERO"),
