@@ -1,5 +1,6 @@
 package com.ball.biz.user.assist;
 
+import com.ball.base.context.RequestContext;
 import com.ball.base.model.Const;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.base.util.BizAssert;
@@ -63,5 +64,9 @@ public class LoginAssist {
 
     private void dealKick(String sessionId, UserLoginSession session) {
         // todo littlehow
+        session.setSessionId(sessionId)
+                .setIp(RequestContext.getIp())
+                .setUpdateTime(null);
+        userLoginSessionService.updateById(session);
     }
 }

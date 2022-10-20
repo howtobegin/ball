@@ -28,6 +28,7 @@ create table user_info (
     proxy_account         varchar(64)       not null comment '代理账号',
     proxy_user_id         bigint            not null comment '代理用户编号',
     proxy_info            varchar(128)          null comment '代理拼接信息',
+    balance_mode          varchar(24)           null comment '额度模式',
     status                tinyint           not null comment '用户状态 1:正常 0:锁定',
     last_login            bigint unsigned            comment '最后登录时间',
     create_time  datetime     not null default current_timestamp comment '创建时间',

@@ -1,14 +1,14 @@
 package com.ball.proxy.controller.proxy;
 
+import com.ball.base.context.UserContext;
+import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.config.HttpSessionConfig;
-import com.ball.proxy.controller.proxy.vo.AddProxyReq;
-import com.ball.proxy.controller.proxy.vo.LoginReq;
-import com.ball.proxy.controller.proxy.vo.LoginResp;
+import com.ball.proxy.controller.proxy.vo.*;
 import com.ball.proxy.interceptor.LoginInterceptor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +22,7 @@ import javax.validation.Valid;
 /**
  * @author littlehow
  */
-@Api(tags = "代理用户登录")
+@Api(tags = "代理商管理")
 @RestController
 @RequestMapping("/proxy/")
 public class ProxyUserController {
@@ -62,5 +62,24 @@ public class ProxyUserController {
     @PostMapping("addProxy")
     public void addProxy(@RequestBody @Valid AddProxyReq req) {
         // todo littlehow
+    }
+
+    @ApiOperation("查询代理商")
+    @PostMapping("queryProxy")
+    public PageResult<ProxyUserResp> query(@RequestBody @Valid QueryProxyUserReq req) {
+        Long userNo = UserContext.getUserNo();
+        PageResult<ProxyUserResp> resp = userInfoService.pageQuery(userInfoService.lambdaQuery()
+                .eq(UserInfo::getProxyUserId, userNo)
+                .eq(req.hasBalanceMode(), UserInfo::getBalanceMode, req.getBalanceMode())
+                .gt(UserInfo::getUserType, UserTypeEnum.PROXY_ONE.v)
+                .like(req.hasAccount(), UserInfo::getAccount, req.getAccount()), req, ProxyUserResp.class);
+
+        resp.foreach(o -> {
+            if (o.getAccount().equals(o.getLoginAccount())) {
+                o.setLoginAccount(null);
+            }
+            // todo 计算每个代理3的会员数
+        });
+        return resp;
     }
 }

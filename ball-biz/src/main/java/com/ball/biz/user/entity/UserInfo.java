@@ -97,6 +97,11 @@ public class UserInfo extends Paging {
     private String proxyInfo;
 
     /**
+     * 额度模式
+     */
+    private String balanceMode;
+
+    /**
      * 用户状态 1:正常 0:锁定
      */
     private Integer status;
