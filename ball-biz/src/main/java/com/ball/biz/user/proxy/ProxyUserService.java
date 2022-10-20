@@ -40,6 +40,9 @@ public class ProxyUserService {
     @Autowired
     private LoginAssist loginAssist;
 
+    private String SPRING_SESSION_KEY_PREFIX = "ball:proxy:token:sessions:";
+    private String SPRING_SESSION_EXPIRE_PREFIX = SPRING_SESSION_KEY_PREFIX + "expires:";
+
     /**
      * 查询代理用户
      * @param userId - 用户编号
@@ -79,7 +82,7 @@ public class ProxyUserService {
     public Long addProxy(String account, String userName, String password, Long proxyUid) {
         UserInfo proxy = getByUid(proxyUid);
         BizAssert.notNull(proxy, BizErrCode.USER_NOT_EXISTS);
-        UserTypeEnum typeEnum = UserTypeEnum.valueOf(proxy.getUserType());
+        UserTypeEnum typeEnum = UserTypeEnum.proxyOf(proxy.getUserType());
         BizAssert.isTrue(typeEnum.createProxy, BizErrCode.DATA_ERROR);
         String proxyInfo = proxy.getProxyInfo();
         if (proxyInfo == null) {
@@ -99,7 +102,15 @@ public class ProxyUserService {
      * @return -
      */
     public UserInfo login(String sessionId, String account, String password, Integer userType) {
-        return loginAssist.login(sessionId, account, password, userType);
+        return loginAssist.login(sessionId, account, password, userType, SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
+    }
+
+    /**
+     * 代理用户登出
+     * @param userId -
+     */
+    public void logout(Long userId) {
+        loginAssist.logout(userId, SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
     }
 
     private Long addProxy0(String account, String userName, String password, Long proxyUid, String proxyAccount, Integer userType, String proxyInfo) {

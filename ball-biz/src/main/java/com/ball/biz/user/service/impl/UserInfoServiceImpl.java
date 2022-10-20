@@ -38,9 +38,6 @@ import java.util.List;
 public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements IUserInfoService {
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Autowired
     private TransactionSupport transactionSupport;
 
     @Autowired
@@ -118,6 +115,17 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
+    public void firstChangePassword(Long userId, String password) {
+        boolean flag = lambdaUpdate()
+                .eq(UserInfo::getId, userId)
+                .eq(UserInfo::getChangePasswordFlag, YesOrNo.NO.v)
+                .set(UserInfo::getPassword, PasswordUtil.get(password))
+                .set(UserInfo::getChangePasswordFlag, YesOrNo.YES.v)
+                .update();
+        BizAssert.isTrue(flag, BizErrCode.DATA_ERROR);
+    }
+
+    @Override
     public void changeLogin(Long userId, String loginAccount) {
         UserInfo userInfo = getByUid(userId);
         BizAssert.isTrue(userInfo.getAccount().equals(userInfo.getLoginAccount()), BizErrCode.DATA_ERROR);
@@ -146,22 +154,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Override
     public UserInfo login(String sessionId, String loginAccount, String password) {
-        return loginAssist.login(sessionId, loginAccount, password, UserTypeEnum.GENERAL.v);
+        return loginAssist.login(sessionId, loginAccount, password, UserTypeEnum.GENERAL.v,
+                SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
     }
 
     @Override
     public void logout(Long userId) {
-        UserLoginSession session = userLoginSessionService.getByUid(userId);
-        String sessionId = session.getSessionId();
-        session.setSessionId(Const.SESSION_DEFAULT)
-                .setUpdateTime(null);
-        userLoginSessionService.updateById(session);
-        // 删除redis key
-        if (redisTemplate.hasKey(SPRING_SESSION_KEY_PREFIX + sessionId)) {
-            log.info("logout out userId={}, sessionId={}", userId, sessionId);
-            // 删除主要信息key
-            redisTemplate.delete(SPRING_SESSION_KEY_PREFIX + sessionId);
-            redisTemplate.delete(SPRING_SESSION_EXPIRE_PREFIX + sessionId);
-        }
+        loginAssist.logout(userId, SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
     }
 }

@@ -65,6 +65,12 @@ public interface IUserInfoService extends IService<UserInfo>, IBaseService {
     void changePassword(Long userId, String oldPassword, String newPassword);
 
     /**
+     * 第一次修改密码
+     * @param password - 密码
+     */
+    void firstChangePassword(Long userId, String password);
+
+    /**
      * 修改登录账号
      * @param userId        - 用户编号
      * @param loginAccount  - 登录账号

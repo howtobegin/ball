@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 /**
@@ -37,18 +36,6 @@ public class UserEntranceController {
                 .setTokenName(HttpSessionConfig.TOKEN_NAME)
                 .setUserNo(userInfo.getId())
                 .setChangePasswordFlag(userInfo.getChangePasswordFlag())
-                .setChangeAccountFlag(userInfo.getAccount().equals(userInfo.getLoginAccount()) ? YesOrNo.NO.v : YesOrNo.NO.v);
-    }
-
-    @ApiOperation("登出接口")
-    @RequestMapping(value = "logout", method = {RequestMethod.GET, RequestMethod.POST})
-    public void logout(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        String userNo = (String) session.getAttribute(LoginInterceptor.SESSION_USER);
-        session.removeAttribute(LoginInterceptor.SESSION_USER);
-        if (userNo != null) {
-            userInfoService.logout(Long.valueOf(userNo));
-        }
-        session.invalidate();
+                .setChangeAccountFlag(userInfo.getAccount().equals(userInfo.getLoginAccount()) ? YesOrNo.NO.v : YesOrNo.YES.v);
     }
 }

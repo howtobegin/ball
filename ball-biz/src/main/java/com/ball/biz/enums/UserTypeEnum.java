@@ -21,13 +21,18 @@ public enum UserTypeEnum {
         this.createProxy = createProxy;
     }
 
-    public static UserTypeEnum valueOf(int v) {
+    public static UserTypeEnum proxyOf(int v) {
         switch (v) {
-            case 5 : return  PROXY_ONE;
-            case 6 : return PROXY_TWO;
-            case 7 : return PROXY_THREE;
-            case 1:
-                default:return GENERAL;
+            case 5 :
+            case 1 :
+                return  PROXY_ONE;
+            case 6 :
+            case 2 :
+                return PROXY_TWO;
+            case 7 :
+            case 3 :
+                return PROXY_THREE;
+                default:throw new IllegalArgumentException("proxy type value " + v + " error");
         }
     }
 }
