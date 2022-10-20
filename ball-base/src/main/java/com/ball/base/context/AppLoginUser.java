@@ -18,4 +18,6 @@ public class AppLoginUser {
     private String userName;
 
     private String loginAccount;
+
+    private Integer userType;
 }

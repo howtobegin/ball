@@ -9,6 +9,7 @@ import com.ball.biz.base.service.IIdGenService;
 import com.ball.biz.base.service.TableNameEnum;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.user.assist.LoginAssist;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.entity.UserLoginSession;
 import com.ball.biz.user.mapper.UserInfoMapper;
@@ -19,6 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -44,11 +49,17 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Autowired
     private IIdGenService idGenService;
 
+    @Autowired
+    private LoginAssist loginAssist;
+
     @Override
     public Long addUser(String account, String userName, String password, String proxyAccount, Long proxyUid) {
         // 判断用户是否存在
         UserInfo userInfo = getByAccount(account);
         BizAssert.isNull(userInfo, BizErrCode.USER_EXISTS);
+        // 获取代理用户信息
+        UserInfo proxy = getByUid(proxyUid);
+        String proxyInfo = proxy.getProxyInfo() == null ? proxyUid.toString() : proxy.getProxyInfo() + Const.RELATION_SPLIT + proxyUid;
         Long userId = idGenService.get(TableNameEnum.USER_INFO);
         transactionSupport.execute(() -> {
             save(new UserInfo().setId(userId)
@@ -56,7 +67,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                     .setLoginAccount(account).setPassword(PasswordUtil.get(password))
                     .setProxyAccount(proxyAccount).setStatus(YesOrNo.YES.v)
                     .setUserName(userName).setUserType(UserTypeEnum.GENERAL.v)
-                    .setProxyUserId(proxyUid)
+                    .setProxyUserId(proxyUid).setProxyInfo(proxyInfo)
             );
             userLoginSessionService.save(new UserLoginSession()
                 .setUserId(userId).setSessionId(Const.SESSION_DEFAULT)
@@ -68,6 +79,19 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public UserInfo getByUid(Long userId) {
         return lambdaQuery().eq(UserInfo::getId, userId).one();
+    }
+
+    @Override
+    public List<UserInfo> getByProxyInfo(String proxyInfo) {
+        if (StringUtils.hasText(proxyInfo)) {
+            String[] ss = proxyInfo.split(Const.RELATION_SPLIT);
+            List<Long> uid = new ArrayList<>();
+            for (String s : ss) {
+                uid.add(Long.valueOf(s));
+            }
+            return lambdaQuery().in(UserInfo::getId, uid).list();
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -122,15 +146,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Override
     public UserInfo login(String sessionId, String loginAccount, String password) {
-        UserInfo userInfo = lambdaQuery().eq(UserInfo::getLoginAccount, loginAccount)
-                .eq(UserInfo::getUserType, UserTypeEnum.GENERAL.v)
-                .eq(UserInfo::getPassword, PasswordUtil.get(password))
-                .one();
-        BizAssert.notNull(userInfo, BizErrCode.USER_OR_PASSWORD_ERROR);
-        BizAssert.isTrue(YesOrNo.YES.isMe(userInfo.getStatus()), BizErrCode.USER_LOCKED);
-        UserLoginSession session = userLoginSessionService.getByUid(userInfo.getId());
-        dealKick(sessionId, session);
-        return userInfo;
+        return loginAssist.login(sessionId, loginAccount, password, UserTypeEnum.GENERAL.v);
     }
 
     @Override
@@ -147,9 +163,5 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             redisTemplate.delete(SPRING_SESSION_KEY_PREFIX + sessionId);
             redisTemplate.delete(SPRING_SESSION_EXPIRE_PREFIX + sessionId);
         }
-    }
-
-    private void dealKick(String sessionId, UserLoginSession session) {
-        // todo littlehow
     }
 }

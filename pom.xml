@@ -14,6 +14,7 @@
         <module>ball-biz</module>
         <module>ball-boss</module>
         <module>ball-server</module>
+        <module>ball-proxy</module>
     </modules>
 
     <parent>
@@ -282,6 +283,12 @@
             <dependency>
                 <groupId>com.ball</groupId>
                 <artifactId>ball-server</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ball</groupId>
+                <artifactId>ball-proxy</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <!-- self end -->

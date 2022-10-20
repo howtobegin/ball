@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import com.ball.common.service.IBaseService;
 
+import java.util.List;
+
 /**
  * <p>
  * 用户信息表 服务类
@@ -32,6 +34,13 @@ public interface IUserInfoService extends IService<UserInfo>, IBaseService {
      * @return -
      */
     UserInfo getByUid(Long userId);
+
+    /**
+     * 根据代理信息获取对应的代理用户
+     * @param proxyInfo -
+     * @return
+     */
+    List<UserInfo> getByProxyInfo(String proxyInfo);
 
     /**
      * 根据账号获取用户编号

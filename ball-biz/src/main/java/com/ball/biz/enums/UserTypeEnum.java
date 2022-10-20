@@ -7,7 +7,7 @@ public enum UserTypeEnum {
     GENERAL(1, 1, false),
     PROXY_ONE(5, 6, true),
     PROXY_TWO(6, 7, true),
-    PROXY_THREE(7, 7, true),
+    PROXY_THREE(7, 7, false),
     ;
     public final int v;
 

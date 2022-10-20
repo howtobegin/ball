@@ -1,4 +1,4 @@
-package com.ball.app.config;
+package com.ball.proxy.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;

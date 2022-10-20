@@ -50,6 +50,7 @@ public class UserController {
     @ApiOperation("修改登入账号")
     @PostMapping("changeLoginAccount")
     public void changeLoginAccount(@RequestBody @Valid LoginAccountReq req) {
+        req.valid();
         userInfoService.changeLogin(UserContext.getUserNo(), req.getLoginAccount());
     }
 

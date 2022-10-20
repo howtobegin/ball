@@ -72,6 +72,11 @@ public class UserInfo extends Paging {
     private String lockPassword;
 
     /**
+     * 安全密码
+     */
+    private String secretPassword;
+
+    /**
      * 用户类型  1:会员 2:代理
      */
     private Integer userType;
@@ -85,6 +90,11 @@ public class UserInfo extends Paging {
      * 代理用户编号
      */
     private Long proxyUserId;
+
+    /**
+     * 代理信息
+     */
+    private String proxyInfo;
 
     /**
      * 用户状态 1:正常 0:锁定

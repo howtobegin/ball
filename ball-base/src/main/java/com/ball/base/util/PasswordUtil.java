@@ -38,4 +38,8 @@ public class PasswordUtil {
         }
         return true;
     }
+
+    public static void main(String[] args) {
+        System.out.println(get("Aa123456"));
+    }
 }

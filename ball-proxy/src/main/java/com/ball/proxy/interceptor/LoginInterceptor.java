@@ -1,4 +1,4 @@
-package com.ball.app.interceptor;
+package com.ball.proxy.interceptor;
 
 
 import com.ball.base.context.AppLoginUser;
@@ -23,7 +23,8 @@ import javax.servlet.http.HttpSession;
 
 import java.util.List;
 
-import static com.ball.app.config.HttpSessionConfig.TOKEN_NAME;
+import static com.ball.proxy.config.HttpSessionConfig.TOKEN_NAME;
+
 
 public class LoginInterceptor implements HandlerInterceptor {
     public static final String SESSION_USER = "user";
@@ -51,14 +52,14 @@ public class LoginInterceptor implements HandlerInterceptor {
         Long userNo = Long.valueOf(userId);
         UserInfo userInfo = userInfoService.getByUid(userNo);
         BizAssert.isTrue(YesOrNo.YES.isMe(userInfo.getStatus()), BizErrCode.USER_LOCKED);
-        checkPasswordOrLogin(httpServletRequest, userInfo);
         List<UserInfo> proxy = userInfoService.getByProxyInfo(userInfo.getProxyInfo());
         for (UserInfo u : proxy) {
             BizAssert.isTrue(YesOrNo.YES.isMe(u.getStatus()), BizErrCode.USER_LOCKED);
         }
+        checkPasswordOrLogin(httpServletRequest, userInfo);
         UserContext.set(new AppLoginUser().setUserNo(userNo).setUserName(userInfo.getUserName())
             .setAccount(userInfo.getAccount()).setLoginAccount(userInfo.getLoginAccount())
-                .setUserType(userInfo.getUserType())
+            .setUserType(userInfo.getUserType())
         );
         TraceLogContext.setUserNo(userNo);
         return true;
