@@ -59,7 +59,7 @@ public class UserOperationService {
             // 添加账户
             userAccountService.init(userInfo.getId(), req.getCurrency(), String.valueOf(UserTypeEnum.GENERAL.v), modeEnum);
             // 调账
-            assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.myAmount(), modeEnum);
+            assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.myAmount(), req.getCurrency(), modeEnum, proxy);
             // 记录日志
             operationLogService.addLog(OperationBiz.ADD_USER, userInfo.getId().toString());
         });

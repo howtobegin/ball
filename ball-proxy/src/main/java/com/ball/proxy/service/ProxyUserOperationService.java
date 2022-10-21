@@ -10,7 +10,6 @@ import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.log.enums.OperationBiz;
 import com.ball.biz.log.service.IOperationLogService;
 import com.ball.biz.user.proxy.ProxyUserService;
-import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.proxy.vo.AddProxyReq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class ProxyUserOperationService {
             // 初始化代理账户
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(typeEnum.next), allowanceModeEnum);
             // 调整账务
-            assetAdjustmentOrderService.updateAllowance(userId, balance, allowanceModeEnum);
+            assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum, UserContext.getUserNo());
             // 调整上级账务
 
             // 记录操作日志
@@ -73,7 +72,7 @@ public class ProxyUserOperationService {
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(UserTypeEnum.PROXY_ONE.v),
                     allowanceModeEnum);
             // 调整账务
-            assetAdjustmentOrderService.updateAllowance(userId, balance, allowanceModeEnum);
+            assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum, null);
             // 记录操作日志
             //operationLogService.addLog(OperationBiz.ADD_PROXY, userId.toString(), "添加代理一");
         });
