@@ -9,6 +9,8 @@ public enum BaseErrCode implements IBizErrCode {
 
     AREA_LEVEL_NOT_FOUND("81001", "area level not found"),
     TYPE_ERROR("22006", "错误的类型:{0}"),
+
+    INVALID_REQUEST("B2001", "非法请求"),
     ;
 
 

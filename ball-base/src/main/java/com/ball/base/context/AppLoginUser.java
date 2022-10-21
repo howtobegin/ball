@@ -20,4 +20,8 @@ public class AppLoginUser {
     private String loginAccount;
 
     private Integer userType;
+
+    private String proxyInfo;
+
+    private Long proxyUid;
 }

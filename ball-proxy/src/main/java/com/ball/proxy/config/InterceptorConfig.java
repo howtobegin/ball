@@ -29,7 +29,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(ALL)
                 .excludePathPatterns("/proxy/entrance/control/service");
         registry.addInterceptor(loginInterceptor())
-                .addPathPatterns(ALL);
+                .addPathPatterns(ALL)
+                .excludePathPatterns("/proxy/login", "/proxy/addProxyOne");
     }
 
     @Override

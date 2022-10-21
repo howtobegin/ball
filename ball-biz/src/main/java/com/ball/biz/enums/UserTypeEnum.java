@@ -35,4 +35,8 @@ public enum UserTypeEnum {
                 default:throw new IllegalArgumentException("proxy type value " + v + " error");
         }
     }
+
+    public boolean isMe(int type) {
+        return type == v || type == v - 4;
+    }
 }

@@ -59,7 +59,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         checkPasswordOrLogin(httpServletRequest, userInfo);
         UserContext.set(new AppLoginUser().setUserNo(userNo).setUserName(userInfo.getUserName())
             .setAccount(userInfo.getAccount()).setLoginAccount(userInfo.getLoginAccount())
-            .setUserType(userInfo.getUserType())
+            .setUserType(userInfo.getUserType()).setProxyInfo(userInfo.getProxyInfo())
+                .setProxyUid(userInfo.getProxyUserId())
         );
         TraceLogContext.setUserNo(userNo);
         return true;

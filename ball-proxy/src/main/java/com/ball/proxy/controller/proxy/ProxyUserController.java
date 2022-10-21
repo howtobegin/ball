@@ -10,6 +10,7 @@ import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.config.HttpSessionConfig;
 import com.ball.proxy.controller.proxy.vo.*;
 import com.ball.proxy.interceptor.LoginInterceptor;
+import com.ball.proxy.service.ProxyUserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class ProxyUserController {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    @Autowired
+    private ProxyUserOperationService proxyUserOperationService;
 
     @ApiOperation("登录")
     @PostMapping("login")
@@ -61,7 +65,13 @@ public class ProxyUserController {
     @ApiOperation("添加代理商")
     @PostMapping("addProxy")
     public void addProxy(@RequestBody @Valid AddProxyReq req) {
-        // todo littlehow
+        proxyUserOperationService.addProxyUser(req);
+    }
+
+    @ApiOperation("添加代理一(暂时放这里)")
+    @PostMapping("addProxyOne")
+    public void addProxyOne(@RequestBody @Valid AddProxyReq req) {
+        proxyUserOperationService.addProxyOne(req);
     }
 
     @ApiOperation("查询代理商")

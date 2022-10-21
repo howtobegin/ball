@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 /**
  * @author littlehow
@@ -33,11 +35,15 @@ public class AddUserReq {
     private String password;
 
     @ApiModelProperty(value = "信用额度", required = true)
-    @NotBlank(message = "amount must be not null")
+    @NotNull(message = "amount must be not null")
     @Min(1L)
     private Long amount;
 
     @ApiModelProperty(value = "币种", required = true)
     @NotBlank(message = "currency must be not null")
     private String currency;
+
+    public BigDecimal myAmount() {
+        return new BigDecimal(amount);
+    }
 }

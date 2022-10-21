@@ -23,10 +23,9 @@ public interface IUserInfoService extends IService<UserInfo>, IBaseService {
      * @param account        - 账号
      * @param userName       - 用户名
      * @param password       - 密码
-     * @param proxyAccount   - 代理账号
      * @return - 用户编号
      */
-    Long addUser(String account, String userName, String password, String proxyAccount, Long proxyUid);
+    UserInfo addUser(String account, String userName, String password, Long proxyUid);
 
     /**
      * 根据用户编号获取用户信息

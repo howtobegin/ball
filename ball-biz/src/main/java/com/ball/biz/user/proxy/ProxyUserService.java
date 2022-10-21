@@ -66,9 +66,10 @@ public class ProxyUserService {
      * @param password  - 密码
      * @return
      */
-    public Long addProxyOne(String account, String userName, String password) {
+    public Long addProxyOne(String account, String userName, String password, String balanceMode) {
         // 判断用户是否存在
-        return addProxy0(account, userName, password, 0L, Const.SYSTEM_OPERATOR, UserTypeEnum.PROXY_ONE.v, null);
+        return addProxy0(account, userName, password, 0L,
+                Const.SYSTEM_OPERATOR, UserTypeEnum.PROXY_ONE.v, null, balanceMode);
     }
 
     /**
@@ -79,7 +80,7 @@ public class ProxyUserService {
      * @param proxyUid   - 代理用户编号
      * @return -
      */
-    public Long addProxy(String account, String userName, String password, Long proxyUid) {
+    public Long addProxy(String account, String userName, String password, Long proxyUid, String balanceMode) {
         UserInfo proxy = getByUid(proxyUid);
         BizAssert.notNull(proxy, BizErrCode.USER_NOT_EXISTS);
         UserTypeEnum typeEnum = UserTypeEnum.proxyOf(proxy.getUserType());
@@ -90,7 +91,7 @@ public class ProxyUserService {
         } else {
             proxyInfo = proxyInfo + Const.RELATION_SPLIT + proxyUid;
         }
-        return addProxy0(account, userName, password, proxyUid, proxy.getAccount(), typeEnum.next, proxyInfo);
+        return addProxy0(account, userName, password, proxyUid, proxy.getAccount(), typeEnum.next, proxyInfo, balanceMode);
     }
 
     /**
@@ -113,7 +114,9 @@ public class ProxyUserService {
         loginAssist.logout(userId, SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
     }
 
-    private Long addProxy0(String account, String userName, String password, Long proxyUid, String proxyAccount, Integer userType, String proxyInfo) {
+    private Long addProxy0(String account, String userName, String password, Long proxyUid,
+                           String proxyAccount, Integer userType, String proxyInfo,
+                           String balanceMode) {
         // 判断用户是否存在
         UserInfo userInfo = userInfoService.lambdaQuery().eq(UserInfo::getAccount, account)
                 .eq(UserInfo::getUserType, UserTypeEnum.PROXY_ONE.v).one();
@@ -126,6 +129,7 @@ public class ProxyUserService {
                     .setProxyAccount(proxyAccount).setStatus(YesOrNo.YES.v)
                     .setUserName(userName).setUserType(userType)
                     .setProxyUserId(proxyUid).setProxyInfo(proxyInfo)
+                    .setBalanceMode(balanceMode)
             );
             userLoginSessionService.save(new UserLoginSession()
                     .setUserId(userId).setSessionId(Const.SESSION_DEFAULT)

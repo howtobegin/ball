@@ -50,7 +50,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     private LoginAssist loginAssist;
 
     @Override
-    public Long addUser(String account, String userName, String password, String proxyAccount, Long proxyUid) {
+    public UserInfo addUser(String account, String userName, String password, Long proxyUid) {
         // 判断用户是否存在
         UserInfo userInfo = getByAccount(account);
         BizAssert.isNull(userInfo, BizErrCode.USER_EXISTS);
@@ -58,19 +58,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         UserInfo proxy = getByUid(proxyUid);
         String proxyInfo = proxy.getProxyInfo() == null ? proxyUid.toString() : proxy.getProxyInfo() + Const.RELATION_SPLIT + proxyUid;
         Long userId = idGenService.get(TableNameEnum.USER_INFO);
-        transactionSupport.execute(() -> {
-            save(new UserInfo().setId(userId)
+        UserInfo info = new UserInfo().setId(userId)
                 .setAccount(account).setChangePasswordFlag(YesOrNo.NO.v)
-                    .setLoginAccount(account).setPassword(PasswordUtil.get(password))
-                    .setProxyAccount(proxyAccount).setStatus(YesOrNo.YES.v)
-                    .setUserName(userName).setUserType(UserTypeEnum.GENERAL.v)
-                    .setProxyUserId(proxyUid).setProxyInfo(proxyInfo)
-            );
+                .setLoginAccount(account).setPassword(PasswordUtil.get(password))
+                .setProxyAccount(proxy.getAccount()).setStatus(YesOrNo.YES.v)
+                .setUserName(userName).setUserType(UserTypeEnum.GENERAL.v)
+                .setProxyUserId(proxyUid).setProxyInfo(proxyInfo)
+                .setBalanceMode(proxy.getBalanceMode());
+        transactionSupport.execute(() -> {
+            save(info);
             userLoginSessionService.save(new UserLoginSession()
                 .setUserId(userId).setSessionId(Const.SESSION_DEFAULT)
             );
         });
-        return userId;
+        return info;
     }
 
     @Override

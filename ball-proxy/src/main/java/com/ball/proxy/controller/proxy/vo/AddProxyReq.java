@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author littlehow
@@ -31,7 +31,7 @@ public class AddProxyReq {
     private String balanceMode;
 
     @ApiModelProperty(value = "信用额度", required = true)
-    @NotBlank(message = "amount must be not null")
+    @NotNull(message = "amount must be not null")
     @Min(1L)
     private Long amount;
 
