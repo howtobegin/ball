@@ -17,7 +17,7 @@ import com.ball.base.model.Paging;
  * </p>
  *
  * @author atom
- * @since 2022-10-20
+ * @since 2022-10-21
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -44,6 +44,26 @@ public class BizAssetAdjustmentOrder extends Paging {
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    /**
+     * 来源方
+     */
+    private Long fromUserNo;
+
+    /**
+     * 来源方减少额度值
+     */
+    private BigDecimal fromUserAmount;
+
+    /**
+     * 用户币种
+     */
+    private String currency;
+
+    /**
+     * 来源方币种
+     */
+    private String fromUserCurrency;
 
 
 }

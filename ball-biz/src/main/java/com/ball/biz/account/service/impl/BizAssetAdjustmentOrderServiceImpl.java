@@ -8,7 +8,9 @@ import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.mapper.BizAssetAdjustmentOrderMapper;
 import com.ball.biz.account.service.IBizAssetAdjustmentOrderService;
+import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.IUserAccountService;
+import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.common.service.Snowflake;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * <p>
@@ -35,6 +38,9 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
     private IUserAccountService iUserAccountService;
 
     @Autowired
+    private ICurrencyService iCurrencyService;
+
+    @Autowired
     Snowflake snowflake;
 
 //    @Autowired
@@ -43,62 +49,77 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
      * 更新额度
      *
      * @param userId    用户id
+     * @param currency  币种
      * @param allowance 授权额度
      * @param mode      授权额度模式
+     * @param fromUserId      额度来源代理id
+     * @param mode      额度来源代理授权额度模式
      */
     @Override
-    public void updateAllowance(Long userId, BigDecimal allowance, AllowanceModeEnum mode) {
+    public void updateAllowance(Long userId, BigDecimal allowance, String currency,AllowanceModeEnum mode, Long fromUserId,AllowanceModeEnum fromUserMode) {
         BizAssert.isTrue(allowance.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.DATA_ERROR);
-        switch (mode) {
-            case BALANCE://余额模式。直接改动余额
-                transactionSupport.execute(()->{
-                    UserAccount userAccount = iUserAccountService.query(userId);
-                    if (userAccount == null) {
-                        return;
-                    }
-                    BigDecimal adjustAmount = allowance.subtract(userAccount.getBalance());
-                    BizAssetAdjustmentOrder bizAssetAdjustmentOrder = createOrder(userId, adjustAmount);
-                    if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
-                        iUserAccountService.incomeWithCheck(userId,adjustAmount,bizAssetAdjustmentOrder.getOrderNo(), AccountTransactionType.ADJUSTMENT, userAccount.getBalance());
-                    } else {
-                        iUserAccountService.payoutWithCheck(userId,adjustAmount.abs(),bizAssetAdjustmentOrder.getOrderNo(), AccountTransactionType.ADJUSTMENT, userAccount.getBalance());
-                    }
+        transactionSupport.execute(()->{
+            UserAccount userAccount = iUserAccountService.query(userId);
+            if (userAccount == null) {
+                return;
+            }
+            String orderNo = String.valueOf(snowflake.next());
+            BigDecimal rate = iCurrencyService.getRate(currency);
+            BigDecimal fromUserAdjustAmount = allowance.divide(rate, 2,RoundingMode.CEILING);//来源方减少额度
+            BizAssetAdjustmentOrder bizAssetAdjustmentOrder = null;
+            switch (mode) {
+                case BALANCE://余额模式。直接改动余额
 
-                });
+                        BigDecimal adjustAmount = allowance.subtract(userAccount.getBalance());
+                        bizAssetAdjustmentOrder = createOrder(userId, adjustAmount,currency,fromUserId,fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
+                        if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                            iUserAccountService.incomeWithCheck(userId,adjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN, userAccount.getBalance());
+                        } else {
+                            iUserAccountService.payoutWithCheck(userId,adjustAmount.abs(),orderNo, AccountTransactionType.USER_ADJUSTMENT_OUT, userAccount.getBalance());
+                        }
+                    break;
+                case RECOVERY://恢复模式。额度和余额同增同减
+                        //修改额度
+                        iUserAccountService.updateAllowance(userId, allowance);
+                        BigDecimal adjustAmount1 = allowance.subtract(userAccount.getAllowance());
+                        bizAssetAdjustmentOrder = createOrder(userId, adjustAmount1, currency, fromUserId, fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
+                        if (adjustAmount1.compareTo(BigDecimal.ZERO) >= 0) {
+                            iUserAccountService.income(userId,adjustAmount1,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN);
+                        } else {
+                            iUserAccountService.payout(userId,adjustAmount1.abs(),orderNo, AccountTransactionType.USER_ADJUSTMENT_OUT);
+                        }
 
+                    break;
+            }
 
-                break;
-            case RECOVERY://恢复模式。额度和余额同增同减
-                transactionSupport.execute(()->{
-                    UserAccount userAccount = iUserAccountService.query(userId);
-                    if (userAccount == null) {
-                        return;
-                    }
-                    //修改额度
-                    iUserAccountService.updateAllowance(userId, allowance);
-                    BigDecimal adjustAmount = allowance.subtract(userAccount.getAllowance());
-                    BizAssetAdjustmentOrder bizAssetAdjustmentOrder = createOrder(userId, adjustAmount);
-                    if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
-                        iUserAccountService.income(userId,adjustAmount,bizAssetAdjustmentOrder.getOrderNo(), AccountTransactionType.ADJUSTMENT);
-                    } else {
-                        iUserAccountService.payout(userId,adjustAmount.abs(),bizAssetAdjustmentOrder.getOrderNo(), AccountTransactionType.ADJUSTMENT);
-                    }
+            if (fromUserId == null) {
+                return;
+            }
 
-                });
-                break;
-        }
+            UserAccount agent = iUserAccountService.query(fromUserId);
+            if (agent == null) {
+                return;
+            }
+            iUserAccountService.payoutWithCheck(fromUserId,fromUserAdjustAmount,orderNo, AccountTransactionType.AGENT_ADJUSTMENT_OUT, agent.getBalance());
+
+        });
 
     }
 
     /**
      * 创建一个调账业务订单
-     *
      * @param userId
      * @param amount
+     * @param currency
+     * @param fromUserId
+     * @param fromUserAmount
+     * @param fromUserCurrency
+     * @param orderNo
+     * @return
      */
-    @Override
-    public BizAssetAdjustmentOrder createOrder(Long userId, BigDecimal amount) {
-        BizAssetAdjustmentOrder order = new BizAssetAdjustmentOrder().setAmount(amount).setUserNo(userId).setOrderNo(String.valueOf(snowflake.next()));
+    private BizAssetAdjustmentOrder createOrder(Long userId, BigDecimal amount, String currency,Long fromUserId, BigDecimal fromUserAmount,String fromUserCurrency,String orderNo) {
+        BizAssetAdjustmentOrder order = new BizAssetAdjustmentOrder().setAmount(amount).setUserNo(userId).setCurrency(currency)
+                .setFromUserNo(fromUserId).setFromUserAmount(fromUserAmount).setFromUserCurrency(fromUserCurrency).setOrderNo(orderNo);
 
         save(order);
         return order;

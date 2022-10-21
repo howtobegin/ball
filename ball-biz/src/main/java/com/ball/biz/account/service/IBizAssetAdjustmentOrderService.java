@@ -22,15 +22,12 @@ public interface IBizAssetAdjustmentOrderService extends IService<BizAssetAdjust
      * 更新额度
      *
      * @param userId    用户id
+     * @param currency  币种
      * @param allowance 授权额度
      * @param mode      授权额度模式
+     * @param fromUserId      额度来源代理id
+     * @param mode      额度来源代理授权额度模式
      */
-    void updateAllowance(Long userId, BigDecimal allowance, AllowanceModeEnum mode);
+    void updateAllowance(Long userId, BigDecimal allowance, String currency,AllowanceModeEnum mode, Long fromUserId,AllowanceModeEnum fromUserMode);
 
-    /**
-     * 创建一个调账业务订单
-     * @param userId
-     * @param amount
-     */
-    BizAssetAdjustmentOrder createOrder(Long userId, BigDecimal amount);
 }
