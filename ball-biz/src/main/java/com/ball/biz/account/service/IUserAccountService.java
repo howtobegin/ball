@@ -25,9 +25,8 @@ public interface IUserAccountService extends IService<UserAccount>, IBaseService
      * @param currency  币种
      * @param userType  用户类型
      * @param allowanceMode  额度模式
-     * @param allowance  授权额度
      */
-    void init(Long userId, String currency, String userType, AllowanceModeEnum allowanceMode, BigDecimal allowance);
+    void init(Long userId, String currency, String userType, AllowanceModeEnum allowanceMode);
 
     /**
      * 更新额度

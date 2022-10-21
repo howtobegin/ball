@@ -50,16 +50,16 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
      * @param currency      币种
      * @param userType      用户类型
      * @param allowanceMode 额度模式
-     * @param allowance     授权额度
      */
     @Override
-    public void init(Long userId, String currency, String userType, AllowanceModeEnum allowanceMode, BigDecimal allowance) {
+    public void init(Long userId, String currency, String userType, AllowanceModeEnum allowanceMode) {
         save(new UserAccount()
                 .setBalance(BigDecimal.ZERO)
                 .setCurrency(currency)
                 .setAllowanceMode(allowanceMode.name())
                 .setFreezeAmount(BigDecimal.ZERO)
-                .setAllowance(allowance)
+                .setAllowance(BigDecimal.ZERO)
+                .setUserType(userType)
                 .setUserId(userId)
         );
     }
