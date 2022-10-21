@@ -73,7 +73,7 @@ public class MybatisPlusGenerator {
         // 子包名(按模块分包)
         String packageName = "account";
         //表
-        String[] tablesName = {"asset_change_log"};
+        String[] tablesName = {"biz_asset_adjustment_order"};
         run(parentModule, dbName, pkgName, tablesName, packageName);
     }
 }

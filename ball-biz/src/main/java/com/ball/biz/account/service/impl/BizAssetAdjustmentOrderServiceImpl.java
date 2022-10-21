@@ -53,10 +53,9 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
      * @param allowance 授权额度
      * @param mode      授权额度模式
      * @param fromUserId      额度来源代理id
-     * @param mode      额度来源代理授权额度模式
      */
     @Override
-    public void updateAllowance(Long userId, BigDecimal allowance, String currency,AllowanceModeEnum mode, Long fromUserId,AllowanceModeEnum fromUserMode) {
+    public void updateAllowance(Long userId, BigDecimal allowance, String currency,AllowanceModeEnum mode, Long fromUserId) {
         BizAssert.isTrue(allowance.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.DATA_ERROR);
         transactionSupport.execute(()->{
             UserAccount userAccount = iUserAccountService.query(userId);
