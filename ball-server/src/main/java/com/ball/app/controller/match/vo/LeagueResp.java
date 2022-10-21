@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ApiModel(description = "联赛管理")
+@ApiModel(description = "联赛信息")
 public class LeagueResp {
 
     @ApiModelProperty("联赛ID")
@@ -38,13 +38,13 @@ public class LeagueResp {
     /**
      * Full name, e.g. Brazil Serie A
      */
-    @ApiModelProperty("Full name, e.g. Brazil Serie A")
+    @ApiModelProperty("全称Full name, e.g. Brazil Serie A")
     private String name;
 
     /**
      * Short name, e.g. BRA D1
      */
-    @ApiModelProperty("Short name, e.g. BRA D1")
+    @ApiModelProperty("简称Short name, e.g. BRA D1")
     private String shortName;
 
     /**

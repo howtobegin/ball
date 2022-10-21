@@ -11,6 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LeagueReq {
-    @ApiModelProperty("1 滚球；2 今日；3 早盘")
+    @ApiModelProperty("2 今日；3 早盘")
     private Integer type;
 }

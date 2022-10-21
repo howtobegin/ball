@@ -23,7 +23,7 @@ import javax.validation.Valid;
 @RequestMapping("/app/odds")
 public class OddsController {
 
-    @ApiOperation("主要玩法")
+    @ApiOperation("主页滚球或主要玩法")
     @PostMapping("list")
     public MatchOddsResp oddsList(@RequestBody @Valid OddsReq req) {
         return new MatchOddsResp();
