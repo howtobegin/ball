@@ -49,6 +49,9 @@ public class OddsResp {
     @ApiModelProperty("即时盘口")
     private String instantHandicap;
 
+    @ApiModelProperty("即时盘口,解析之后的，前端显示用这个")
+    private String instantHandicapDesc;
+
     @ApiModelProperty("主队即时赔率")
     private String instantHome;
 

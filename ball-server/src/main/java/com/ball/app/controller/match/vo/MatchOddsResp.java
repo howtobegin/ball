@@ -20,6 +20,9 @@ public class MatchOddsResp {
     @ApiModelProperty("比赛ID")
     private MatchResp match;
 
+    @ApiModelProperty("玩儿法总数")
+    private Integer count;
+
     @ApiModelProperty("全场指数信息key:HANDICAP[让球全场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场] ")
     private Map<HandicapType, OddsResp> odds;
 
