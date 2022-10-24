@@ -73,7 +73,7 @@ public class Schedules extends Paging {
     /**
      * 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed
      */
-    private Boolean status;
+    private Integer status;
 
     private String homeId;
 
@@ -137,7 +137,7 @@ public class Schedules extends Paging {
     /**
      * Cup group, e.g. A
      */
-    private String group;
+    private String leagueGroup;
 
     /**
      * e.g. Camp Nou
@@ -157,7 +157,7 @@ public class Schedules extends Paging {
     /**
      * Special case description of the match, e.g. Match end up with [0-3], due to (Torpedo-MAZ Minsk) withdraw from the match
      */
-    private String explain;
+    private String matchExplain;
 
     /**
      * Is there Lineup data?

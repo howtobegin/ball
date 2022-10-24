@@ -1,9 +1,8 @@
 package com.ball.biz.match.service;
 
 import com.ball.biz.match.entity.Odds;
-import com.baomidou.mybatisplus.extension.service.IService;
-
 import com.ball.common.service.IBaseService;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
@@ -14,5 +13,8 @@ import com.ball.common.service.IBaseService;
  * @since 2022-10-19
  */
 public interface IOddsService extends IService<Odds>, IBaseService {
-
+    /**
+     * 根据唯一索引查询
+     */
+    Odds queryByBizNo(String bizNo);
 }

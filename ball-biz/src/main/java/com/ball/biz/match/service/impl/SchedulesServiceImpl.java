@@ -16,5 +16,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules> implements ISchedulesService {
-
+    @Override
+    public Schedules queryOne(String matchId) {
+        return lambdaQuery().eq(Schedules::getMatchId , matchId).one();
+    }
 }

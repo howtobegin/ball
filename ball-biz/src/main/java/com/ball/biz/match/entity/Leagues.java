@@ -35,6 +35,11 @@ public class Leagues extends Paging {
     private Boolean type;
 
     /**
+     * 0: no star 1: star
+     */
+    private Integer star;
+
+    /**
      * RGB color code string, e.g. #9933FF
      */
     private String color;

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author lhl
- * @since 2022-10-19
+ * @since 2022-10-21
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -26,6 +26,8 @@ public class OddsScore extends Paging {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+    private Long bizNo;
 
     private String matchId;
 
@@ -37,15 +39,24 @@ public class OddsScore extends Paging {
     private Boolean status;
 
     /**
-     * CORRECT_SCORE[全场]，CORRECT_SCORE_HALL[半场]
+     * 1: full; 2: half
      */
-    private String type;
+    private Integer type;
 
-    private String bettingOddsItems;
+    private Integer homeScore;
 
-    private String otherScoresOdds;
+    private Integer awayScore;
+
+    private String odds;
+
+    private String otherOdds;
 
     private Integer changeTime;
+
+    /**
+     * Is this bet closed?
+     */
+    private Boolean isClose;
 
     /**
      * 创建时间

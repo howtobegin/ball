@@ -29,6 +29,6 @@ public enum OddsType {
                 return e;
             }
         }
-        throw new BizException(BizErrCode.PARAM_ERROR_DESC);
+        throw new BizException(BizErrCode.PARAM_ERROR_DESC, "code");
     }
 }

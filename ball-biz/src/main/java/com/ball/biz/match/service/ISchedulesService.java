@@ -14,5 +14,5 @@ import com.ball.common.service.IBaseService;
  * @since 2022-10-19
  */
 public interface ISchedulesService extends IService<Schedules>, IBaseService {
-
+    Schedules queryOne(String matchId);
 }

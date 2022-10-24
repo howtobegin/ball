@@ -27,6 +27,8 @@ public class Odds extends Paging {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    private String bizNo;
+
     private String matchId;
 
     /**
@@ -91,12 +93,12 @@ public class Odds extends Paging {
     /**
      * Is this bet closed?
      */
-    private Boolean close;
+    private Boolean isClose;
 
     /**
      * 0:Unable to judge 1:Early Odds 2:Instant odds(after the early odds before the match) 3:Inplay odds
      */
-    private Boolean oddsType;
+    private Integer oddsType;
 
     /**
      * 创建时间

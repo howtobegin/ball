@@ -14,6 +14,8 @@ public enum OrderStatus {
     INIT("INIT", false),
     // 已确认，等待比赛结果结算
     CONFIRM("CONFIRM", false),
+    // 已结算（仅仅比赛结果结算），等待派奖
+    SETTLED("SETTLED", false),
     // 完成
     FINISH("FINISH", true),
     // 取消

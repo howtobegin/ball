@@ -35,7 +35,7 @@ public class Teams extends Paging {
     private String name;
 
     /**
-     * Team logo url.The picture is saved locally for use, please do not call it directly.
+     * BetTeam logo url.The picture is saved locally for use, please do not call it directly.
      */
     private String logo;
 
