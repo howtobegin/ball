@@ -29,7 +29,7 @@ public class MatchResp {
     /**
      * Full name, e.g. Brazil Serie A
      */
-    @ApiModelProperty("Full name, e.g. Brazil Serie A")
+    @ApiModelProperty("联赛名")
     private String leagueName;
 
     /**
@@ -59,31 +59,31 @@ public class MatchResp {
     /**
      * Unix timestamp
      */
-    @ApiModelProperty("Unix timestamp")
+    @ApiModelProperty("比赛开始时间")
     private Integer startTime;
 
     /**
      * The kick-off time of the first half or the second half, unix timestamp
      */
-    @ApiModelProperty("The kick-off time of the first half or the second half, unix timestamp")
+    @ApiModelProperty("上半场或下半场开球时间，unix时间戳")
     private Integer halfStartTime;
 
     /**
      * 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed
      */
     @ApiModelProperty("0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed")
-    private Boolean status;
+    private Integer status;
 
     @ApiModelProperty("homeId")
     private String homeId;
 
-    @ApiModelProperty("homeName")
+    @ApiModelProperty("主队名")
     private String homeName;
 
     @ApiModelProperty("awayId")
     private String awayId;
 
-    @ApiModelProperty("awayName")
+    @ApiModelProperty("客队名")
     private String awayName;
 
     @ApiModelProperty("homeScore")
@@ -95,13 +95,13 @@ public class MatchResp {
     /**
      * First half score, home team
      */
-    @ApiModelProperty("")
+    @ApiModelProperty("上半场主队得分")
     private Integer homeHalfScore;
 
     /**
      * First half score, away team
      */
-    @ApiModelProperty("First half score, away team")
+    @ApiModelProperty("上半场客队得分")
     private Integer awayHalfScore;
 
     @ApiModelProperty("homeRed")

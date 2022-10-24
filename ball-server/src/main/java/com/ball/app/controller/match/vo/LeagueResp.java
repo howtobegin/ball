@@ -23,6 +23,9 @@ public class LeagueResp {
     @ApiModelProperty("类型，1: League 2: Cup")
     private Boolean type;
 
+    @ApiModelProperty("0: no star 1: star")
+    private Integer star;
+
     /**
      * RGB color code string, e.g. #9933FF
      */

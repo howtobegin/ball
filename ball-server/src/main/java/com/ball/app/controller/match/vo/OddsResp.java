@@ -13,6 +13,9 @@ import lombok.Setter;
 @Setter
 @ApiModel("指数信息")
 public class OddsResp {
+    @ApiModelProperty("bizNo")
+    private String bizNo;
+
     @ApiModelProperty("比赛ID")
     private String matchId;
 
@@ -94,7 +97,7 @@ public class OddsResp {
      * Is this bet closed?
      */
     @ApiModelProperty("是否关闭")
-    private Boolean close;
+    private Boolean isClose;
 
     /**
      * 0:Unable to judge 1:Early Odds 2:Instant odds(after the early odds before the match) 3:Inplay odds

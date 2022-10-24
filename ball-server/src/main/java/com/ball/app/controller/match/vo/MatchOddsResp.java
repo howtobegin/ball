@@ -20,6 +20,9 @@ public class MatchOddsResp {
     @ApiModelProperty("比赛ID")
     private MatchResp match;
 
-    @ApiModelProperty("指数信息key:HANDICAP[让球全场],HANDICAP_HALF[让球半场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场],OVER_UNDER_HALF[大小球半场] ")
+    @ApiModelProperty("全场指数信息key:HANDICAP[让球全场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场] ")
     private Map<HandicapType, OddsResp> odds;
+
+    @ApiModelProperty("半场指数信息key:HANDICAP_HALF[让球半场],OVER_UNDER_HALF[大小球半场] ")
+    private Map<HandicapType, OddsResp> halfOdds;
 }
