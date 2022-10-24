@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,8 +25,8 @@ public class MatchOddsResp {
     private Integer count;
 
     @ApiModelProperty("全场指数信息key:HANDICAP[让球全场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场] ")
-    private Map<HandicapType, OddsResp> odds;
+    private Map<HandicapType, List<OddsResp>> odds;
 
     @ApiModelProperty("半场指数信息key:HANDICAP_HALF[让球半场],OVER_UNDER_HALF[大小球半场] ")
-    private Map<HandicapType, OddsResp> halfOdds;
+    private Map<HandicapType, List<OddsResp>> halfOdds;
 }
