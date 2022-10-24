@@ -28,24 +28,6 @@ public class OddsResp {
     @ApiModelProperty("类型")
     private String type;
 
-    @ApiModelProperty("初盘盘口")
-    private String initialHandicap;
-
-    @ApiModelProperty("主队初盘赔率")
-    private String initialHome;
-
-    @ApiModelProperty("客队初盘赔率")
-    private String initialAway;
-
-    @ApiModelProperty("主队初盘赔率")
-    private String initialDraw;
-
-    @ApiModelProperty("主队初盘赔率")
-    private String initialOver;
-
-    @ApiModelProperty("主队初盘赔率")
-    private String initialUnder;
-
     @ApiModelProperty("即时盘口")
     private String instantHandicap;
 
