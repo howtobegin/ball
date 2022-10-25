@@ -10,13 +10,11 @@ import com.ball.biz.match.service.ISchedulesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,7 +32,7 @@ public class ScheduleController {
     ISchedulesService iSchedulesService;
 
     @ApiOperation("查询赛程")
-    @RequestMapping(value = "query",method = {RequestMethod.GET,RequestMethod.POST})
+    @PostMapping(value = "query")
     public List<ScheduleResp> query(@RequestBody @Valid ScheduleReq req) {
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
@@ -48,12 +46,21 @@ public class ScheduleController {
 
         List<Schedules> schedules = iSchedulesService.lambdaQuery().between(Schedules::getMatchDate, startDate, endDate).ge(Schedules::getStatus, 0).list();
 
-        return (schedules.stream().collect(Collectors.groupingBy(s-> DateUtil.formatWeek(s.getMatchDate()))))
+        List<ScheduleResp> res = (schedules.stream().collect(Collectors.groupingBy(s-> DateUtil.formatWeek(s.getMatchDate()))))
                 .entrySet().stream().map(c-> {
                     ScheduleResp s = new ScheduleResp();
                     s.setDate(c.getKey());
+
                     s.setList(c.getValue().stream().map(d-> BeanUtil.copy(d, ScheduleDetailResp.class)).collect(Collectors.toList()));
+                    s.setTime(s.getList().get(0).getMatchDate().withHour(0).withMinute(0).withSecond(0));
                     return s;
                 }).collect(Collectors.toList());
+        res.sort(new Comparator<ScheduleResp>() {
+            @Override
+            public int compare(ScheduleResp o1, ScheduleResp o2) {
+                return o1.getTime().compareTo(o2.getTime()) ;
+            }
+        });
+        return res;
     }
 }

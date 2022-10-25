@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jdk.nashorn.internal.objects.annotations.Constructor;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -14,8 +15,11 @@ import java.util.List;
 @Data
 @ApiModel("单日赛程列表")
 public class ScheduleResp {
-    @ApiModelProperty("日期")
+    @ApiModelProperty("日期描述")
     String date;
+
+    @ApiModelProperty("日期")
+    LocalDateTime time;
 
     @ApiModelProperty("赛程列表")
     List<ScheduleDetailResp> list;
