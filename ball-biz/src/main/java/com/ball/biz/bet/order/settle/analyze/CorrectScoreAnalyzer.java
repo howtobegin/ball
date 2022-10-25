@@ -6,6 +6,7 @@ import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.OddsScoreData;
+import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Schedules;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CorrectScoreAnalyzer extends AbstractAnalyzer {
     @Override
-    protected BetResult doAnalyze(OrderInfo order, Schedules schedules) {
+    protected AnalyzeResult doAnalyze(OrderInfo order, Schedules schedules) {
         // 最后比分
         Integer homeScore = getHomeLastScore(schedules);
         Integer awayScore = getAwayLastScore(schedules);
@@ -53,8 +54,12 @@ public class CorrectScoreAnalyzer extends AbstractAnalyzer {
         } else {
             throw new BizException(BizErrCode.NOT_FOUND_BET_OPTION);
         }
-
-        return betResult;
+        log.info("orderId {} HandicapType {} lastScore {}:{} betOption {} betScore {}:{} betResult {}",order.getOrderId(),getHandicapType(), homeScore,awayScore,order.getBetOption(), oddsScoreData.getHomeScore(), oddsScoreData.getAwayScore(), betResult);
+        return AnalyzeResult.builder()
+                .betResult(betResult)
+                .homeScore(homeScore)
+                .awayScore(awayScore)
+                .build();
     }
 
     protected MatchTimeType getMatchTimeType() {

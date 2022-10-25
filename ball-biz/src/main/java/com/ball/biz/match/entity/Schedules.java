@@ -55,6 +55,8 @@ public class Schedules extends Paging {
      */
     private String subLeagueName;
 
+    private LocalDateTime matchDate;
+
     /**
      * Match scheduled time, unix timestamp
      */

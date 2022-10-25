@@ -7,6 +7,7 @@ import com.ball.biz.bet.enums.OddsType;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.Handicap;
 import com.ball.biz.bet.order.bo.OddsData;
+import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.bet.order.settle.assist.OverUnderAssist;
 import com.ball.biz.bet.order.settle.parse.ParserHolder;
 import com.ball.biz.bet.order.settle.parse.bo.HandicapParam;
@@ -49,7 +50,7 @@ public class HandicapAnalyzer extends AbstractAnalyzer {
     protected static final String AWAY_HANDICAP_HOME_FLAG = "-";
 
     @Override
-    protected BetResult doAnalyze(OrderInfo order, Schedules schedules) {
+    protected AnalyzeResult doAnalyze(OrderInfo order, Schedules schedules) {
         // 最后比赛得分
         Integer homeLastScore = getHomeLastScore(schedules);
         Integer awayLastScore = getAwayLastScore(schedules);
@@ -60,7 +61,9 @@ public class HandicapAnalyzer extends AbstractAnalyzer {
         OddsType oddsType = OddsType.parse(oddsData.getOddsType());
         log.info("oddsType {}", oddsType);
         if (OddsType.NONE == oddsType) {
-            return BetResult.UNSETTLED;
+            return AnalyzeResult.builder()
+                    .betResult(BetResult.UNSETTLED)
+                    .build();
         }
 
         // 投注时得分
@@ -98,7 +101,12 @@ public class HandicapAnalyzer extends AbstractAnalyzer {
                 .awayGoalDifference(awayGoalDifference)
                 .build();
         BetResult betResult = ParserHolder.get(getHandicapType(), handicap.getBetType()).parse(parseParam);
-        return betResult;
+        log.info("orderId {} HandicapType {} LastScore {}:{} CurrentScore {}:{} instantHandicap {}  betResult {}", order.getOrderId(),getHandicapType(),homeLastScore,awayLastScore,homeCurrentScore,awayCurrentScore, instantHandicap,betResult);
+        return AnalyzeResult.builder()
+                .betResult(betResult)
+                .homeScore(homeLastScore)
+                .awayScore(awayLastScore)
+                .build();
     }
 
     protected Integer getHomeLastScore(Schedules schedules) {

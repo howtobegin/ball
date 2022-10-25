@@ -1,12 +1,13 @@
 package com.ball.biz.match.service.impl;
 
 import com.ball.biz.match.entity.Odds;
-import com.ball.biz.match.entity.OddsScore;
 import com.ball.biz.match.mapper.OddsMapper;
 import com.ball.biz.match.service.IOddsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -22,5 +23,10 @@ public class OddsServiceImpl extends ServiceImpl<OddsMapper, Odds> implements IO
     @Override
     public Odds queryByBizNo(String bizNo) {
         return lambdaQuery().eq(Odds::getBizNo, bizNo).one();
+    }
+
+    @Override
+    public List<Odds> queryByMatchId(String matchId) {
+        return lambdaQuery().eq(Odds::getMatchId , matchId).list();
     }
 }

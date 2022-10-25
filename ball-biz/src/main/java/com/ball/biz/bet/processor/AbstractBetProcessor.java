@@ -9,8 +9,11 @@ import com.ball.base.util.IDCreator;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.service.IUserAccountService;
+import com.ball.biz.bet.enums.BetType;
 import com.ball.biz.bet.order.bo.BetBo;
+import com.ball.biz.bet.order.bo.Handicap;
 import com.ball.biz.bet.order.bo.OddsData;
+import com.ball.biz.bet.order.settle.assist.OverUnderAssist;
 import com.ball.biz.bet.processor.bo.BetInfo;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
@@ -26,8 +29,10 @@ import com.ball.biz.user.service.IUserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * @author lhl
@@ -108,6 +113,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
+        log.info("start");
+        long start = System.currentTimeMillis();
         BetInfo betInfo = getBetInfo(bo);
         log.info("betInfo {}", JSON.toJSONString(betInfo));
 
@@ -128,6 +135,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setScheduleStatus(schedules.getStatus());
 
         order.setOddsData(betInfo.getOddsData());
+        order.setInstantHandicap(betInfo.getInstantHandicap());
+        log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;
     }
 
@@ -143,13 +152,32 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         String companyId = odds.getCompanyId();
 
         String betOddsStr = getBetOdds(odds, bo);
-        log.info("type {} betOption {} betOdds {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr);
+        String handicapStr = null;
+        if (!StringUtils.isEmpty(odds.getInstantHandicap())) {
+            Handicap handicap = OverUnderAssist.analyzeHandicap(new BigDecimal(odds.getInstantHandicap()).abs());
+            String bigStr = doubleToString(handicap.getBig());
+            String smallStr = doubleToString(handicap.getSmall());
+            handicapStr = handicap.getBetType() == BetType.ALL ? bigStr : smallStr + "/" + bigStr;
+            if (odds.getInstantHandicap().startsWith("-")) {
+                handicapStr = "-" + handicapStr;
+            }
+        }
+        log.info("type {} betOption {} betOdds {} instantHandicap {} handicapStr {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr, odds.getInstantHandicap(), handicapStr);
         return BetInfo.builder()
                 .oddsData(oddsData)
                 .matchId(matchId)
                 .companyId(companyId)
                 .betOddsStr(betOddsStr)
+                .instantHandicap(handicapStr)
                 .build();
+    }
+
+    private String doubleToString(Double value) {
+        return Optional.ofNullable(value)
+                .map(BigDecimal::valueOf)
+                .map(BigDecimal::stripTrailingZeros)
+                .map(BigDecimal::toPlainString)
+                .orElse("");
     }
 
     /**

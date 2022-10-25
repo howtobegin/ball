@@ -1,9 +1,11 @@
 package com.ball.biz.match.service;
 
 import com.ball.biz.match.entity.Schedules;
+import com.ball.common.service.IBaseService;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import com.ball.common.service.IBaseService;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +17,6 @@ import com.ball.common.service.IBaseService;
  */
 public interface ISchedulesService extends IService<Schedules>, IBaseService {
     Schedules queryOne(String matchId);
+
+    List<Schedules> queryByDate(LocalDateTime start, LocalDateTime end);
 }

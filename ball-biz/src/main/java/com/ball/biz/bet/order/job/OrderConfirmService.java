@@ -38,8 +38,6 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
     @Value("${order.confirm.seconds:5}")
     private int confirmSeconds;
 
-    private volatile Long maxCallbackId = 0L;
-
     @Override
     public boolean executeOne(OrderInfo data) {
         // TODO 校验投注时，比分或赔率，决定是否取消订单
@@ -66,5 +64,10 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
     @Override
     public Long getId(OrderInfo data) {
         return data.getId();
+    }
+
+    @Override
+    public String getBizNo(OrderInfo data) {
+        return data.getOrderId();
     }
 }

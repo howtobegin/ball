@@ -15,7 +15,7 @@ public abstract class BaseJobService<T> {
     @Value("${order.base.job.max.loop.times:20}")
     private int maxLoopTimes;
 
-    private volatile Long maxCallbackId = 0L;
+    protected volatile Long maxCallbackId = 0L;
 
     public void execute() {
         log.info("[{}]pageSize {} maxLoopTimes {}", getClass().getSimpleName(), getPageSize(), maxLoopTimes);
@@ -28,7 +28,9 @@ public abstract class BaseJobService<T> {
             }
             boolean allOrderError = true;
             for (T data : datas) {
+                long start = System.currentTimeMillis();
                 boolean doResult = executeOne(data);
+                log.info("bizNo {} doResult {} spendTime {}", getBizNo(data), doResult, (System.currentTimeMillis() - start));
                 if (doResult) {
                     maxCallbackId = !midOrderError ? getId(data) : maxCallbackId;
                     allOrderError = false;
@@ -48,6 +50,8 @@ public abstract class BaseJobService<T> {
     public abstract List<T> fetchData();
 
     public abstract Long getId(T data);
+
+    public abstract String getBizNo(T data);
 
     public abstract int getPageSize();
 }

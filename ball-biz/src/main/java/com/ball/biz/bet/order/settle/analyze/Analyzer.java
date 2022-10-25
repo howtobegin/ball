@@ -1,7 +1,7 @@
 package com.ball.biz.bet.order.settle.analyze;
 
-import com.ball.biz.bet.enums.BetResult;
 import com.ball.biz.bet.enums.HandicapType;
+import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.order.entity.OrderInfo;
 
 /**
@@ -11,5 +11,5 @@ import com.ball.biz.order.entity.OrderInfo;
 public interface Analyzer {
     HandicapType getHandicapType();
 
-    BetResult settleBetResult(OrderInfo order);
+    AnalyzeResult analyze(OrderInfo order);
 }

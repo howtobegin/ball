@@ -1,6 +1,7 @@
 package com.ball.biz.order.service;
 
 import com.ball.biz.bet.enums.OrderStatus;
+import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.common.service.IBaseService;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -18,4 +19,19 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
 
     void updateStatus(String orderId, OrderStatus pre, OrderStatus next);
 
+    /**
+     * 仅仅结算投注选项
+     */
+    void settled(String orderId, AnalyzeResult analyzeResult);
+
+    /**
+     * 根据结算结果，派奖
+     * @param orderId
+     */
+    void award(String orderId);
+
+    /**
+     * 只要未完成都可以取消
+     */
+    void cancel(String orderId);
 }

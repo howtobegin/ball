@@ -14,23 +14,24 @@ CREATE TABLE `order_info`
     handicap_type   varchar(30)  NOT NULL COMMENT '盘口类型,让球，欧赔，大小，波胆，参考：HandicapType',
     bet_option      varchar(30)  NOT NULL COMMENT '投注选项，选队伍的就是队伍ID，大小就是OVER或UNDER',
 
-    bet_odds        decimal(12,2) NOT NULL COMMENT '投注赔率',
-    bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
-    bet_result      varchar(30) default 'UNSETTLED' not null comment '投注结果:UNSETTLED 未结算；LOSE 输；WIN 赢；LOSE_HALF 输一半；WIN_HALF 赢一半；DRAW 平',
-    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
-    win_amount      decimal(12,2) default 0 COMMENT '赢金额（不包含）',
-    lose_amount     decimal(12,2) default 0 COMMENT '输金额',
-
     home_current_score    int   not null COMMENT '主队当前得分（来自schedule表）',
     away_current_score    int   not null COMMENT '客队当前得分（来自schedule表）',
     home_last_score       int    null COMMENT '主队最后得分（来自schedule表）',
     away_last_score       int    null COMMENT '客队最后得分（来自schedule表）',
+    instant_handicap  varchar(10) null COMMENT '翻译后的即使赔，某些盘口没值',
+    bet_result      varchar(30) default 'UNSETTLED' not null comment '投注结果:UNSETTLED 未结算；LOSE 输；WIN 赢；LOSE_HALF 输一半；WIN_HALF 赢一半；DRAW 平',
+
+    bet_odds        decimal(12,2) NOT NULL COMMENT '投注赔率',
+    bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
+    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
+    win_amount      decimal(12,2) default 0 COMMENT '赢金额（不包含）',
+    lose_amount     decimal(12,2) default 0 COMMENT '输金额',
 
     odds_data       text        not null comment '赔率JSON数据，根据不同type解析',
 
     schedule_status tinyint null comment '比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed',
     settle_status   tinyint  default 0 COMMENT '结算状态:0 未结算；1 已结算',
-    status          varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
+    status          varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM；已结算 SETTLED； 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
 
     create_time     datetime     not null default current_timestamp comment '创建时间',
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
@@ -45,8 +46,12 @@ CREATE TABLE `order_history`
 (
     id              bigint unsigned primary key auto_increment comment '自增编号',
     order_id        varchar(30)  NOT NULL COMMENT '订单编号',
+    home_last_score       int    null COMMENT '主队最后得分（来自schedule表）',
+    away_last_score       int    null COMMENT '客队最后得分（来自schedule表）',
+    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
+    win_amount      decimal(12,2) default 0 COMMENT '赢金额（不包含）',
+    lose_amount     decimal(12,2) default 0 COMMENT '输金额',
     bet_result      varchar(15)  default 'UNSETTLED' COMMENT '结果:UNSETTLED 未结算；LOSE 输；WIN 赢；LOSE_HALF 输一半；WIN_HALF 赢一半；DRAW 平',
-    win_amount      decimal(3,2) NOT NULL COMMENT '投注结果金额，包含本金，输的情况下就是负',
-    status          varchar(30)  NOT NULL COMMENT '状态',
+    status          varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM；已结算 SETTLED； 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
     key idx_order(order_id)
 )ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单历史表';

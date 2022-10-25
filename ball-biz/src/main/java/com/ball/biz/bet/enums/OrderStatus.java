@@ -1,7 +1,12 @@
 package com.ball.biz.bet.enums;
 
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author lhl
@@ -26,4 +31,24 @@ public enum OrderStatus {
 
     private String code;
     private boolean finish;
+    public static OrderStatus parse(String code) {
+        for (OrderStatus e : values()) {
+            if (e.getCode().equalsIgnoreCase(code)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    public boolean isMe(String code) {
+        return code != null && this.code.equalsIgnoreCase(code);
+    }
+
+    public static List<String> finishCodes(boolean finish) {
+        return Stream.of(values()).filter(e -> e.finish == finish).map(OrderStatus::getCode).collect(Collectors.toList());
+    }
+
+    public static List<String> cancelCodes() {
+        return Lists.newArrayList(CANCEL.code, MATCH_CANCEL.code);
+    }
 }

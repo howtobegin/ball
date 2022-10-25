@@ -2,7 +2,10 @@ package com.ball.biz.bet.order.settle.analyze;
 
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.biz.bet.enums.BetResult;
+import com.ball.biz.bet.enums.MatchTimeType;
+import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.enums.ScheduleStatus;
+import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.match.service.ISchedulesService;
 import com.ball.biz.order.entity.OrderInfo;
@@ -21,7 +24,7 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
     private ISchedulesService schedulesService;
 
     @Override
-    public BetResult settleBetResult(OrderInfo order) {
+    public AnalyzeResult analyze(OrderInfo order) {
         log.info("analyzer {} orderId {}", this.getClass().getSimpleName(), order.getOrderId());
         // 比赛客观结果
         Schedules schedules = schedulesService.queryOne(order.getMatchId());
@@ -29,7 +32,9 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
         boolean satisfied = satisfiedSettle(order, schedules);
         log.info("analyzer {} orderId {} matchId {} satisfied {}", this.getClass().getSimpleName(), order.getOrderId(), order.getMatchId(), satisfied);
         if (!satisfied) {
-            return BetResult.UNSETTLED;
+            return AnalyzeResult.builder()
+                    .betResult(BetResult.UNSETTLED)
+                    .build();
         }
         return doAnalyze(order, schedules);
     }
@@ -39,17 +44,23 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
      */
     protected boolean satisfiedSettle(OrderInfo order, Schedules schedules) {
         log.info("orderId {} matchId {} status {}", order.getOrderId(), schedules.getMatchId(), schedules.getStatus());
-        boolean unsettled = YesOrNo.NO.isMe(order.getSettleStatus());
+        // 结算状态和订单状态都是未结算
+        boolean unsettled = YesOrNo.NO.isMe(order.getSettleStatus()) && OrderStatus.CONFIRM.isMe(order.getStatus());
         return unsettled && isFinish(schedules);
     }
 
     /**
-     * 半场盘口，需重写此方法
+     * 区分全场或半场盘口
      * @param schedules
      * @return
      */
     protected boolean isFinish(Schedules schedules) {
-        return ScheduleStatus.FINISHED.isMe(schedules.getStatus());
+        // 全场
+        if (MatchTimeType.FULL == getHandicapType().getMatchTimeType()) {
+            return ScheduleStatus.FINISHED.isMe(schedules.getStatus());
+        }
+        // 半场
+        return ScheduleStatus.halfSettleCodes().contains(schedules.getStatus());
     }
 
     /**
@@ -58,7 +69,7 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
      * @param schedules
      * @return
      */
-    protected abstract BetResult doAnalyze(OrderInfo orderMatch, Schedules schedules);
+    protected abstract AnalyzeResult doAnalyze(OrderInfo orderMatch, Schedules schedules);
 
     @Override
     public void afterPropertiesSet() throws Exception {

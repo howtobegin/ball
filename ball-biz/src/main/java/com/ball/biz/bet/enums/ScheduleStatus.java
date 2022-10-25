@@ -2,8 +2,11 @@ package com.ball.biz.bet.enums;
 
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
 
 /**
  * @author lhl
@@ -51,5 +54,13 @@ public enum ScheduleStatus {
 
     public boolean isMe(Integer code) {
         return code != null && code.equals(this.code);
+    }
+
+    /**
+     * 半场结算状态
+     * @return
+     */
+    public static List<Integer> halfSettleCodes() {
+        return Lists.newArrayList(HALF_TIME_BREAK.code, SECOND_HALF.code, EXTRA_TIME.code, PENALTY.code, FINISHED.code);
     }
 }

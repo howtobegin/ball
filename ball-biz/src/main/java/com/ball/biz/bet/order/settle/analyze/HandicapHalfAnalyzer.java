@@ -1,7 +1,6 @@
 package com.ball.biz.bet.order.settle.analyze;
 
 import com.ball.biz.bet.enums.HandicapType;
-import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.match.entity.Schedules;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,12 +22,6 @@ public class HandicapHalfAnalyzer extends HandicapAnalyzer {
     @Override
     public HandicapType getHandicapType() {
         return HandicapType.HANDICAP_HALF;
-    }
-
-    @Override
-    protected boolean isFinish(Schedules schedules) {
-        // TODO 半场休息之后是否等于上半场结束
-        return schedules.getStatus() > ScheduleStatus.HALF_TIME_BREAK.getCode();
     }
 
     @Override

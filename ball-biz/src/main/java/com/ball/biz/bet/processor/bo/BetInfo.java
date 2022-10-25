@@ -15,12 +15,14 @@ public class BetInfo {
     String matchId;
     String companyId;
     String betOddsStr;
+    String instantHandicap;
 
     @Builder
-    public BetInfo(String oddsData, String matchId, String companyId, String betOddsStr) {
+    public BetInfo(String oddsData, String matchId, String companyId, String betOddsStr, String instantHandicap) {
         this.oddsData = oddsData;
         this.matchId = matchId;
         this.companyId = companyId;
         this.betOddsStr = betOddsStr;
+        this.instantHandicap = instantHandicap;
     }
 }

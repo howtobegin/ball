@@ -5,6 +5,7 @@ import com.ball.biz.bet.enums.BetResult;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.order.bo.Handicap;
 import com.ball.biz.bet.order.bo.OddsData;
+import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.bet.order.settle.assist.OverUnderAssist;
 import com.ball.biz.bet.order.settle.parse.ParserHolder;
 import com.ball.biz.bet.order.settle.parse.bo.OverUnderParam;
@@ -12,6 +13,8 @@ import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.order.entity.OrderInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 import static com.ball.biz.bet.order.OrderHelper.parse;
 
@@ -40,13 +43,13 @@ import static com.ball.biz.bet.order.OrderHelper.parse;
 @Component
 public class OverUnderAnalyzer extends AbstractAnalyzer {
     @Override
-    protected BetResult doAnalyze(OrderInfo order, Schedules schedules) {
+    protected AnalyzeResult doAnalyze(OrderInfo order, Schedules schedules) {
         // 总分
         int totalScore = getTotalScore(schedules);
         // 用户投注
         OddsData oddsData = parse(order.getOddsData(), OddsData.class);
         // 解析投注盘口
-        Handicap handicap = OverUnderAssist.analyzeHandicap(oddsData.getInstantHandicap());
+        Handicap handicap = OverUnderAssist.analyzeHandicap(new BigDecimal(oddsData.getInstantHandicap()));
         BetOption betOption = BetOption.valueOf(order.getBetOption());
 
         OverUnderParam parseParam = OverUnderParam.builder()
@@ -54,11 +57,25 @@ public class OverUnderAnalyzer extends AbstractAnalyzer {
                 .betOption(betOption)
                 .handicap(handicap)
                 .build();
-        return ParserHolder.get(getHandicapType(), handicap.getBetType()).parse(parseParam);
+        BetResult betResult = ParserHolder.get(getHandicapType(), handicap.getBetType()).parse(parseParam);
+        log.info("orderId {} HandicapType {} totalScore {} instantHandicap {} betOption {} betResult {}", order.getOrderId(),getHandicapType(),totalScore,oddsData.getInstantHandicap(),betOption,betResult);
+        return AnalyzeResult.builder()
+                .betResult(betResult)
+                .homeScore(getHomeLastScore(schedules))
+                .awayScore(getAwayLastScore(schedules))
+                .build();
     }
 
-    protected Integer getTotalScore(Schedules schedules) {
-        return schedules.getHomeScore() + schedules.getAwayScore();
+    private Integer getTotalScore(Schedules schedules) {
+        return getHomeLastScore(schedules) + getAwayLastScore(schedules);
+    }
+
+    protected Integer getHomeLastScore(Schedules schedules) {
+        return schedules.getHomeScore();
+    }
+
+    protected Integer getAwayLastScore(Schedules schedules) {
+        return schedules.getAwayScore();
     }
 
     @Override

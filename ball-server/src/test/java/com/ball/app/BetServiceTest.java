@@ -4,13 +4,22 @@ import com.ball.biz.bet.enums.BetOption;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.processor.BetProcessorHolder;
+import com.ball.biz.match.entity.Odds;
+import com.ball.biz.match.entity.OddsScore;
+import com.ball.biz.match.entity.Schedules;
+import com.ball.biz.match.service.IOddsScoreService;
+import com.ball.biz.match.service.IOddsService;
+import com.ball.biz.match.service.ISchedulesService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author lhl
@@ -20,6 +29,58 @@ import java.math.BigDecimal;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = BallServerApplication.class)
 public class BetServiceTest {
+    @Autowired
+    private ISchedulesService schedulesService;
+    @Autowired
+    private IOddsService oddsService;
+    @Autowired
+    private IOddsScoreService oddsScoreService;
+
+    @Test
+    public void testRandomBet() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = start.plusDays(1);
+        List<Schedules> schedules = schedulesService.queryByDate(start, end);
+        for (Schedules schedule : schedules) {
+            List<Odds> odds = oddsService.queryByMatchId(schedule.getMatchId());
+            for (Odds odd : odds) {
+                HandicapType type = HandicapType.parse(odd.getType());
+                switch (type) {
+                    case HANDICAP:
+                    case HANDICAP_HALF:
+                        testHandicap(odd.getBizNo(), type);
+                        break;
+                    case OVER_UNDER_HALF:
+                    case OVER_UNDER:
+                        testOverUnder(odd.getBizNo(), type);
+                        break;
+                    case EUROPE_ODDS:
+                        testEuropeOdds(odd.getBizNo(), type);
+                }
+            }
+
+            List<OddsScore> oddsScores = oddsScoreService.queryByMatch(schedule.getMatchId(), null);
+            for (OddsScore oddsScore : oddsScores) {
+                HandicapType type = oddsScore.getType() == 1 ? HandicapType.CORRECT_SCORE : HandicapType.CORRECT_SCORE_HALL;
+                testCorrectScore(oddsScore.getBizNo().toString(), type);
+            }
+        }
+    }
+
+    @Test
+    public void testScoreRandomBet() {
+
+    }
+
+    private BetBo buildBetBo(String bizNo, HandicapType type) {
+        return BetBo.builder()
+                .userNo(9012433L)
+                .handicapType(type)
+                .bizNo(bizNo)
+                .betOption(BetOption.HOME)
+                .betAmount(BigDecimal.ONE)
+                .build();
+    }
 
     @Test
     public void testBet() {
@@ -44,6 +105,14 @@ public class BetServiceTest {
                 .betAmount(BigDecimal.ONE)
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
+        betBo = BetBo.builder()
+                .userNo(9012433L)
+                .handicapType(type)
+                .bizNo(bizNo)
+                .betOption(BetOption.AWAY)
+                .betAmount(BigDecimal.ONE)
+                .build();
+        BetProcessorHolder.get(type).bet(betBo);
     }
 
     @Test
@@ -62,34 +131,58 @@ public class BetServiceTest {
                 .betAmount(BigDecimal.ONE)
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
+        betBo = BetBo.builder()
+                .userNo(9012433L)
+                .handicapType(type)
+                .bizNo(bizNo)
+                .betOption(BetOption.OVER)
+                .betAmount(BigDecimal.ONE)
+                .build();
+        BetProcessorHolder.get(type).bet(betBo);
     }
 
     @Test
     public void testEuropeOdds() {
-        testEuropeOdds(HandicapType.EUROPE_ODDS);
+        testEuropeOdds("6989167335516930048",HandicapType.EUROPE_ODDS);
     }
-    public void testEuropeOdds(HandicapType type) {
+    public void testEuropeOdds(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
                 .userNo(9012433L)
                 .handicapType(type)
-                .bizNo("6989167335516930048")
+                .bizNo(bizNo)
                 .betOption(BetOption.DRAW)
+                .betAmount(BigDecimal.TEN)
+                .build();
+        BetProcessorHolder.get(type).bet(betBo);
+        betBo = BetBo.builder()
+                .userNo(9012433L)
+                .handicapType(type)
+                .bizNo(bizNo)
+                .betOption(BetOption.HOME)
+                .betAmount(BigDecimal.TEN)
+                .build();
+        BetProcessorHolder.get(type).bet(betBo);
+        betBo = BetBo.builder()
+                .userNo(9012433L)
+                .handicapType(type)
+                .bizNo(bizNo)
+                .betOption(BetOption.AWAY)
                 .betAmount(BigDecimal.TEN)
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
     }
     @Test
     public void testCorrectScore() {
-        testCorrectScore(HandicapType.CORRECT_SCORE);
-        testCorrectScore(HandicapType.CORRECT_SCORE_HALL);
+        testCorrectScore("6989167335516930048",HandicapType.CORRECT_SCORE);
+        testCorrectScore("6989167335516930048",HandicapType.CORRECT_SCORE_HALL);
 
     }
-    public void testCorrectScore(HandicapType type) {
+    public void testCorrectScore(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
                 .userNo(9012433L)
                 .handicapType(type)
-                .bizNo("6989167335516930048")
-                .betOption(BetOption.DRAW)
+                .bizNo(bizNo)
+                .betOption(BetOption.SCORE)
                 .betAmount(BigDecimal.TEN)
                 .build();
         BetProcessorHolder.get(type).bet(betBo);

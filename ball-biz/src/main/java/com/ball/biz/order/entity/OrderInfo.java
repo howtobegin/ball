@@ -120,6 +120,11 @@ public class OrderInfo extends Paging {
     private Integer awayCurrentScore;
 
     /**
+     * 翻译后的即使赔率
+     */
+    private String instantHandicap;
+
+    /**
      * 主队最后得分（来自schedule表）
      */
     private Integer homeLastScore;

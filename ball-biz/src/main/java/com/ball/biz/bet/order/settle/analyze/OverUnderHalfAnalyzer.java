@@ -21,7 +21,12 @@ public class OverUnderHalfAnalyzer extends OverUnderAnalyzer {
     }
 
     @Override
-    protected Integer getTotalScore(Schedules schedules) {
-        return schedules.getHomeHalfScore() + schedules.getAwayHalfScore();
+    protected Integer getHomeLastScore(Schedules schedules) {
+        return schedules.getHomeHalfScore();
+    }
+
+    @Override
+    protected Integer getAwayLastScore(Schedules schedules) {
+        return schedules.getAwayHalfScore();
     }
 }
