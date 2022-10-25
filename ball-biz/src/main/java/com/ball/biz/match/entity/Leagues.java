@@ -32,7 +32,7 @@ public class Leagues extends Paging {
     /**
      * 1: League 2: Cup
      */
-    private Boolean type;
+    private Integer type;
 
     /**
      * 0: no star 1: star

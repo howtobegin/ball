@@ -63,4 +63,28 @@ public enum ScheduleStatus {
     public static List<Integer> halfSettleCodes() {
         return Lists.newArrayList(HALF_TIME_BREAK.code, SECOND_HALF.code, EXTRA_TIME.code, PENALTY.code, FINISHED.code);
     }
+
+    /**
+     * 全场，进行中的状态
+     * @return
+     */
+    public static List<Integer> inplayCodes() {
+        return Lists.newArrayList(FIRST_HALF.code, HALF_TIME_BREAK.code, SECOND_HALF.code);
+    }
+
+    /**
+     * 半场可投注状态
+     * @return
+     */
+    public static List<Integer> halfCanBetCodes() {
+        return Lists.newArrayList(NOT_STARTED.code, FIRST_HALF.code);
+    }
+
+    /**
+     * 全场可投注状态
+     * @return
+     */
+    public static List<Integer> canBetCodes() {
+        return Lists.newArrayList(NOT_STARTED.code, FIRST_HALF.code, HALF_TIME_BREAK.code,SECOND_HALF.code);
+    }
 }

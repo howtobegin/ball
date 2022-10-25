@@ -42,28 +42,42 @@ public class BetServiceTest {
         LocalDateTime end = start.plusDays(1);
         List<Schedules> schedules = schedulesService.queryByDate(start, end);
         for (Schedules schedule : schedules) {
-            List<Odds> odds = oddsService.queryByMatchId(schedule.getMatchId());
-            for (Odds odd : odds) {
-                HandicapType type = HandicapType.parse(odd.getType());
-                switch (type) {
-                    case HANDICAP:
-                    case HANDICAP_HALF:
-                        testHandicap(odd.getBizNo(), type);
-                        break;
-                    case OVER_UNDER_HALF:
-                    case OVER_UNDER:
-                        testOverUnder(odd.getBizNo(), type);
-                        break;
-                    case EUROPE_ODDS:
-                        testEuropeOdds(odd.getBizNo(), type);
-                }
-            }
+            testBetAll(schedule.getMatchId());
+        }
+    }
 
-            List<OddsScore> oddsScores = oddsScoreService.queryByMatch(schedule.getMatchId(), null);
-            for (OddsScore oddsScore : oddsScores) {
-                HandicapType type = oddsScore.getType() == 1 ? HandicapType.CORRECT_SCORE : HandicapType.CORRECT_SCORE_HALL;
-                testCorrectScore(oddsScore.getBizNo().toString(), type);
+    @Test
+    public void testBetMatch() {
+        String matchId = "257631226";
+        testBetAll(matchId);
+    }
+
+    /**
+     * 254940327
+     * @param matchId
+     */
+    public void testBetAll(String matchId) {
+        List<Odds> odds = oddsService.queryByMatchId(matchId);
+        for (Odds odd : odds) {
+            HandicapType type = HandicapType.parse(odd.getType());
+            switch (type) {
+                case HANDICAP:
+                case HANDICAP_HALF:
+                    testHandicap(odd.getBizNo(), type);
+                    break;
+                case OVER_UNDER_HALF:
+                case OVER_UNDER:
+                    testOverUnder(odd.getBizNo(), type);
+                    break;
+                case EUROPE_ODDS:
+                    testEuropeOdds(odd.getBizNo(), type);
             }
+        }
+
+        List<OddsScore> oddsScores = oddsScoreService.queryByMatch(matchId, null);
+        for (OddsScore oddsScore : oddsScores) {
+            HandicapType type = oddsScore.getType() == 1 ? HandicapType.CORRECT_SCORE : HandicapType.CORRECT_SCORE_HALL;
+            testCorrectScore(oddsScore.getBizNo().toString(), type);
         }
     }
 

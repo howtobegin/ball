@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @author lhl
@@ -17,8 +19,8 @@ public class OddsReq {
     @NotNull
     private Integer type;
 
-    @ApiModelProperty(value = "联赛ID", required = true)
-    private String leagueId;
+    @ApiModelProperty(value = "联赛ID集合", required = true)
+    private List<String> leagueIds;
 
     @ApiModelProperty(value = "比赛ID，需要查某个比赛时传", required = true)
     private String matchId;

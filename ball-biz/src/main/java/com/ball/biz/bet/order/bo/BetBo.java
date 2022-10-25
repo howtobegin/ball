@@ -25,4 +25,6 @@ public class BetBo {
     private BetOption betOption;
 
     private BigDecimal betAmount;
+
+    private String matchId;
 }

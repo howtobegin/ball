@@ -18,4 +18,6 @@ public interface IOddsScoreService extends IService<OddsScore>, IBaseService {
     OddsScore queryByBizNo(String bizNo);
 
     List<OddsScore> queryByMatch(String matchId, Integer type);
+
+    List<OddsScore> queryByMatchId(List<String> matchIds, Integer type, Integer status);
 }

@@ -14,17 +14,14 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("滚球比赛指数信息")
-public class HandicapMatchOddsResp {
+public class HandicapMatchOddsScoreResp {
     private LeagueResp league;
-
-    private List<MatchOddsResp> matchOddsResp;
 
     private List<MatchOddsScoreResp> matchOddsScoreResp;
 
     @Builder
-    public HandicapMatchOddsResp(LeagueResp league, List<MatchOddsResp> matchOddsResp, List<MatchOddsScoreResp> matchOddsScoreResp) {
+    public HandicapMatchOddsScoreResp(LeagueResp league, List<MatchOddsScoreResp> matchOddsScoreResp) {
         this.league = league;
-        this.matchOddsResp = matchOddsResp;
         this.matchOddsScoreResp = matchOddsScoreResp;
     }
 }

@@ -1,13 +1,15 @@
 package com.ball.biz.match.service.impl;
 
+import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.match.mapper.SchedulesMapper;
 import com.ball.biz.match.service.ISchedulesService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +32,36 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
         return lambdaQuery()
                 .gt(start != null, Schedules::getMatchDate, start)
                 .lt(end != null, Schedules::getMatchDate, end)
+                .list();
+    }
+
+    @Override
+    public List<Schedules> queryInplay(String matchId) {
+        return lambdaQuery()
+                .eq(!StringUtils.isEmpty(matchId), Schedules::getMatchId, matchId)
+                .in(Schedules::getStatus, ScheduleStatus.inplayCodes())
+                .list();
+    }
+
+    @Override
+    public List<Schedules> queryToday(List<String> leagueIds, String matchId) {
+        return lambdaQuery()
+                .eq(!StringUtils.isEmpty(matchId), Schedules::getMatchId, matchId)
+                .in(!StringUtils.isEmpty(leagueIds), Schedules::getLeagueId, leagueIds)
+                .gt(Schedules::getMatchDate, LocalDate.now())
+                .lt(Schedules::getMatchDate, LocalDate.now().plusDays(1))
+                .eq(Schedules::getStatus, ScheduleStatus.NOT_STARTED.getCode())
+                .list();
+    }
+
+    @Override
+    public List<Schedules> queryEarly(List<String> leagueIds, String matchId) {
+        return lambdaQuery()
+                .eq(!StringUtils.isEmpty(matchId), Schedules::getMatchId, matchId)
+                .in(!StringUtils.isEmpty(leagueIds), Schedules::getLeagueId, leagueIds)
+                .gt(Schedules::getMatchDate, LocalDate.now().plusDays(1))
+                .lt(Schedules::getMatchDate, LocalDate.now().plusDays(15))
+                .eq(Schedules::getStatus, ScheduleStatus.NOT_STARTED.getCode())
                 .list();
     }
 }

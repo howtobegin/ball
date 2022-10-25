@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @author lhl
@@ -14,9 +16,10 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class OddsScoreReq {
     @ApiModelProperty("1: 今日和早盘; 2: 滚盘")
+    @NotNull
     private Integer status;
 
-    @ApiModelProperty(value = "比赛ID", required = true)
-    @NotBlank(message = "oldPassword must be not null")
-    private String matchId;
+    @ApiModelProperty(value = "联赛ID集合", required = true)
+    @NotEmpty
+    private List<String> leagueIds;
 }

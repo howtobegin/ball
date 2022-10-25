@@ -14,6 +14,10 @@ public enum BizErrCode implements IBizErrCode {
     ODDS_CLOSE("B00006","投注已关闭"),
     NOT_FOUND_BET_OPTION("B00007","未找到投注选项"),
     ANALYZE_HANDICAP_ERROR("B00008","分析即使盘口出错"),
+    SCHEDULE_CANNT_BET("B00009","赛事不能再投注"),
+    BET_AMOUNT_TOO_MIN("B00010","单注投注太小"),
+    BET_AMOUNT_TOO_MAX("B00011","单注投注太大"),
+    MATCH_BET_AMOUNT_TOO_MAX("B00012","单场投注超过最大值"),
 
     DATA_ERROR("14000", "data error"),
     DATA_NOT_EXISTS("14002", "data not exists"),

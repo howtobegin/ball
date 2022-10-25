@@ -21,4 +21,6 @@ public interface IOddsService extends IService<Odds>, IBaseService {
     Odds queryByBizNo(String bizNo);
 
     List<Odds> queryByMatchId(String matchId);
+
+    List<Odds> queryByMatchId(List<String> matchIds);
 }

@@ -19,6 +19,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String ALL = "/app/**";
     private static final String USER = "/app/user/**";
+    private static final String ORDER = "/app/order/**";
 
     /**
      * 该方法用于注册拦截器
@@ -30,7 +31,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(ALL)
                 .excludePathPatterns("/app/entrance/control/service");
         registry.addInterceptor(loginInterceptor())
-                .addPathPatterns(USER,"/app/account/**")
+                .addPathPatterns(USER,"/app/account/**",ORDER)
                 .excludePathPatterns("/app/user/file/**");
     }
 

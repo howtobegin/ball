@@ -21,7 +21,7 @@ public class LeagueResp {
      * 1: League 2: Cup
      */
     @ApiModelProperty("类型，1: League 2: Cup")
-    private Boolean type;
+    private Integer type;
 
     @ApiModelProperty("0: no star 1: star")
     private Integer star;
