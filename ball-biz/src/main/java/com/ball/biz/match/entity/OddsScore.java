@@ -36,7 +36,7 @@ public class OddsScore extends Paging {
     /**
      * 1: prematch; 2: inplay
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 1: full; 2: half

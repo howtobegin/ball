@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
 
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 7 * 86400, redisNamespace = "ball:app:token")
+@EnableRedisHttpSession(redisNamespace = "ball:app:token")
 public class HttpSessionConfig {
     public static final String TOKEN_NAME = "Ball-Token";
 

@@ -10,6 +10,8 @@ import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.BetType;
+import com.ball.biz.bet.enums.MatchTimeType;
+import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.Handicap;
 import com.ball.biz.bet.order.bo.OddsData;
@@ -29,6 +31,7 @@ import com.ball.biz.user.service.IUserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -56,6 +59,23 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOrderInfoService orderInfoService;
 
     /**
+     * 单注最低
+     */
+    @Value("${bet.min:50}")
+    private BigDecimal betMin;
+    /**
+     * 单注最高
+     */
+    @Value("${bet.max:25000}")
+    private BigDecimal betMax;
+    /**
+     * 单场最高
+     */
+    @Value("${bet.max:50000}")
+    private BigDecimal matchBetMax;
+
+
+    /**
      * 投注
      * @param bo
      * @return
@@ -78,27 +98,47 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         return order;
     }
 
-    protected void betCheck(BetBo bo) {
-        // 校验投注信息，是否存在，关闭等
+    private void betCheck(BetBo bo) {
+        // 位置不要挪动，校验投注信息，是否存在，关闭等，拿到matchId，后面用
         checkOdds(bo);
-
+        // 校验赛事
+        checkSchedule(bo);
         // 投注选项是否合理
         BizAssert.isTrue(bo.getHandicapType().getBetOptions().contains(bo.getBetOption()), BizErrCode.PARAM_ERROR_DESC, "betOption");
-
         // 校验用户状态，余额等
         checkUser(bo);
+    }
+
+    protected void checkSchedule(BetBo bo) {
+        Schedules schedules = schedulesService.queryOne(bo.getMatchId());
+        Integer status = schedules.getStatus();
+        // 全场，校验状态
+        if (bo.getHandicapType().getMatchTimeType() == MatchTimeType.FULL) {
+            BizAssert.isTrue(ScheduleStatus.canBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
+        }
+        // 半场，校验状态
+        if (bo.getHandicapType().getMatchTimeType() == MatchTimeType.HALF) {
+            BizAssert.isTrue(ScheduleStatus.halfCanBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
+        }
     }
 
     protected void checkUser(BetBo bo) {
         // 用户状态
         UserInfo user = userInfoService.getByUid(bo.getUserNo());
         BizAssert.isTrue(YesOrNo.YES.v == user.getStatus(), BizErrCode.USER_LOCKED);
-        // TODO 用户单项投注限额
+        // 用户单项投注限额，最大，最小
+        BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
+        BizAssert.isTrue(bo.getBetAmount().compareTo(betMax) <= 0, BizErrCode.BET_AMOUNT_TOO_MAX);
 
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
         BizAssert.notNull(account, BizErrCode.ACCOUNT_NOT_EXIST);
         BizAssert.isTrue(account.getBalance().subtract(account.getFreezeAmount()).compareTo(bo.getBetAmount()) >= 0, BizErrCode.ACCOUNT_BALANCE_INSUFFICIENT);
+
+        // 单场限额
+        // 单场已投注
+        BigDecimal betAmount = orderInfoService.statBetAmount(bo.getMatchId());
+        BizAssert.isTrue(betAmount.add(bo.getBetAmount()).compareTo(matchBetMax) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
     }
 
     protected void checkOdds(BetBo bo) {
@@ -110,6 +150,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         boolean isClose = odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose();
         // 投注是否关闭
         BizAssert.isTrue(!isClose, BizErrCode.ODDS_CLOSE);
+
+        bo.setMatchId(odds.getMatchId());
     }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
@@ -152,16 +194,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         String companyId = odds.getCompanyId();
 
         String betOddsStr = getBetOdds(odds, bo);
-        String handicapStr = null;
-        if (!StringUtils.isEmpty(odds.getInstantHandicap())) {
-            Handicap handicap = OverUnderAssist.analyzeHandicap(new BigDecimal(odds.getInstantHandicap()).abs());
-            String bigStr = doubleToString(handicap.getBig());
-            String smallStr = doubleToString(handicap.getSmall());
-            handicapStr = handicap.getBetType() == BetType.ALL ? bigStr : smallStr + "/" + bigStr;
-            if (odds.getInstantHandicap().startsWith("-")) {
-                handicapStr = "-" + handicapStr;
-            }
-        }
+        String handicapStr = translate(odds.getInstantHandicap());
         log.info("type {} betOption {} betOdds {} instantHandicap {} handicapStr {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr, odds.getInstantHandicap(), handicapStr);
         return BetInfo.builder()
                 .oddsData(oddsData)
@@ -170,6 +203,20 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 .betOddsStr(betOddsStr)
                 .instantHandicap(handicapStr)
                 .build();
+    }
+
+    protected String translate(String instantHandicap) {
+        String handicapStr = null;
+        if (!StringUtils.isEmpty(instantHandicap)) {
+            Handicap handicap = OverUnderAssist.analyzeHandicap(new BigDecimal(instantHandicap).abs());
+            String bigStr = doubleToString(handicap.getBig());
+            String smallStr = doubleToString(handicap.getSmall());
+            handicapStr = handicap.getBetType() == BetType.ALL ? bigStr : smallStr + "/" + bigStr;
+            if (instantHandicap.startsWith("-")) {
+                handicapStr = "-" + handicapStr;
+            }
+        }
+        return handicapStr;
     }
 
     private String doubleToString(Double value) {

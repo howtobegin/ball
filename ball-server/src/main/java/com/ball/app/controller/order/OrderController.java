@@ -3,13 +3,13 @@ package com.ball.app.controller.order;
 import com.ball.app.controller.order.vo.BetHistoryReq;
 import com.ball.app.controller.order.vo.BetReq;
 import com.ball.app.controller.order.vo.OrderResp;
+import com.ball.app.service.BizOrderQueryService;
 import com.ball.base.context.UserContext;
+import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.processor.BetProcessorHolder;
 import com.ball.biz.order.entity.OrderInfo;
-import com.ball.biz.order.service.IOrderInfoService;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * @author lhl
@@ -30,7 +29,7 @@ import java.util.List;
 @RequestMapping("/app/order")
 public class OrderController {
     @Autowired
-    private IOrderInfoService orderInfoService;
+    private BizOrderQueryService bizOrderQueryService;
 
     @ApiOperation("下注")
     @PostMapping("bet")
@@ -43,7 +42,7 @@ public class OrderController {
 
     @ApiOperation("记录")
     @PostMapping("bet/history")
-    public List<OrderResp> betHistory(@RequestBody @Valid BetHistoryReq req) {
-        return Lists.newArrayList();
+    public PageResult<OrderResp> betHistory(@RequestBody @Valid BetHistoryReq req) {
+        return bizOrderQueryService.history(req);
     }
 }

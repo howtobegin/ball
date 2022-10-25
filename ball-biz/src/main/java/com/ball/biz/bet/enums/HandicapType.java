@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 盘口类型
@@ -43,24 +45,16 @@ public enum HandicapType {
         return null;
     }
 
-    public static List<BetResult> winOptions(HandicapType ruleType) {
-        switch (ruleType) {
-            case EUROPE_ODDS:
-            case CORRECT_SCORE:
-            case CORRECT_SCORE_HALL:
-                return Lists.newArrayList(BetResult.WIN, BetResult.LOSE);
-            case HANDICAP:
-            case HANDICAP_HALF:
-            case OVER_UNDER:
-            case OVER_UNDER_HALF:
-                // 全赢、全输、不赢不输、赢一半、输一半
-                return Lists.newArrayList(BetResult.WIN, BetResult.LOSE, BetResult.DRAW, BetResult.WIN_HALF, BetResult.LOSE_HALF);
-            default:
-                return Lists.newArrayList();
-        }
-    }
-
     public boolean isMe(String code) {
         return code != null && code.equalsIgnoreCase(this.code);
+    }
+
+    /**
+     * 全场/半场类型
+     * @param matchTimeType
+     * @return
+     */
+    public static List<String> fullTypes(MatchTimeType matchTimeType) {
+        return Stream.of(values()).filter(e -> e.getMatchTimeType() == matchTimeType).map(HandicapType::getCode).collect(Collectors.toList());
     }
 }

@@ -20,21 +20,30 @@ public class OddsScoreResp {
     /**
      * 1: prematch; 2: inplay
      */
-    @ApiModelProperty("1: 今日; 2: 滚盘")
+    @ApiModelProperty("1: 今日和早盘; 2: 滚盘")
     private Integer status;
 
-    /**
-     * CORRECT_SCORE[全场]，CORRECT_SCORE_HALL[半场]
-     */
-    @ApiModelProperty("类型：CORRECT_SCORE[全场]，CORRECT_SCORE_HALL[半场]")
-    private String type;
+    @ApiModelProperty("类型：1: full; 2: half")
+    private Integer type;
 
-    @ApiModelProperty("投注类型，JSON")
-    private String bettingOddsItems;
+    @ApiModelProperty("主队分")
+    private Integer homeScore;
 
-    @ApiModelProperty("其他比分赔率")
-    private String otherScoresOdds;
+    @ApiModelProperty("客队分")
+    private Integer awayScore;
 
-    @ApiModelProperty("修改时间")
+    @ApiModelProperty("赔率")
+    private String odds;
+
+    @ApiModelProperty("其他赔率")
+    private String otherOdds;
+
+    @ApiModelProperty("赔率修改睡觉")
     private Integer changeTime;
+
+    /**
+     * Is this bet closed?
+     */
+    @ApiModelProperty("是否关闭")
+    private Boolean isClose;
 }

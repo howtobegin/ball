@@ -50,6 +50,11 @@ public class UserLoginLog extends Paging {
     private Integer status;
 
     /**
+     * 终结session编号
+     */
+    private String terminateSid;
+
+    /**
      * 终结ip(谁踢出的)
      */
     private String terminateIp;
@@ -59,5 +64,9 @@ public class UserLoginLog extends Paging {
      */
     private LocalDateTime createTime;
 
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

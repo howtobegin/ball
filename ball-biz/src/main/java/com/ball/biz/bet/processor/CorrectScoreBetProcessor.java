@@ -37,6 +37,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
         boolean isClose = oddsScore.getIsClose();
         // 投注是否关闭
         BizAssert.isTrue(!isClose, BizErrCode.ODDS_CLOSE);
+        bo.setMatchId(oddsScore.getMatchId());
     }
 
     @Override
@@ -55,11 +56,13 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
         List<OddsScoreData.OddsScoreItem> items = oddsScores.stream().map(o -> BeanUtil.copy(o, OddsScoreData.OddsScoreItem.class)).collect(Collectors.toList());
         oddsScoreData.setOtherItems(items);
         String oddsData = JSON.toJSONString(oddsScoreData);
+        String handicapStr = oddsScore.getHomeScore() + ":" + oddsScore.getAwayScore();
         return BetInfo.builder()
                 .oddsData(oddsData)
                 .matchId(matchId)
                 .companyId(companyId)
                 .betOddsStr(betOddsStr)
+                .instantHandicap(handicapStr)
                 .build();
     }
 

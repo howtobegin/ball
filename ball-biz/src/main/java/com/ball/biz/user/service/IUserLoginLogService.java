@@ -19,4 +19,11 @@ public interface IUserLoginLogService extends IService<UserLoginLog>, IBaseServi
      * @param sessionId - sessionId
      */
     void checkKickOut(String sessionId);
+
+    /**
+     * 用户用户编号
+     * @param sessionId  -
+     * @return -
+     */
+    Long getBySessionId(String sessionId);
 }

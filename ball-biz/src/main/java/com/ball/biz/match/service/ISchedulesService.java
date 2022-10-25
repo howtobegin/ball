@@ -19,4 +19,21 @@ public interface ISchedulesService extends IService<Schedules>, IBaseService {
     Schedules queryOne(String matchId);
 
     List<Schedules> queryByDate(LocalDateTime start, LocalDateTime end);
+
+    /**
+     * 进行中的
+     * @return
+     */
+    List<Schedules> queryInplay(String matchId);
+
+    /**
+     * 今日，未开始的
+     */
+    List<Schedules> queryToday(List<String> leagueIds, String matchId);
+
+    /**
+     * 早盘
+     * @return
+     */
+    List<Schedules> queryEarly(List<String> leagueIds, String matchId);
 }

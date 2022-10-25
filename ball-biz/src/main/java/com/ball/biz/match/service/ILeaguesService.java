@@ -1,9 +1,10 @@
 package com.ball.biz.match.service;
 
 import com.ball.biz.match.entity.Leagues;
+import com.ball.common.service.IBaseService;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import com.ball.common.service.IBaseService;
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +15,5 @@ import com.ball.common.service.IBaseService;
  * @since 2022-10-19
  */
 public interface ILeaguesService extends IService<Leagues>, IBaseService {
-
+    List<Leagues> query(List<String> leagueIds);
 }
