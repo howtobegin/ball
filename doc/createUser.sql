@@ -55,7 +55,10 @@ create table user_login_log (
     session_id      varchar(48)     not null   comment 'session编号',
     ip              varchar(24)                comment '登录ip地址',
     status          tinyint         not null   comment '状态 1:正常 0:被踢出',
+    terminate_sid   varchar(48)         null   comment '终结session编号',
     terminate_ip    varchar(24)                comment '终结ip(谁踢出的)',
-    create_time     datetime    not null default current_timestamp comment '创建时间',
-    key idx_session(session_id)
+    create_time     datetime        not null default current_timestamp comment '创建时间',
+    update_time     datetime        not null default current_timestamp on update current_timestamp comment '更新时间',
+    key idx_session(session_id),
+    key idx_user(user_id)
 )  engine = InnoDB default charset = utf8mb4 comment ='用户登录日志';

@@ -3,13 +3,15 @@ package com.ball.biz.user.assist;
 import com.ball.base.context.RequestContext;
 import com.ball.base.model.Const;
 import com.ball.base.model.enums.YesOrNo;
+import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BizAssert;
 import com.ball.base.util.PasswordUtil;
-import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
+import com.ball.biz.user.entity.UserLoginLog;
 import com.ball.biz.user.entity.UserLoginSession;
 import com.ball.biz.user.service.IUserInfoService;
+import com.ball.biz.user.service.IUserLoginLogService;
 import com.ball.biz.user.service.IUserLoginSessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,12 @@ public class LoginAssist {
     private IUserLoginSessionService userLoginSessionService;
 
     @Autowired
+    private TransactionSupport transactionSupport;
+
+    @Autowired
+    private IUserLoginLogService loginLogService;
+
+    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${user.login.single:true}")
@@ -43,7 +51,7 @@ public class LoginAssist {
         BizAssert.notNull(userInfo, BizErrCode.USER_OR_PASSWORD_ERROR);
         BizAssert.isTrue(YesOrNo.YES.isMe(userInfo.getStatus()), BizErrCode.USER_LOCKED);
         UserLoginSession session = userLoginSessionService.getByUid(userInfo.getId());
-        dealKick(sessionId, session);
+        dealLogin(sessionId, session, key1, key2);
         return userInfo;
     }
 
@@ -54,7 +62,7 @@ public class LoginAssist {
                 .setUpdateTime(null);
         userLoginSessionService.updateById(session);
         // 删除redis key
-        if (redisTemplate.hasKey(key1 + sessionId)) {
+        if (hasKey(key1 + sessionId)) {
             log.info("logout out userId={}, sessionId={}", userId, sessionId);
             // 删除主要信息key
             redisTemplate.delete(key1 + sessionId);
@@ -62,11 +70,36 @@ public class LoginAssist {
         }
     }
 
-    private void dealKick(String sessionId, UserLoginSession session) {
-        // todo littlehow
+    private void dealLogin(String sessionId, UserLoginSession session, String key1, String key2) {
+        String old = session.getSessionId();
         session.setSessionId(sessionId)
                 .setIp(RequestContext.getIp())
                 .setUpdateTime(null);
-        userLoginSessionService.updateById(session);
+        transactionSupport.execute(() -> {
+            userLoginSessionService.updateById(session);
+            // 记录登录日志
+            loginLogService.save(new UserLoginLog()
+                .setIp(RequestContext.getIp()).setSessionId(sessionId)
+                    .setStatus(YesOrNo.YES.v).setUserId(session.getUserId())
+            );
+            // 如果是单点登录则需要踢出之前登录的用户
+            if (loginSingle && hasKey(key1 + old)) {
+                log.info("kick out userId={}, sessionId={}", old, sessionId);
+                // 删除主要信息key
+                redisTemplate.delete(key1 + old);
+                redisTemplate.delete(key2 + old);
+                loginLogService.lambdaUpdate().set(UserLoginLog::getStatus, YesOrNo.NO.v)
+                        .set(UserLoginLog::getTerminateIp, RequestContext.getIp())
+                        .set(UserLoginLog::getTerminateSid, sessionId)
+                        .eq(UserLoginLog::getSessionId, old)
+                        .update();
+            }
+        });
+
+    }
+
+    private boolean hasKey(String key) {
+        Boolean flag = redisTemplate.hasKey(key);
+        return flag == null ? false : flag;
     }
 }

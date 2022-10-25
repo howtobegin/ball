@@ -3,8 +3,10 @@ package com.ball.app.controller.user;
 import com.ball.app.config.HttpSessionConfig;
 import com.ball.app.controller.user.vo.LoginReq;
 import com.ball.app.controller.user.vo.LoginResp;
+import com.ball.app.controller.user.vo.ServiceReq;
 import com.ball.app.interceptor.LoginInterceptor;
 import com.ball.base.model.enums.YesOrNo;
+import com.ball.base.util.UserPerUtil;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
 import io.swagger.annotations.Api;
@@ -37,5 +39,23 @@ public class UserEntranceController {
                 .setUserNo(userInfo.getId())
                 .setChangePasswordFlag(userInfo.getChangePasswordFlag())
                 .setChangeAccountFlag(userInfo.getAccount().equals(userInfo.getLoginAccount()) ? YesOrNo.NO.v : YesOrNo.YES.v);
+    }
+
+    @ApiOperation("服务信息")
+    @RequestMapping(value = "control/service", method = {RequestMethod.POST})
+    public void controlService(@RequestBody @Valid ServiceReq req) {
+        req.valid();
+        if (YesOrNo.YES.isMe(req.getOperation())) {
+            // 打开
+            UserPerUtil.openService();
+        } else {
+            UserPerUtil.closeService();
+        }
+    }
+
+    @ApiOperation("检查踢出信息")
+    @RequestMapping(value = "checkKickOut", method = { RequestMethod.POST, RequestMethod.GET })
+    public void checkKickOut() {
+        // do nothing
     }
 }
