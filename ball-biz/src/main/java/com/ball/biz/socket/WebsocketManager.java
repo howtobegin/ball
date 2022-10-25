@@ -89,13 +89,18 @@ public class WebsocketManager {
     }
 
     public static void sendMessage(Long uid, String token, String message) {
-        Session session = sessionPool.get(uid);
-        if (session != null) {
-            String old = userToken.get(uid);
-            if (token.equals(old)) {
-                session.getAsyncRemote().sendText(message);
+        try {
+            Session session = sessionPool.get(uid);
+            if (session != null) {
+                String old = userToken.get(uid);
+                if (token.equals(old)) {
+                    session.getAsyncRemote().sendText(message);
+                }
             }
+        } catch (Exception e) {
+            log.error("发送消息失败:{}", message, e);
         }
+
     }
 
     public static void sendMessage(String message) {
