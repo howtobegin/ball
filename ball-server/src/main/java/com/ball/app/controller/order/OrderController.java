@@ -1,19 +1,25 @@
 package com.ball.app.controller.order;
 
+import com.ball.app.controller.order.vo.BetHistoryReq;
 import com.ball.app.controller.order.vo.BetReq;
+import com.ball.app.controller.order.vo.OrderResp;
 import com.ball.base.context.UserContext;
 import com.ball.base.util.BeanUtil;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.processor.BetProcessorHolder;
 import com.ball.biz.order.entity.OrderInfo;
+import com.ball.biz.order.service.IOrderInfoService;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author lhl
@@ -23,11 +29,21 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/app/order")
 public class OrderController {
+    @Autowired
+    private IOrderInfoService orderInfoService;
+
     @ApiOperation("下注")
     @PostMapping("bet")
-    public OrderInfo bet(@RequestBody @Valid BetReq req) {
+    public OrderResp bet(@RequestBody @Valid BetReq req) {
         BetBo bo = BeanUtil.copy(req, BetBo.class);
         bo.setUserNo(UserContext.getUserNo());
-        return BetProcessorHolder.get(req.getHandicapType()).bet(bo);
+        OrderInfo order = BetProcessorHolder.get(req.getHandicapType()).bet(bo);
+        return BeanUtil.copy(order, OrderResp.class);
+    }
+
+    @ApiOperation("记录")
+    @PostMapping("bet/history")
+    public List<OrderResp> betHistory(@RequestBody @Valid BetHistoryReq req) {
+        return Lists.newArrayList();
     }
 }
