@@ -30,7 +30,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(ALL)
                 .excludePathPatterns("/app/entrance/control/service");
         registry.addInterceptor(loginInterceptor())
-                .addPathPatterns(USER)
+                .addPathPatterns(USER,"/app/account/**")
                 .excludePathPatterns("/app/user/file/**");
     }
 
