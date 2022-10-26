@@ -10,15 +10,16 @@ import com.ball.biz.base.service.TableNameEnum;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.assist.LoginAssist;
+import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.entity.UserLoginSession;
 import com.ball.biz.user.mapper.UserInfoMapper;
+import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.biz.user.service.IUserLoginSessionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -42,6 +43,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Autowired
     private IUserLoginSessionService userLoginSessionService;
+
+    @Autowired
+    private IUserExtendService userExtendService;
 
     @Autowired
     private IIdGenService idGenService;
@@ -70,6 +74,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             userLoginSessionService.save(new UserLoginSession()
                 .setUserId(userId).setSessionId(Const.SESSION_DEFAULT)
             );
+            userExtendService.save(new UserExtend().setId(userId));
         });
         return info;
     }

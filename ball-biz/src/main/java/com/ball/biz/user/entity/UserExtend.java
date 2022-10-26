@@ -28,6 +28,11 @@ public class UserExtend extends Paging {
     private Long id;
 
     /**
+     * 用户类型  1:会员 2:代理
+     */
+    private Integer userType;
+
+    /**
      * 代理分成
      */
     private BigDecimal proxyRate;

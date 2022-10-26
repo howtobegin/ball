@@ -10,13 +10,20 @@ import com.ball.biz.base.service.TableNameEnum;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.assist.LoginAssist;
+import com.ball.biz.user.bo.ProxyRateInfo;
+import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.entity.UserLoginSession;
+import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.biz.user.service.IUserLoginSessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 代理
@@ -36,6 +43,9 @@ public class ProxyUserService {
 
     @Autowired
     private IUserLoginSessionService userLoginSessionService;
+
+    @Autowired
+    private IUserExtendService userExtendService;
 
     @Autowired
     private LoginAssist loginAssist;
@@ -114,6 +124,30 @@ public class ProxyUserService {
         loginAssist.logout(userId, SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
     }
 
+    /**
+     * 根据会员获取会员上的代理1-3的分成比例
+     * @param userId  - 会员编号
+     * @return -
+     */
+    public ProxyRateInfo getProxyRateByUid(Long userId) {
+        ProxyRateInfo proxyRateInfo = new ProxyRateInfo();
+        UserInfo userInfo = userInfoService.getByUid(userId);
+        BizAssert.isTrue(UserTypeEnum.GENERAL.isMe(userInfo.getUserType()), BizErrCode.DATA_ERROR);
+        List<Long> uid = getUidByProxyInfo(userInfo.getProxyInfo());
+        Map<Integer, BigDecimal> percentMap = userExtendService.getByUid(uid)
+                .stream().collect(Collectors.toMap(UserExtend::getUserType, UserExtend::getProxyRate));
+        // 首先获取三级
+        BigDecimal three = percentMap.get(UserTypeEnum.PROXY_THREE.v);
+        BigDecimal two = percentMap.get(UserTypeEnum.PROXY_TWO.v);
+        BigDecimal one = percentMap.get(UserTypeEnum.PROXY_ONE.v);
+        proxyRateInfo.setProxyThreeRate(three);
+        // 二级占比 = 自己的占比 - 三级占比
+        proxyRateInfo.setProxyTwoRate(two.subtract(three));
+        // 一级占比 = 自己的占比 - 二级占比
+        proxyRateInfo.setProxyOneRate(one.subtract(two));
+        return proxyRateInfo;
+    }
+
     private Long addProxy0(String account, String userName, String password, Long proxyUid,
                            String proxyAccount, Integer userType, String proxyInfo,
                            String balanceMode) {
@@ -136,5 +170,14 @@ public class ProxyUserService {
             );
         });
         return userId;
+    }
+
+    private List<Long> getUidByProxyInfo(String proxyInfo) {
+        String[] uids = proxyInfo.split(Const.RELATION_SPLIT);
+        List<Long> uid = new ArrayList<>();
+        for (String s : uids) {
+            uid.add(Long.valueOf(s));
+        }
+        return uid;
     }
 }

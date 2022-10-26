@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 /**
  * @author JimChery
@@ -34,5 +35,13 @@ public class AddProxyReq {
     @NotNull(message = "amount must be not null")
     @Min(1L)
     private Long amount;
+
+    @ApiModelProperty(value = "代理商分成比例", required = true)
+    @NotNull(message = "proxyRate must be not null")
+    private BigDecimal proxyRate;
+
+//    @ApiModelProperty(value = "总代理分成比例", required = true)
+//    @NotNull(message = "proxyRate must be not null")
+//    private BigDecimal totalProxyRate;
 
 }

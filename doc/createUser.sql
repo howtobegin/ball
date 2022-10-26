@@ -66,6 +66,7 @@ create table user_login_log (
 drop table if exists user_extend;
 create table user_extend (
     id                    bigint unsigned primary key comment '用户编号',
+    user_type             tinyint           not null comment '用户类型  1:会员 2:代理',
     proxy_rate            decimal(5,4)       null comment '代理分成',
     total_proxy_rate      decimal(5,4)       null comment '总代理分成',
     create_time     datetime        not null default current_timestamp comment '创建时间',

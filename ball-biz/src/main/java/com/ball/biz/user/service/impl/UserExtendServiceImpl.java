@@ -6,6 +6,8 @@ import com.ball.biz.user.service.IUserExtendService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 用户扩展信息 服务实现类
@@ -17,4 +19,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserExtendServiceImpl extends ServiceImpl<UserExtendMapper, UserExtend> implements IUserExtendService {
 
+    @Override
+    public UserExtend getByUid(Long userId) {
+        return lambdaQuery().eq(UserExtend::getId, userId).one();
+    }
+
+    @Override
+    public List<UserExtend> getByUid(List<Long> uid) {
+        return lambdaQuery().in(UserExtend::getId, uid).list();
+    }
 }
