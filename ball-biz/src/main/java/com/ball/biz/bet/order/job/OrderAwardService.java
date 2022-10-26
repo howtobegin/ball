@@ -11,6 +11,8 @@ import com.ball.biz.bet.order.calculate.CalculatorHolder;
 import com.ball.biz.bet.order.calculate.bo.CalcResult;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
+import com.ball.biz.user.bo.ProxyRateInfo;
+import com.ball.biz.user.proxy.ProxyUserService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 派奖，账户变动
@@ -37,6 +40,8 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
     private IUserAccountService userAccountService;
     @Autowired
     private TransactionSupport transactionSupport;
+    @Autowired
+    private ProxyUserService proxyUserService;
 
     @Value("${order.match.reward.page.size:100}")
     private int pageSize;
@@ -54,56 +59,54 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
         CalcResult calcResult = CalculatorHolder.get(betResult).calc(data.getBetAmount(), data.getBetOdds());
         String orderId = data.getOrderId();
         Long userId = data.getUserId();
-        // betAmount 10, resultAmount = 15;
-        // userWinAmount = 5
-        // win,
+        // 用户输赢
         BigDecimal userWinAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount());
-
         transactionSupport.execute(()->{
             // 解冻
             userAccountService.unfreeze(data.getOrderId(), AccountTransactionType.TRADE);
 
-            ProxyAmount proxyAmount = null;
             // 用户赢，代理出
             if (userWinAmount.compareTo(BigDecimal.ZERO) > 0) {
                 userAccountService.income(userId, userWinAmount, orderId, AccountTransactionType.TRADE);
-                proxyAmount = calcProxyAmount(userWinAmount, true);
             }
             // 用户不输不赢
             else if (userWinAmount.compareTo(BigDecimal.ZERO) == 0) {
-                // 解冻即可
-                proxyAmount = calcProxyAmount(userWinAmount, false);
             }
             // 用户输
             else {
                 BigDecimal userLose = BigDecimal.ZERO.subtract(userWinAmount);
                 // 用户出
                 userAccountService.payout(userId, userLose, orderId, AccountTransactionType.TRADE);
-                proxyAmount = calcProxyAmount(userWinAmount, false);
             }
+            // 计算代理占成
+            ProxyAmount proxyAmount = calcProxyAmount(userId, userWinAmount);
             // 记录代理占成，支出用负数表示
             orderInfoService.updateProxyAmount(orderId, proxyAmount.getProxy1Amount(), proxyAmount.getProxy2Amount(), proxyAmount.getProxy3Amount());
+            // 修改订单状态
+            orderInfoService.updateStatus(orderId, OrderStatus.SETTLED, OrderStatus.FINISH);
 
         });
         return true;
     }
 
-    private ProxyAmount calcProxyAmount(BigDecimal amount, boolean payout) {
-        // TODO 真实占成
-        BigDecimal proxy1Percent = BigDecimal.valueOf(3L);
-        BigDecimal proxy2Percent = BigDecimal.valueOf(3L);
-        BigDecimal proxy3Percent = BigDecimal.valueOf(4L);
+    /**
+     * @param amount    用户赢或输的金额
+     * @return
+     */
+    private ProxyAmount calcProxyAmount(Long userId, BigDecimal amount) {
+        ProxyRateInfo proxyRateInfo = proxyUserService.getProxyRateByUid(userId);
+        log.info("userId {} amount {} proxyRateInfo {}", userId, amount, JSON.toJSON(proxyRateInfo));
 
-        BigDecimal proxy1Amount = amount.multiply(proxy1Percent).divide(ONE_HUNDRED, 2, BigDecimal.ROUND_DOWN);
-        BigDecimal proxy2Amount = amount.multiply(proxy2Percent).divide(ONE_HUNDRED, 2, BigDecimal.ROUND_DOWN);
-        BigDecimal proxy3Amount = amount.subtract(proxy1Amount).subtract(proxy2Amount);
+        // 占成百分比
+        BigDecimal proxy1Percent = Optional.ofNullable(proxyRateInfo).map(ProxyRateInfo::getProxyOneRate).orElse(BigDecimal.ZERO);
+        BigDecimal proxy2Percent = Optional.ofNullable(proxyRateInfo).map(ProxyRateInfo::getProxyTwoRate).orElse(BigDecimal.ZERO);
+        BigDecimal proxy3Percent = Optional.ofNullable(proxyRateInfo).map(ProxyRateInfo::getProxyThreeRate).orElse(BigDecimal.ZERO);
 
-        if (payout) {
-            proxy1Amount = BigDecimal.ZERO.subtract(proxy1Amount);
-            proxy2Amount = BigDecimal.ZERO.subtract(proxy2Amount);
-            proxy3Amount = BigDecimal.ZERO.subtract(proxy3Amount);
-        }
-
+        // 符号去反
+        BigDecimal proxy1Amount = BigDecimal.ZERO.subtract(amount.multiply(proxy1Percent));
+        BigDecimal proxy2Amount = BigDecimal.ZERO.subtract(amount.multiply(proxy2Percent));
+        BigDecimal proxy3Amount = BigDecimal.ZERO.subtract(amount.multiply(proxy3Percent));
+        log.info("amount {} p1 {} p2 {} p3 {}", amount, proxy1Amount, proxy2Amount, proxy3Amount);
         return ProxyAmount.builder()
                 .amount(amount)
                 .proxy1Percent(proxy1Percent)

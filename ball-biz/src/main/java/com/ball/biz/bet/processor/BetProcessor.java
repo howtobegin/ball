@@ -12,6 +12,9 @@ public interface BetProcessor {
 
     HandicapType getHandicapType();
 
+
+    void betCheck(BetBo bo);
+
     /**
      * 投注
      * @param bo

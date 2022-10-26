@@ -9,13 +9,11 @@ import com.ball.base.util.IDCreator;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.service.IUserAccountService;
-import com.ball.biz.bet.enums.MatchTimeType;
-import com.ball.biz.bet.enums.ScheduleStatus;
+import com.ball.biz.bet.BetCheckAssist;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsData;
 import com.ball.biz.bet.processor.bo.BetInfo;
-import com.ball.biz.bet.processor.cache.UserProxyCache;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Odds;
@@ -28,10 +26,12 @@ import com.ball.biz.order.service.IOrderHistoryService;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
+import com.google.common.primitives.Longs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 
@@ -56,9 +56,9 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     @Autowired
     protected IOrderInfoService orderInfoService;
     @Autowired
-    private UserProxyCache userProxyCache;
+    protected IOrderHistoryService orderHistoryService;
     @Autowired
-    private IOrderHistoryService orderHistoryService;
+    protected BetCheckAssist betCheckAssist;
 
     /**
      * 单注最低
@@ -101,7 +101,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         return order;
     }
 
-    private void betCheck(BetBo bo) {
+    @Override
+    public void betCheck(BetBo bo) {
         // 位置不要挪动，校验投注信息，是否存在，关闭等，拿到matchId，后面用
         checkOdds(bo);
         // 校验赛事
@@ -112,18 +113,12 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         checkUser(bo);
     }
 
+    protected void checkOdds(BetBo bo) {
+        betCheckAssist.checkOdds(bo);
+    }
+
     protected void checkSchedule(BetBo bo) {
-        Schedules schedules = schedulesService.queryOne(bo.getMatchId());
-        Integer status = schedules.getStatus();
-        log.info("matchId {} status {}", schedules.getMatchId(), status);
-        // 全场，校验状态
-        if (bo.getHandicapType().getMatchTimeType() == MatchTimeType.FULL) {
-            BizAssert.isTrue(ScheduleStatus.canBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
-        }
-        // 半场，校验状态
-        if (bo.getHandicapType().getMatchTimeType() == MatchTimeType.HALF) {
-            BizAssert.isTrue(ScheduleStatus.halfCanBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
-        }
+        betCheckAssist.checkSchedule(bo);
     }
 
     protected void checkUser(BetBo bo) {
@@ -149,19 +144,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         BizAssert.isTrue(matchBetAmount.add(bo.getBetAmount()).compareTo(matchBetMax) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
     }
 
-    protected void checkOdds(BetBo bo) {
-        Odds odds = oddsService.queryByBizNo(bo.getBizNo());
-        BizAssert.notNull(odds, BizErrCode.DATA_NOT_EXISTS);
-        log.info("odds type {} bo.type {}", odds.getType(), bo.getHandicapType());
-        BizAssert.isTrue(bo.getHandicapType().isMe(odds.getType()), BizErrCode.PARAM_ERROR_DESC, "handicapType");
-        // 未返回是否关闭，是否当未关闭处理？
-        boolean isClose = odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose();
-        log.info("matchId {} close {}",bo.getMatchId(), isClose);
-        // 投注是否关闭
-        BizAssert.isTrue(!isClose, BizErrCode.ODDS_CLOSE);
-
-        bo.setMatchId(odds.getMatchId());
-    }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
         log.info("start");
@@ -172,9 +154,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         OrderInfo order = new OrderInfo();
         order.setOrderId(orderNo);
         order.setUserId(bo.getUserNo());
-        order.setProxy3(userProxyCache.getProxy(order.getUserId()));
-        order.setProxy2(userProxyCache.getProxy(order.getProxy3()));
-        order.setProxy1(userProxyCache.getProxy(order.getProxy2()));
+
+        setProxy(order, bo.getUserNo());
 
         order.setMatchId(betInfo.getMatchId());
         order.setCompanyId(betInfo.getCompanyId());
@@ -192,6 +173,24 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setInstantHandicap(betInfo.getInstantHandicap());
         log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;
+    }
+
+    protected void setProxy(OrderInfo order, Long userId) {
+        UserInfo user = userInfoService.getByUid(userId);
+        if (!StringUtils.isEmpty(user.getProxyInfo())) {
+            String[] split = user.getProxyInfo().split("#");
+            int len = split.length;
+            if (len == 3) {
+                order.setProxy1(Longs.tryParse(split[0]));
+                order.setProxy2(Longs.tryParse(split[1]));
+                order.setProxy3(Longs.tryParse(split[2]));
+            } else if (len == 2) {
+                order.setProxy1(Longs.tryParse(split[0]));
+                order.setProxy2(Longs.tryParse(split[1]));
+            } else if (len == 1) {
+                order.setProxy1(Longs.tryParse(split[0]));
+            }
+        }
     }
 
     /**

@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 /**
@@ -21,10 +20,8 @@ public class BetHistoryReq extends Paging {
     private Integer type;
 
     @ApiModelProperty("开始时间")
-    @NotNull
     private LocalDate start;
 
     @ApiModelProperty("结束时间")
-    @NotNull
     private LocalDate end;
 }

@@ -1,8 +1,17 @@
 package com.ball.biz.bet.order.job;
 
+import com.alibaba.fastjson.JSON;
+import com.ball.base.exception.AssertException;
+import com.ball.biz.bet.BetCheckAssist;
+import com.ball.biz.bet.enums.BetOption;
+import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.OrderStatus;
+import com.ball.biz.bet.order.bo.BetBo;
+import com.ball.biz.bet.processor.BetProcessorHolder;
+import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.match.service.IOddsScoreService;
 import com.ball.biz.match.service.IOddsService;
+import com.ball.biz.match.service.ISchedulesService;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,21 +38,53 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
     private IOddsService oddsService;
     @Autowired
     private IOddsScoreService oddsScoreService;
+    @Autowired
+    private BetCheckAssist betCheckAssist;
+    @Autowired
+    private ISchedulesService schedulesService;
 
     @Value("${order.confirm.page.size:100}")
     private int pageSize;
     /**
      * 确认时间
      */
-    @Value("${order.confirm.seconds:5}")
+    @Value("${order.confirm.seconds:10}")
     private int confirmSeconds;
 
     @Override
     public boolean executeOne(OrderInfo data) {
-        // TODO 校验投注时，比分或赔率，决定是否取消订单
+        String bizNo = JSON.parseObject(data.getOddsData()).getString("bizNo");
+        HandicapType handicapType = HandicapType.parse(data.getHandicapType());
 
+        try {
+            // 校验比赛和盘口
+            BetProcessorHolder.get(handicapType).betCheck(BetBo.builder()
+                    .userNo(data.getUserId())
+                    .handicapType(handicapType)
+                    .bizNo(bizNo)
+                    .betOption(BetOption.valueOf(data.getBetOption()))
+                    .betAmount(data.getBetAmount())
+                    .build());
+        } catch (AssertException e) {
+            log.error("{}", e.getMessage());
+            // 取消订单
+            orderInfoService.cancel(data.getOrderId());
+            return true;
+        }
+        // 投注时比分
+        Integer homeCurrentScore = data.getHomeCurrentScore();
+        Integer awayCurrentScore = data.getAwayCurrentScore();
+        // 当前比分
+        Schedules schedules = schedulesService.queryOne(data.getMatchId());
+        Integer homeScore = schedules.getHomeScore();
+        Integer awayScore = schedules.getAwayScore();
+        if (!homeCurrentScore.equals(homeScore) || !awayCurrentScore.equals(awayScore)) {
+            // 取消订单
+            orderInfoService.cancel(data.getOrderId());
+            return true;
+        }
 
-
+        // 确认订单
         OrderStatus next = OrderStatus.CONFIRM;
         orderInfoService.updateStatus(data.getOrderId(), OrderStatus.INIT, next);
         return true;

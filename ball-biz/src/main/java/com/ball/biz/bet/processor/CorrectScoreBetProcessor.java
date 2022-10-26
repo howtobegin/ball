@@ -2,14 +2,12 @@ package com.ball.biz.bet.processor;
 
 import com.alibaba.fastjson.JSON;
 import com.ball.base.util.BeanUtil;
-import com.ball.base.util.BizAssert;
 import com.ball.biz.bet.enums.BetOption;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsScoreData;
 import com.ball.biz.bet.processor.bo.BetInfo;
-import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.match.entity.OddsScore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,13 +29,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
 
     @Override
     protected void checkOdds(BetBo bo) {
-        OddsScore oddsScore = oddsScoreService.queryByBizNo(bo.getBizNo());
-        BizAssert.notNull(oddsScore, BizErrCode.DATA_NOT_EXISTS);
-        BizAssert.isTrue(oddsScore.getType().equals(getMatchTimeType()), BizErrCode.PARAM_ERROR_DESC, "bizNo或handicapType");
-        boolean isClose = oddsScore.getIsClose();
-        // 投注是否关闭
-        BizAssert.isTrue(!isClose, BizErrCode.ODDS_CLOSE);
-        bo.setMatchId(oddsScore.getMatchId());
+        betCheckAssist.checkOddsScore(bo.getBizNo(), getMatchTimeType());
     }
 
     @Override
