@@ -34,4 +34,13 @@ public enum BetResult {
                 WIN,WIN_HALF,LOSE,LOSE_HALF,DRAW
         );
     }
+
+    public static BetResult parse(String code) {
+        for (BetResult e : values()) {
+            if (e.code.equalsIgnoreCase(code)) {
+                return e;
+            }
+        }
+        return null;
+    }
 }

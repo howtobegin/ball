@@ -100,14 +100,19 @@ public class OrderInfo extends Paging {
     private BigDecimal resultAmount;
 
     /**
-     * 赢金额（不包含）
+     * 代理1收入或支出金额
      */
-    private BigDecimal winAmount;
+    private BigDecimal proxy1Amount;
 
     /**
-     * 输金额
+     * 代理2收入或支出金额
      */
-    private BigDecimal loseAmount;
+    private BigDecimal proxy2Amount;
+
+    /**
+     * 代理3收入或支出金额
+     */
+    private BigDecimal proxy3Amount;
 
     /**
      * 主队当前得分（来自schedule表）

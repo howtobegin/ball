@@ -9,14 +9,13 @@ import com.ball.base.util.IDCreator;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.service.IUserAccountService;
-import com.ball.biz.bet.enums.BetType;
 import com.ball.biz.bet.enums.MatchTimeType;
 import com.ball.biz.bet.enums.ScheduleStatus;
+import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.BetBo;
-import com.ball.biz.bet.order.bo.Handicap;
 import com.ball.biz.bet.order.bo.OddsData;
-import com.ball.biz.bet.order.settle.assist.OverUnderAssist;
 import com.ball.biz.bet.processor.bo.BetInfo;
+import com.ball.biz.bet.processor.cache.UserProxyCache;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Odds;
@@ -32,10 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 /**
  * @author lhl
@@ -57,6 +54,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOddsScoreService oddsScoreService;
     @Autowired
     protected IOrderInfoService orderInfoService;
+    @Autowired
+    private UserProxyCache userProxyCache;
 
     /**
      * 单注最低
@@ -73,7 +72,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
      */
     @Value("${bet.max:50000}")
     private BigDecimal matchBetMax;
-
 
     /**
      * 投注
@@ -163,6 +161,9 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         OrderInfo order = new OrderInfo();
         order.setOrderId(orderNo);
         order.setUserId(bo.getUserNo());
+        order.setProxy3(userProxyCache.getProxy(order.getUserId()));
+        order.setProxy2(userProxyCache.getProxy(order.getProxy3()));
+        order.setProxy1(userProxyCache.getProxy(order.getProxy2()));
 
         order.setMatchId(betInfo.getMatchId());
         order.setCompanyId(betInfo.getCompanyId());
@@ -194,7 +195,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         String companyId = odds.getCompanyId();
 
         String betOddsStr = getBetOdds(odds, bo);
-        String handicapStr = translate(odds.getInstantHandicap());
+        String handicapStr = OrderHelper.translate(odds.getInstantHandicap());
         log.info("type {} betOption {} betOdds {} instantHandicap {} handicapStr {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr, odds.getInstantHandicap(), handicapStr);
         return BetInfo.builder()
                 .oddsData(oddsData)
@@ -203,28 +204,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 .betOddsStr(betOddsStr)
                 .instantHandicap(handicapStr)
                 .build();
-    }
-
-    protected String translate(String instantHandicap) {
-        String handicapStr = null;
-        if (!StringUtils.isEmpty(instantHandicap)) {
-            Handicap handicap = OverUnderAssist.analyzeHandicap(new BigDecimal(instantHandicap).abs());
-            String bigStr = doubleToString(handicap.getBig());
-            String smallStr = doubleToString(handicap.getSmall());
-            handicapStr = handicap.getBetType() == BetType.ALL ? bigStr : smallStr + "/" + bigStr;
-            if (instantHandicap.startsWith("-")) {
-                handicapStr = "-" + handicapStr;
-            }
-        }
-        return handicapStr;
-    }
-
-    private String doubleToString(Double value) {
-        return Optional.ofNullable(value)
-                .map(BigDecimal::valueOf)
-                .map(BigDecimal::stripTrailingZeros)
-                .map(BigDecimal::toPlainString)
-                .orElse("");
     }
 
     /**

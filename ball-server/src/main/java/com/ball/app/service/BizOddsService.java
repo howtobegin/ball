@@ -5,6 +5,7 @@ import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
+import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.match.entity.Leagues;
 import com.ball.biz.match.entity.Odds;
@@ -93,10 +94,12 @@ public class BizOddsService {
                 Map<HandicapType, List<OddsResp>> halfOdds = Maps.newHashMap();
                 for (Odds odd : odds) {
                     HandicapType type = HandicapType.parse(odd.getType());
+                    OddsResp oddsResp = BeanUtil.copy(odd, OddsResp.class);
+                    oddsResp.setInstantHandicapDesc(OrderHelper.translate(oddsResp.getInstantHandicap()));
                     if (HandicapType.fullTypes(MatchTimeType.FULL).contains(odd.getType())) {
-                        addToMap(fullOdds, type, BeanUtil.copy(odd, OddsResp.class));
+                        addToMap(fullOdds, type, oddsResp);
                     } else {
-                        addToMap(halfOdds, type, BeanUtil.copy(odd, OddsResp.class));
+                        addToMap(halfOdds, type, oddsResp);
                     }
                 }
 

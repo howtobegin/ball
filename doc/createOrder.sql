@@ -24,8 +24,9 @@ CREATE TABLE `order_info`
     bet_odds        decimal(12,2) NOT NULL COMMENT '投注赔率',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
-    win_amount      decimal(12,2) default 0 COMMENT '赢金额（不包含）',
-    lose_amount     decimal(12,2) default 0 COMMENT '输金额',
+    proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
+    proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
+    proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
 
     odds_data       text        not null comment '赔率JSON数据，根据不同type解析',
 
