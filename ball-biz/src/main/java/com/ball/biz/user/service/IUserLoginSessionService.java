@@ -10,7 +10,7 @@ import com.ball.common.service.IBaseService;
  * 用户session信息管理 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 public interface IUserLoginSessionService extends IService<UserLoginSession>, IBaseService {

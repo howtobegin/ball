@@ -1,7 +1,7 @@
 package com.ball.boss.controller.user.vo;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class AppUserResp {
 }

@@ -4,7 +4,7 @@ import org.springframework.util.StringUtils;
 import org.web3j.utils.Numeric;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class AddressUtil {
     public static boolean validEth(String address) {

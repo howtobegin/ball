@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class ExcelClassCache {
     private static Map<Class, ExcelMeta> EXCEL_MATE_CACHE = new HashMap<>();

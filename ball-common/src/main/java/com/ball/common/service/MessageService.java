@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 短信邮件服务
- * @author littlehow
+ * @author JimChery
  */
 @Service
 @Slf4j

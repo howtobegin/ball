@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * 编号生成表 服务实现类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 @Service

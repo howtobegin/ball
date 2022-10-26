@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Slf4j
 public class WebsocketManager {
@@ -73,7 +73,7 @@ public class WebsocketManager {
 
     public static void onMessage(String message, Session session) {
         log.info("receive message {}", message);
-        session.getAsyncRemote().sendText("welcome to websocket");
+        session.getAsyncRemote().sendText("{\"type\":0}");
     }
 
     public static void onError(Session session, Throwable error) {

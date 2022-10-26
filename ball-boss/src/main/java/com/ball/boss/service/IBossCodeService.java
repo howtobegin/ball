@@ -8,7 +8,7 @@ import com.ball.boss.dao.entity.BossCode;
  * 代码对照表 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 public interface IBossCodeService extends IService<BossCode> {

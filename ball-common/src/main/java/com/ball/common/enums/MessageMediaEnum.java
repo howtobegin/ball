@@ -1,7 +1,7 @@
 package com.ball.common.enums;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum MessageMediaEnum {
     PHONE(1),

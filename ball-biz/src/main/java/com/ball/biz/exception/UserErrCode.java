@@ -4,7 +4,7 @@ package com.ball.biz.exception;
 import com.ball.base.exception.IBizErrCode;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum UserErrCode implements IBizErrCode {
     KYC_INFORMATION_ERROR("U1001", "kyc信息异常"),

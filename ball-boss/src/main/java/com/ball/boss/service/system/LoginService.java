@@ -17,7 +17,7 @@ import com.ball.boss.service.system.model.UserInfo;
  *
  * @see com.ball.boss.config.HttpSessionConfig
  *       EnableRedisHttpSession.redisNamespace
- * @author littlehow
+ * @author JimChery
  */
 public interface LoginService {
     String SPRING_SESSION_KEY_PREFIX = "ball:boss:token:sessions:";

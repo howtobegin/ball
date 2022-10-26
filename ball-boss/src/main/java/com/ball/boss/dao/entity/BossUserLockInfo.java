@@ -15,7 +15,7 @@ import com.ball.base.model.Paging;
  * 锁定信息
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 @Data

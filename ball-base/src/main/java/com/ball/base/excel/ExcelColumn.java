@@ -3,7 +3,7 @@ package com.ball.base.excel;
 import java.lang.annotation.*;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

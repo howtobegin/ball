@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
  * 短信邮件模板表
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-04-14
  */
 @Data

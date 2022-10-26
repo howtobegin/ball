@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class BossThreadPool {
     private static final AtomicInteger ID = new AtomicInteger(1);

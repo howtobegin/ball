@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * ip地址信息表 Mapper 接口
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 public interface IpAddressMapper extends BaseMapper<IpAddress> {

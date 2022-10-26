@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Api(tags = "代理商管理")
 @RestController

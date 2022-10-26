@@ -6,7 +6,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Configuration
 public class ScheduledConfig implements SchedulingConfigurer {

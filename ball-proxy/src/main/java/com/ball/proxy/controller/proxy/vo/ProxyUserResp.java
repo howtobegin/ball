@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Setter
 @Getter

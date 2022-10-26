@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * 用户session信息管理 服务实现类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 @Service

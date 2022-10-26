@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public abstract class BaseBizTask extends BaseTriggerTask {
     @Autowired

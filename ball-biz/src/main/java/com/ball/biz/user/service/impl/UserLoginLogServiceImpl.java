@@ -17,7 +17,7 @@ import java.util.List;
  * 用户登录日志 服务实现类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 @Service

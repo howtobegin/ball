@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Setter
 @Getter

@@ -8,7 +8,7 @@ import com.ball.boss.dao.entity.BossMenu;
  * 菜单资源信息表 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 public interface IBossMenuService extends IService<BossMenu> {

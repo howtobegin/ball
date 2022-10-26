@@ -1,7 +1,7 @@
 package com.ball.base.util;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class PasswordUtil {
     public static String get(String password) {

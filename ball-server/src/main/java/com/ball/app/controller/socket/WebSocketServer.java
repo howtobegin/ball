@@ -13,7 +13,7 @@ import javax.websocket.server.ServerEndpoint;
 /**
  * 多机部署中涉及到的全局参数模型可以加上redis
  * 单机部署可直接使用
- * @author littlehow
+ * @author JimChery
  */
 @Slf4j
 @ServerEndpoint("/websocket/{token}")

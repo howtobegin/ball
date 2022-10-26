@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class SyncUtil {
     private static final Map<Object, Object> LOCK = new HashMap<>();

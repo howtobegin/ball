@@ -4,7 +4,7 @@ package com.ball.common.exception;
 import com.ball.base.exception.IBizErrCode;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum  CommonErrorCode implements IBizErrCode {
     SAVE_FILE_ERROR("C8001", "save file error"),

@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Api(tags = "用户信息")
 @RestController

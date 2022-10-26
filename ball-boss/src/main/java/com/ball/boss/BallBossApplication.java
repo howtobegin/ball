@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @SpringBootApplication
 @EnableSwagger2Doc

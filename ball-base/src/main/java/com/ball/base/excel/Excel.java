@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class Excel<T> {
     private SXSSFWorkbook workbook;

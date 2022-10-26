@@ -6,7 +6,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Map;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class MessageUtils {
 

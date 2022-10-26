@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class ServiceControl {
     private static String url = "http://localhost:port/app/entrance/control/service";

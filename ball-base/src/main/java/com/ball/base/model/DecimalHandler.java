@@ -3,7 +3,7 @@ package com.ball.base.model;
 import java.math.BigDecimal;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class DecimalHandler {
     private BigDecimal value;

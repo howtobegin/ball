@@ -62,3 +62,12 @@ create table user_login_log (
     key idx_session(session_id),
     key idx_user(user_id)
 )  engine = InnoDB default charset = utf8mb4 comment ='用户登录日志';
+
+drop table if exists user_extend;
+create table user_extend (
+    id                    bigint unsigned primary key comment '用户编号',
+    proxy_rate            decimal(5,4)       null comment '代理分成',
+    total_proxy_rate      decimal(5,4)       null comment '总代理分成',
+    create_time     datetime        not null default current_timestamp comment '创建时间',
+    update_time     datetime        not null default current_timestamp on update current_timestamp comment '更新时间'
+) engine = InnoDB default charset = utf8mb4 comment ='用户扩展信息';

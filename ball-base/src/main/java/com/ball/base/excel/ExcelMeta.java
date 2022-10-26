@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * 记录表宽度、表头、行高以及excel字段信息
- * @author littlehow
+ * @author JimChery
  */
 @Setter
 @Getter

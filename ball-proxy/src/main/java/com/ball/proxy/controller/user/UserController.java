@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Api(tags = "代理会员管理")
 @RestController

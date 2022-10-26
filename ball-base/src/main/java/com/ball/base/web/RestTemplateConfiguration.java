@@ -17,7 +17,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Configuration
 public class RestTemplateConfiguration {
@@ -52,7 +52,7 @@ public class RestTemplateConfiguration {
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", SSLConnectionSocketFactory.getSocketFactory())
                 .build();
-        // 不使用连接池 update littlehow 2021-04-18
+        // 不使用连接池 update JimChery 2021-04-18
         //BasicHttpClientConnectionManager clientConnectionManager = new BasicHttpClientConnectionManager();
         //clientConnectionManager.setConnectionConfig(ConnectionConfig.DEFAULT);
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);

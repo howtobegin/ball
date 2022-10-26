@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class Const {
     public static final String TRACE_ID = "X-B3-TraceId";

@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * 业务审核日志表 Mapper 接口
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 public interface BossCheckLogMapper extends BaseMapper<BossCheckLog> {

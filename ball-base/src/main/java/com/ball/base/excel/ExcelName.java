@@ -1,7 +1,7 @@
 package com.ball.base.excel;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class ExcelName {
     public static String encodeName(String name) {

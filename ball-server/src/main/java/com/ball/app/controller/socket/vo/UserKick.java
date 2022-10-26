@@ -3,7 +3,7 @@ package com.ball.app.controller.socket.vo;
 import lombok.Getter;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Getter
 public class UserKick {

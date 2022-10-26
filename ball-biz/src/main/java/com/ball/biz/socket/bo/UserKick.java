@@ -3,7 +3,7 @@ package com.ball.biz.socket.bo;
 import lombok.Getter;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Getter
 public class UserKick {

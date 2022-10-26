@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class DateUtil {
 

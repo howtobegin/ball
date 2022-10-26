@@ -3,7 +3,7 @@ package com.ball.base.util;
 import org.springframework.util.StringUtils;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class StringUtil {
     private static final String DESEN = "***";

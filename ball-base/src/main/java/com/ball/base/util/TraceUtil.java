@@ -5,7 +5,7 @@ import org.slf4j.MDC;
 
 /**
  * 目前没有异步开线程处理业务，所以暂时不需要用spanId做区别
- * @author littlehow
+ * @author JimChery
  */
 public class TraceUtil {
     private static String getTraceId() {

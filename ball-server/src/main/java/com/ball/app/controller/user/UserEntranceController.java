@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Api(tags = "用户登录")
 @RestController

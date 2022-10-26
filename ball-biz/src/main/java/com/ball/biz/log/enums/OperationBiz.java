@@ -1,7 +1,7 @@
 package com.ball.biz.log.enums;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum OperationBiz {
     ADD_PROXY("PROXY", "ADD_PROXY"),

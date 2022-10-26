@@ -1,5 +1,6 @@
-package com.ball.biz.base.entity;
+package com.ball.biz.user.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
@@ -10,36 +11,31 @@ import com.ball.base.model.Paging;
 
 /**
  * <p>
- * 编号生成表
+ * 用户扩展信息
  * </p>
  *
  * @author JimChery
- * @since 2022-10-19
+ * @since 2022-10-26
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class IdGen extends Paging {
+public class UserExtend extends Paging {
 
     /**
-     * 表名
+     * 用户编号
      */
-    private String tableName;
+    private Long id;
 
     /**
-     * 序号
+     * 代理分成
      */
-    private Long seqNo;
+    private BigDecimal proxyRate;
 
     /**
-     * 步进
+     * 总代理分成
      */
-    private Integer incr;
-
-    /**
-     * 版本
-     */
-    private Long version;
+    private BigDecimal totalProxyRate;
 
     /**
      * 创建时间

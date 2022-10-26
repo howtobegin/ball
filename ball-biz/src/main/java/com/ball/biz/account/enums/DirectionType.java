@@ -1,7 +1,7 @@
 package com.ball.biz.account.enums;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum DirectionType {
     IN,

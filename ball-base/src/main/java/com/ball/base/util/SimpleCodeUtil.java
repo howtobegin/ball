@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class SimpleCodeUtil {
     private static final char[] CODES = "lm9ab1c3def6ghi7jk5no0pq8rst4uvw2xyz".toCharArray();

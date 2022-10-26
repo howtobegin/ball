@@ -1,7 +1,7 @@
 package com.ball.base.model.enums;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum YesOrNo {
     YES(1),

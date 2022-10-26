@@ -38,7 +38,7 @@ import static com.ball.base.util.EncryptUtil.md5Plus;
 
 /**
  * 登录服务
- * @author littlehow
+ * @author JimChery
  */
 @Service
 @Slf4j

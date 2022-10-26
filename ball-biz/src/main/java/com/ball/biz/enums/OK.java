@@ -1,7 +1,7 @@
 package com.ball.biz.enums;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum OK {
     OK

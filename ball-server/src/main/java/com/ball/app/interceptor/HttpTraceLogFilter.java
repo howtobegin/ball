@@ -59,7 +59,8 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
      * 如果uri是如下列表中的一项开头的，那么response不打印
      * 比如文章相关的，就是打印request不打印response，比如针对一些返回私钥的接口也需要配置在这里，不打印私钥信息
      */
-    private List<String> ignorePrintResponseUriList = Lists.newArrayList("/app/article/", "/app/file/download");
+    private List<String> ignorePrintResponseUriList = Lists.newArrayList("/app/article/", "/app/file/download",
+            "/app/league/list");
 
     /**
      * 需要脱敏的header头的key，在打印头的时候进行脱敏

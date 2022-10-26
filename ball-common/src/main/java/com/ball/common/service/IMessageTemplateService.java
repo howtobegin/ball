@@ -8,7 +8,7 @@ import com.ball.common.dao.po.MessageTemplate;
  * 短信邮件模板表 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-04-14
  */
 public interface IMessageTemplateService extends IService<MessageTemplate> {

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class BizAssert {
     public static void isTrue(boolean flag, IBizErrCode message, String... obj) {

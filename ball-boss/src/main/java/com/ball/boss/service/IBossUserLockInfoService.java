@@ -8,7 +8,7 @@ import com.ball.boss.dao.entity.BossUserLockInfo;
  * 锁定信息 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 public interface IBossUserLockInfoService extends IService<BossUserLockInfo> {

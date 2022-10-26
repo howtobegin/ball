@@ -10,7 +10,7 @@ import com.ball.common.service.IBaseService;
  * 编号生成表 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 public interface IIdGenService extends IService<IdGen>, IBaseService {

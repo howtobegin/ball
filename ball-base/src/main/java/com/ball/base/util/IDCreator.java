@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Sequence;
  * 使用mybatisplus内置的雪花算法来做id生成器
  * workerId和datacenterId可以基于数据库或redis等设备
  * 此处为单机部署，所以使用默认的mac地址算法和进程算法即可
- * @author littlehow
+ * @author JimChery
  */
 public class IDCreator {
     /**

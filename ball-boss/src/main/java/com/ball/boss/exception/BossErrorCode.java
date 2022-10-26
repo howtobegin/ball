@@ -4,7 +4,7 @@ package com.ball.boss.exception;
 import com.ball.base.exception.IBizErrCode;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum BossErrorCode implements IBizErrCode {
     USER_OR_PASSWORD_ERROR("b101", "account or password error"),

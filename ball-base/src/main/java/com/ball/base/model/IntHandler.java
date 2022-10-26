@@ -1,7 +1,7 @@
 package com.ball.base.model;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class IntHandler {
     private int value;

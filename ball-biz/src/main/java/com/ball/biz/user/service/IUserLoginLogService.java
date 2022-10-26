@@ -10,7 +10,7 @@ import com.ball.common.service.IBaseService;
  * 用户登录日志 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 public interface IUserLoginLogService extends IService<UserLoginLog>, IBaseService {

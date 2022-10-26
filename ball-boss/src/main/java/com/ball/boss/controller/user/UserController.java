@@ -1,7 +1,7 @@
 package com.ball.boss.controller.user;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class UserController {
 }

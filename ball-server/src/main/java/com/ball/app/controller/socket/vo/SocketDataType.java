@@ -1,7 +1,7 @@
 package com.ball.app.controller.socket.vo;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum SocketDataType {
     // 用户登录踢出

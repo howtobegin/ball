@@ -99,7 +99,7 @@ public class LoginInterceptor implements HandlerInterceptor {
      * @param userInfo  -  用户信息
      */
     private void checkPasswordOrLogin(HttpServletRequest request, UserInfo userInfo) {
-        // todo littlehow 确认url做处理
+        // todo JimChery 确认url做处理
     }
 
     /**

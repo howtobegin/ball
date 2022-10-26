@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @SpringBootApplication
 @EnableSwagger2Doc

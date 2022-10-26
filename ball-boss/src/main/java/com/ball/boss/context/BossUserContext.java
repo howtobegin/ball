@@ -4,7 +4,7 @@ package com.ball.boss.context;
 import com.ball.boss.service.system.model.UserInfo;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class BossUserContext {
     private static final ThreadLocal<UserInfo> user = new ThreadLocal<>();

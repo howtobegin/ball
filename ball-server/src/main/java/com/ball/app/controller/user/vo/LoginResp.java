@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 @Setter
 @Getter

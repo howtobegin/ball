@@ -2,7 +2,7 @@ package com.ball.base.exception;
 
 /**
  * 踢出独有exception
- * @author littlehow
+ * @author JimChery
  */
 public class KickOutException extends RuntimeException {
     private KickOutException(String message) {

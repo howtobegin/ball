@@ -4,7 +4,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class UserPerUtil {
 

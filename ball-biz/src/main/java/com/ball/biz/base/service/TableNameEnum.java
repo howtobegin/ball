@@ -1,7 +1,7 @@
 package com.ball.biz.base.service;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public enum TableNameEnum {
     USER_INFO("user_info"),

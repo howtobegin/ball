@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author littlehow
+ * @author JimChery
  **/
 public class SuccessResponseAdvice implements ResponseBodyAdvice<Object> {
 

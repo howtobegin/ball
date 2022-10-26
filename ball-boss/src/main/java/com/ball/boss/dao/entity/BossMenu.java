@@ -15,7 +15,7 @@ import com.ball.base.model.Paging;
  * 菜单资源信息表
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 @Data

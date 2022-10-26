@@ -3,7 +3,7 @@ package com.ball.biz.socket.bo;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class MessageFactory {
     public static String getUserKick(String ip) {

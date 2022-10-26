@@ -15,7 +15,7 @@ import com.ball.base.model.Paging;
  * 业务审核日志表
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2021-09-22
  */
 @Data

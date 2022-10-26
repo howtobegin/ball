@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * 用户过多时可以考虑使用字符串池或则乐观锁
- * @author littlehow
+ * @author JimChery
  */
 public class SyncObj {
     private static Map<String, String> LOCK = new HashMap<>();

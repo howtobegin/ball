@@ -3,7 +3,7 @@ package com.ball.base.sync;
 import com.ball.base.util.SleepUtil;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class TestSync {
     public static void test() {

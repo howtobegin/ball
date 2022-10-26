@@ -1,7 +1,7 @@
 package com.ball.proxy.interceptor;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class TraceLogContext {
     private static ThreadLocal<Long> userNo = new ThreadLocal<>();

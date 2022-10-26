@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 
 /**
- * @author littlehow
+ * @author JimChery
  */
 public class MybatisBossGenerator {
     private static void run(String parentModule, String dbName, String pkgName, String[] tableNames) {
@@ -18,7 +18,7 @@ public class MybatisBossGenerator {
 
         GlobalConfig globalConfig = new GlobalConfig()
                 .setOutputDir(projectPath + "/" + moduleName + "/src/main/java")
-                .setAuthor("littlehow")
+                .setAuthor("JimChery")
                 .setOpen(false)
                 ;
 

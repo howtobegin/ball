@@ -12,7 +12,7 @@ import java.util.List;
  * 用户信息表 服务类
  * </p>
  *
- * @author littlehow
+ * @author JimChery
  * @since 2022-10-19
  */
 public interface IUserInfoService extends IService<UserInfo>, IBaseService {
