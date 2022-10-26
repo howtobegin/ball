@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = BallServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = BallServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BetServiceTest {
     @Autowired
     private ISchedulesService schedulesService;
@@ -107,8 +107,8 @@ public class BetServiceTest {
 
     @Test
     public void testHandicap() {
-        testHandicap("6990696980368326686", HandicapType.HANDICAP);
-        testHandicap("6990696980368326723", HandicapType.HANDICAP_HALF);
+        testHandicap("6989167539829866504", HandicapType.HANDICAP);
+        //testHandicap("6990696980376715310", HandicapType.HANDICAP_HALF);
 
     }
 

@@ -13,7 +13,7 @@ public interface BetProcessor {
     HandicapType getHandicapType();
 
 
-    void betCheck(BetBo bo);
+    void betCheck(BetBo bo, boolean checkUser);
 
     /**
      * 投注

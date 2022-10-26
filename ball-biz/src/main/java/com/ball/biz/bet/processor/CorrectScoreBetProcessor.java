@@ -2,14 +2,18 @@ package com.ball.biz.bet.processor;
 
 import com.alibaba.fastjson.JSON;
 import com.ball.base.util.BeanUtil;
+import com.ball.base.util.BizAssert;
 import com.ball.biz.bet.enums.BetOption;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsScoreData;
 import com.ball.biz.bet.processor.bo.BetInfo;
+import com.ball.biz.bet.processor.bo.OddsCheckInfo;
+import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.match.entity.OddsScore;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,14 +26,29 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class CorrectScoreBetProcessor extends AbstractBetProcessor {
+    @Value("${bet.odds.score.allow.delay:20}")
+    private Long allowDelay;
+
     @Override
     public HandicapType getHandicapType() {
         return HandicapType.CORRECT_SCORE;
     }
 
     @Override
-    protected void checkOdds(BetBo bo) {
-        betCheckAssist.checkOddsScore(bo.getBizNo(), getMatchTimeType());
+    protected OddsCheckInfo getOddsCheckInfo(BetBo bo) {
+        String bizNo = bo.getBizNo();
+        OddsScore oddsScore = oddsScoreService.queryByBizNo(bizNo);
+        BizAssert.notNull(oddsScore, BizErrCode.DATA_NOT_EXISTS);
+        BizAssert.isTrue(oddsScore.getType().equals(getMatchTimeType()), BizErrCode.PARAM_ERROR_DESC, "bizNo或handicapType");
+
+        return OddsCheckInfo.builder()
+                .matchId(oddsScore.getMatchId())
+                .type(getHandicapType())
+                .isClose(oddsScore.getIsClose() == null ? Boolean.FALSE : oddsScore.getIsClose())
+                .isMaintenance(false)
+                .latestChangeTime(oddsScore.getChangeTime())
+                .latestUpdateTime(oddsScore.getUpdateTime())
+                .build();
     }
 
     @Override
@@ -60,5 +79,10 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
 
     protected Integer getMatchTimeType() {
         return MatchTimeType.FULL.getCode();
+    }
+
+    @Override
+    protected Long getAllowDelay() {
+        return allowDelay;
     }
 }

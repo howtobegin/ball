@@ -9,11 +9,14 @@ import com.ball.base.util.IDCreator;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.service.IUserAccountService;
-import com.ball.biz.bet.BetCheckAssist;
+import com.ball.biz.bet.enums.HandicapType;
+import com.ball.biz.bet.enums.MatchTimeType;
+import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsData;
 import com.ball.biz.bet.processor.bo.BetInfo;
+import com.ball.biz.bet.processor.bo.OddsCheckInfo;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Odds;
@@ -34,6 +37,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * @author lhl
@@ -57,8 +62,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOrderInfoService orderInfoService;
     @Autowired
     protected IOrderHistoryService orderHistoryService;
-    @Autowired
-    protected BetCheckAssist betCheckAssist;
 
     /**
      * 单注最低
@@ -77,6 +80,14 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     private BigDecimal matchBetMax;
 
     /**
+     * 赔率允许延迟的时间，默认-1，表示不限制
+     * odds，任务是2秒一次
+     * oddsScore，任务10秒一次
+     */
+    @Value("${bet.odds.allow.delay:6}")
+    private Long allowDelay;
+
+    /**
      * 投注
      * @param bo
      * @return
@@ -85,7 +96,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     public OrderInfo bet(BetBo bo) {
         log.info("betBo {}", JSON.toJSON(bo));
 
-        betCheck(bo);
+        betCheck(bo, true);
         String orderNo = IDCreator.get();
         BigDecimal fee = BigDecimal.ZERO;
         // 构建订单信息，状态待确认
@@ -102,23 +113,80 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     }
 
     @Override
-    public void betCheck(BetBo bo) {
+    public void betCheck(BetBo bo, boolean checkUser) {
+        OddsCheckInfo checkInfo = getOddsCheckInfo(bo);
         // 位置不要挪动，校验投注信息，是否存在，关闭等，拿到matchId，后面用
-        checkOdds(bo);
+        checkOdds(checkInfo, bo);
         // 校验赛事
-        checkSchedule(bo);
+        checkSchedule(bo, checkInfo.getMatchId());
         // 投注选项是否合理
         BizAssert.isTrue(bo.getHandicapType().getBetOptions().contains(bo.getBetOption()), BizErrCode.PARAM_ERROR_DESC, "betOption");
-        // 校验用户状态，余额等
-        checkUser(bo);
+        if (checkUser) {
+            // 校验用户状态，余额等
+            checkUser(bo);
+        }
     }
 
-    protected void checkOdds(BetBo bo) {
-        betCheckAssist.checkOdds(bo);
+    protected OddsCheckInfo getOddsCheckInfo(BetBo bo) {
+        String bizNo = bo.getBizNo();
+        Odds odds = oddsService.queryByBizNo(bizNo);
+        BizAssert.notNull(odds, BizErrCode.DATA_NOT_EXISTS);
+
+        return OddsCheckInfo.builder()
+                .matchId(odds.getMatchId())
+                .type(HandicapType.parse(odds.getType()))
+                .isMaintenance(odds.getMaintenance() == null ? Boolean.FALSE : odds.getMaintenance())
+                .isClose(odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose())
+                .latestChangeTime(odds.getChangeTime())
+                .latestUpdateTime(odds.getUpdateTime())
+                .build();
     }
 
-    protected void checkSchedule(BetBo bo) {
-        betCheckAssist.checkSchedule(bo);
+    protected void checkOdds(OddsCheckInfo checkInfo, BetBo bo) {
+        HandicapType handicapType = bo.getHandicapType();
+        log.info("odds type {} bo.type {}", checkInfo.getType(), handicapType);
+        BizAssert.isTrue(handicapType == checkInfo.getType(), BizErrCode.PARAM_ERROR_DESC, "handicapType");
+        // 未返回是否关闭，是否当未关闭处理？
+        log.info("matchId {} close {}",checkInfo.getMatchId(), checkInfo.isClose());
+        // 投注是否关闭
+        BizAssert.isTrue(!checkInfo.isClose(), BizErrCode.ODDS_CLOSE);
+        // 是否维护
+        BizAssert.isTrue(!checkInfo.isMaintenance(), BizErrCode.ODDS_MAINTENANCE);
+
+        // 更新时间校验
+        if (getAllowDelay() > 0) {
+            LocalDateTime latestUpdateTime = checkInfo.getLatestUpdateTime();
+            boolean delay = latestUpdateTime.plusSeconds(getAllowDelay()).isBefore(LocalDateTime.now());
+            log.info("bizNo {} latestUpdateTime {} allowDelay {} delay {}",bo.getBizNo(), latestUpdateTime, getAllowDelay(), delay);
+            BizAssert.isTrue(!delay, BizErrCode.ODDS_DELAY);
+        }
+    }
+
+    protected void checkSchedule(BetBo bo, String matchId) {
+        HandicapType handicapType = bo.getHandicapType();
+
+        Schedules schedules = schedulesService.queryOne(matchId);
+        Integer status = schedules.getStatus();
+        log.info("matchId {} status {}", schedules.getMatchId(), status);
+        // 全场，校验状态
+        if (handicapType.getMatchTimeType() == MatchTimeType.FULL) {
+            BizAssert.isTrue(ScheduleStatus.canBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
+        }
+        // 半场，校验状态
+        if (handicapType.getMatchTimeType() == MatchTimeType.HALF) {
+            BizAssert.isTrue(ScheduleStatus.halfCanBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
+        }
+    }
+
+    protected Long getAllowDelay() {
+        return allowDelay;
+    }
+
+    public String getMatchId(String bizNo, String matchId) {
+        if (StringUtils.isEmpty(matchId)) {
+            matchId = Optional.ofNullable(oddsService.queryByBizNo(bizNo)).map(Odds::getMatchId).orElse(null);
+        }
+        return matchId;
     }
 
     protected void checkUser(BetBo bo) {

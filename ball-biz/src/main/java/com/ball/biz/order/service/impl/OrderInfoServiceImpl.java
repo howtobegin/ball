@@ -5,6 +5,8 @@ import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BizAssert;
+import com.ball.biz.account.enums.AccountTransactionType;
+import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.exception.BizErrCode;
@@ -41,6 +43,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private TransactionSupport transactionSupport;
     @Autowired
     private IOrderHistoryService orderHistoryService;
+    @Autowired
+    private IUserAccountService userAccountService;
 
     @Override
     public OrderInfo queryByOrderId(String orderId) {
@@ -104,7 +108,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         log.info("status {}", status);
         BizAssert.notNull(status, BizErrCode.PARAM_ERROR_DESC,"status");
 
-        updateStatus(orderId, status, OrderStatus.CANCEL);
+        transactionSupport.execute(()->{
+            userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+            updateStatus(orderId, status, OrderStatus.CANCEL);
+        });
     }
 
     @Override
