@@ -18,6 +18,8 @@ import java.util.List;
 public interface ISchedulesService extends IService<Schedules>, IBaseService {
     Schedules queryOne(String matchId);
 
+    List<Schedules> batchQuery(List<String> matchIds);
+
     List<Schedules> queryByDate(LocalDateTime start, LocalDateTime end);
 
     /**

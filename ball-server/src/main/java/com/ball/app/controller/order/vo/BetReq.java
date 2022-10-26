@@ -24,7 +24,7 @@ public class BetReq {
     @NotNull
     private HandicapType handicapType;
 
-    @ApiModelProperty("主要玩儿法：bizNo")
+    @ApiModelProperty("bizNo")
     @NotBlank
     private String bizNo;
 

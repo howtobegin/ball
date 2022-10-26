@@ -28,6 +28,11 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
     }
 
     @Override
+    public List<Schedules> batchQuery(List<String> matchIds) {
+        return lambdaQuery().in(Schedules::getMatchId, matchIds).list();
+    }
+
+    @Override
     public List<Schedules> queryByDate(LocalDateTime start, LocalDateTime end) {
         return lambdaQuery()
                 .gt(start != null, Schedules::getMatchDate, start)
