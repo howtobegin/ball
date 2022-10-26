@@ -7,6 +7,8 @@ import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BizAssert;
 import com.ball.base.util.PasswordUtil;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.socket.WebsocketManager;
+import com.ball.biz.socket.bo.MessageFactory;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.entity.UserLoginLog;
 import com.ball.biz.user.entity.UserLoginSession;
@@ -76,6 +78,9 @@ public class LoginAssist {
                 .setIp(RequestContext.getIp())
                 .setUpdateTime(null);
         transactionSupport.execute(() -> {
+            userInfoService.lambdaUpdate().set(UserInfo::getLastLogin, System.currentTimeMillis())
+                    .eq(UserInfo::getId, session.getUserId())
+                    .update();
             userLoginSessionService.updateById(session);
             // 记录登录日志
             loginLogService.save(new UserLoginLog()
@@ -93,6 +98,7 @@ public class LoginAssist {
                         .set(UserLoginLog::getTerminateSid, sessionId)
                         .eq(UserLoginLog::getSessionId, old)
                         .update();
+                WebsocketManager.sendMessage(session.getUserId(), old, MessageFactory.getUserKick(RequestContext.getIp()));
             }
         });
 

@@ -1,5 +1,6 @@
 package com.ball.app.controller.account.vo;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,10 +9,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * @author littlehow
+ * @author ab
  */
 @Setter
 @Getter
+@ApiModel("账户信息")
 public class AccountResp {
     @ApiModelProperty("用户编号")
     private Long userId;

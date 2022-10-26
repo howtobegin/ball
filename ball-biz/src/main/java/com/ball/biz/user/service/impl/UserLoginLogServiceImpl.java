@@ -32,4 +32,13 @@ public class UserLoginLogServiceImpl extends ServiceImpl<UserLoginLogMapper, Use
         UserLoginLog loginLog = log.get(0);
         BizAssert.isTrue(YesOrNo.YES.isMe(loginLog.getStatus()), BizErrCode.USER_LOGIN_KICK_OUT);
     }
+
+    @Override
+    public Long getBySessionId(String sessionId) {
+        List<UserLoginLog> log = lambdaQuery().eq(UserLoginLog::getSessionId, sessionId).list();
+        if (CollectionUtils.isEmpty(log)) {
+            return 0L;
+        }
+        return log.get(0).getUserId();
+    }
 }

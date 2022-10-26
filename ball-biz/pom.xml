@@ -17,5 +17,11 @@
             <groupId>com.ball</groupId>
             <artifactId>ball-common</artifactId>
         </dependency>
+
+        <dependency>
+            <!-- websocket -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
     </dependencies>
 </project>

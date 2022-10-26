@@ -60,6 +60,9 @@ public class HttpSessionConfig {
 
         @Override
         public List<String> resolveSessionIds(HttpServletRequest request) {
+            if (request.getRequestURI().equals("/proxy/login")) {
+                return Collections.emptyList();
+            }
             String headerValue = request.getHeader(TOKEN_NAME);
             if (StringUtils.isBlank(headerValue)) {
                 headerValue = cookieToken(request);

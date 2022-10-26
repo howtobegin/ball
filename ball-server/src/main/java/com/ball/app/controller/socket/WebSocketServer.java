@@ -1,13 +1,14 @@
 package com.ball.app.controller.socket;
 
+import com.ball.biz.socket.WebsocketManager;
+import com.ball.biz.user.service.IUserLoginLogService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import javax.websocket.server.ServerEndpoint;
 
 /**
  * 多机部署中涉及到的全局参数模型可以加上redis
@@ -15,60 +16,35 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author littlehow
  */
 @Slf4j
-//@ServerEndpoint("/websocket/{account}")
-//@Component
+@ServerEndpoint("/websocket/{token}")
+@Component
 public class WebSocketServer {
 
-    private static final Map<String, Session> sessionPool = new ConcurrentHashMap<>();
-    // 基于session id本身的连接管理，暂时无用
-    private static final Map<String, Session> sessionIdPool = new ConcurrentHashMap<>();
+    public static void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+        WebsocketManager.setRedisTemplate(redisTemplate);
+    }
 
-    private static AtomicInteger online = new AtomicInteger(0);
+    public static void setUserLoginLogService(IUserLoginLogService userLoginLogService) {
+        WebsocketManager.setUserLoginLogService(userLoginLogService);
+    }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam(value = "account") String account){
-        Session old = sessionPool.put(account, session);
-        if (old != null) {
-            log.info("session kick account {}", account);
-            sessionIdPool.remove(old.getId());
-            online.decrementAndGet();
-            try {
-                old.close();
-            } catch (IOException e) {
-                log.error("close session fail");
-            }
-        }
-        sessionIdPool.put(session.getId(), session);
-        log.info("current online session count {}, new account {}", online.incrementAndGet(), account);
+    public void onOpen(Session session, @PathParam(value = "token") String token){
+        WebsocketManager.onOpen(session, token);
     }
 
     @OnClose
-    public void onClose(@PathParam(value = "account") String account){
-        sessionPool.remove(account);
-        log.info("current online session count {}, remove account {}", online.decrementAndGet(), account);
+    public void onClose(@PathParam(value = "token") String token){
+        WebsocketManager.onClose(token);
     }
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        log.info("receive message {}", message);
-        session.getAsyncRemote().sendText("welcome to websocket");
+        WebsocketManager.onMessage(message, session);
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
         log.error("websocket error {}", session.getId(), error);
-    }
-
-
-    public static void sendMessage(String account, String message) {
-        Session session = sessionPool.get(account);
-        if (session != null) {
-            session.getAsyncRemote().sendText(message);
-        }
-    }
-
-    public static void sendMessage(String message) {
-        // 全员发信息
-        sessionPool.values().forEach(session -> session.getAsyncRemote().sendText(message));
     }
 }
