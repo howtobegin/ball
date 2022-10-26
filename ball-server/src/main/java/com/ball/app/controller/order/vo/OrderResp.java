@@ -24,25 +24,19 @@ public class OrderResp {
     /**
      * 用户编号
      */
-    @ApiModelProperty("")
+    @ApiModelProperty("用户编号")
     private Long userId;
-
-    /**
-     * 用户名
-     */
-    @ApiModelProperty("")
-    private String userName;
 
     /**
      * 比赛ID
      */
-    @ApiModelProperty("")
+    @ApiModelProperty("比赛ID")
     private String matchId;
 
     /**
      * 盘口类型,让球，欧赔，大小，波胆，参考：HandicapType
      */
-    @ApiModelProperty("")
+    @ApiModelProperty("HANDICAP[让球全场],HANDICAP_HALF[让球半场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场],OVER_UNDER_HALF[大小球半场]，CORRECT_SCORE[波胆],CORRECT_SCORE_HALF[半场波胆]")
     private String handicapType;
 
     /**
@@ -76,16 +70,10 @@ public class OrderResp {
     private BigDecimal resultAmount;
 
     /**
-     * 赢金额（不包含）
+     * 页面显示赢金额
      */
-    @ApiModelProperty("赢金额")
+    @ApiModelProperty("订单未完成时，预估赢金额；订单已完成时，实际输赢金额")
     private BigDecimal winAmount;
-
-    /**
-     * 输金额
-     */
-    @ApiModelProperty("输金额")
-    private BigDecimal loseAmount;
 
     /**
      * 主队当前得分（来自schedule表）
@@ -120,8 +108,8 @@ public class OrderResp {
     /**
      * 赔率数据
      */
-    @ApiModelProperty("赔率数据")
-    private String oddsData;
+//    @ApiModelProperty("赔率数据")
+//    private String oddsData;
 
     /**
      * 比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed
@@ -140,4 +128,16 @@ public class OrderResp {
      */
     @ApiModelProperty("状态:INIT 初始化；CONFIRM 确认；SETTLED 结算；FINISH 完成；CANCEL/MATCH_CANCEL 取消")
     private String status;
+
+    @ApiModelProperty("主队名称")
+    private String homeName;
+
+    @ApiModelProperty("客队名称")
+    private String awayName;
+
+    @ApiModelProperty("联赛名称")
+    private String leagueName;
+
+    @ApiModelProperty("联赛简称")
+    private String leagueShortName;
 }

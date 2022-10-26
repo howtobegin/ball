@@ -11,6 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OddsScoreResp {
+    @ApiModelProperty("bizNo")
+    private Long bizNo;
+
     @ApiModelProperty("比赛ID")
     private String matchId;
 
