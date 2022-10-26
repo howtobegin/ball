@@ -62,21 +62,21 @@ public class BetServiceTest {
      */
     public void testBetAll(String matchId) {
         List<Odds> odds = oddsService.queryByMatchId(matchId);
-//        for (Odds odd : odds) {
-//            HandicapType type = HandicapType.parse(odd.getType());
-//            switch (type) {
-//                case HANDICAP:
-//                case HANDICAP_HALF:
-//                    testHandicap(odd.getBizNo(), type);
-//                    break;
-//                case OVER_UNDER_HALF:
-//                case OVER_UNDER:
-//                    testOverUnder(odd.getBizNo(), type);
-//                    break;
-//                case EUROPE_ODDS:
-//                    testEuropeOdds(odd.getBizNo(), type);
-//            }
-//        }
+        for (Odds odd : odds) {
+            HandicapType type = HandicapType.parse(odd.getType());
+            switch (type) {
+                case HANDICAP:
+                case HANDICAP_HALF:
+                    testHandicap(odd.getBizNo(), type);
+                    break;
+                case OVER_UNDER_HALF:
+                case OVER_UNDER:
+                    testOverUnder(odd.getBizNo(), type);
+                    break;
+                case EUROPE_ODDS:
+                    testEuropeOdds(odd.getBizNo(), type);
+            }
+        }
 
         List<OddsScore> oddsScores = oddsScoreService.queryByMatch(matchId, null);
         for (OddsScore oddsScore : oddsScores) {
@@ -135,8 +135,8 @@ public class BetServiceTest {
 
     @Test
     public void testOverUnder() {
-        testOverUnder("6989167335516930049", HandicapType.OVER_UNDER);
-        testOverUnder("6989167355964162050", HandicapType.OVER_UNDER_HALF);
+        testOverUnder("6989167355955773442", HandicapType.OVER_UNDER);
+        //testOverUnder("6989167355964162050", HandicapType.OVER_UNDER_HALF);
 
     }
 
@@ -161,7 +161,7 @@ public class BetServiceTest {
 
     @Test
     public void testEuropeOdds() {
-        testEuropeOdds("6989167335516930048",HandicapType.EUROPE_ODDS);
+        testEuropeOdds("6989167355951579138",HandicapType.EUROPE_ODDS);
     }
     public void testEuropeOdds(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
@@ -191,8 +191,8 @@ public class BetServiceTest {
     }
     @Test
     public void testCorrectScore() {
-        testCorrectScore("6989167335516930048",HandicapType.CORRECT_SCORE);
-        testCorrectScore("6989167335516930048",HandicapType.CORRECT_SCORE_HALL);
+        //testCorrectScore("6989167335516930048",HandicapType.CORRECT_SCORE);
+        testCorrectScore("6990262009052790824",HandicapType.CORRECT_SCORE_HALL);
 
     }
     public void testCorrectScore(String bizNo, HandicapType type) {

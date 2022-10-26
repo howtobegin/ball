@@ -1,5 +1,6 @@
 package com.ball.app.service;
 
+import com.alibaba.fastjson.JSON;
 import com.ball.app.controller.order.vo.BetHistoryReq;
 import com.ball.app.controller.order.vo.OrderResp;
 import com.ball.base.context.UserContext;
@@ -11,7 +12,6 @@ import com.ball.biz.match.service.ISchedulesService;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,19 +40,22 @@ public class BizOrderQueryService {
         Integer pageSize = req.getPageSize();
         LocalDate start = req.getStart();
         LocalDate end = req.getEnd();
+        Long userNo = UserContext.getUserNo();
         List<String> statusList = OrderStatus.finishCodes(req.getType() != 1);
+        log.info("userNo {} req {} statusList {}", userNo, JSON.toJSON(req), statusList);
 
-        Page<OrderInfo> page = new Page<>(pageIndex, pageIndex);
         LambdaQueryChainWrapper<OrderInfo> wrapper = orderInfoService.lambdaQuery()
-                .eq(OrderInfo::getUserId, UserContext.getUserNo())
+                .eq(OrderInfo::getUserId, userNo)
                 .in(OrderInfo::getStatus, statusList)
                 .gt(start != null, OrderInfo::getCreateTime, start)
-                .lt(end != null, OrderInfo::getCreateTime, end);
-        wrapper.page(page);
-        List<OrderInfo> records = page.getRecords();
+                .lt(end != null, OrderInfo::getCreateTime, end)
+                ;
+
+        PageResult<OrderInfo> pageResult = orderInfoService.pageQuery(wrapper, req);
+        List<OrderInfo> records = pageResult.getRows();
         List<OrderResp> respList = records.stream().map(o->BeanUtil.copy(o, OrderResp.class)).collect(Collectors.toList());
         setOtherInfo(respList);
-        return new PageResult<>(respList, page.getTotal(), pageIndex, pageSize);
+        return new PageResult<>(respList, pageResult.getTotalNum(), pageIndex, pageSize);
     }
 
     private List<OrderResp> setOtherInfo(List<OrderResp> list) {
