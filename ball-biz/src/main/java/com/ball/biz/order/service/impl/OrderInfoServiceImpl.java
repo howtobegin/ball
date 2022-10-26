@@ -1,5 +1,6 @@
 package com.ball.biz.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.base.transaction.TransactionSupport;
@@ -9,6 +10,7 @@ import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.mapper.OrderInfoMapper;
+import com.ball.biz.order.service.IOrderHistoryService;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
@@ -37,6 +39,8 @@ import java.util.Optional;
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements IOrderInfoService {
     @Autowired
     private TransactionSupport transactionSupport;
+    @Autowired
+    private IOrderHistoryService orderHistoryService;
 
     @Override
     public OrderInfo queryByOrderId(String orderId) {
@@ -56,36 +60,35 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     .set(OrderInfo::getStatus, next.getCode())
                     .update();
             BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
-            // TODO 增加历史
+            // 增加历史
+            orderHistoryService.saveLatest(queryByOrderId(orderId));
         });
     }
 
     @Override
     public void settled(String orderId, AnalyzeResult analyzeResult) {
-        log.info("orderId {}", orderId);
+        log.info("orderId {} analyzeResult {}", orderId, JSON.toJSONString(analyzeResult));
         OrderInfo order = queryByOrderId(orderId);
         if (OrderStatus.SETTLED.isMe(order.getStatus())) {
             return;
         }
         transactionSupport.execute(()->{
-            lambdaUpdate()
-                    .set(OrderInfo::getBetResult , analyzeResult.getBetResult())
+            boolean update = lambdaUpdate()
+                    .set(OrderInfo::getBetResult, analyzeResult.getBetResult())
                     .set(analyzeResult.getHomeScore() != null, OrderInfo::getHomeLastScore, analyzeResult.getHomeScore())
                     .set(analyzeResult.getAwayScore() != null, OrderInfo::getAwayLastScore, analyzeResult.getAwayScore())
-                    .set(OrderInfo::getStatus,  OrderStatus.SETTLED.getCode())
+                    .set(OrderInfo::getStatus, OrderStatus.SETTLED.getCode())
                     .set(OrderInfo::getSettleStatus, YesOrNo.YES.v)
 
 
                     .eq(OrderInfo::getId, order.getId())
                     .eq(OrderInfo::getStatus, OrderStatus.CONFIRM.getCode())
                     .update();
+            log.info("orderId {} update {}", order, update);
+            BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
+            // 增加历史
+            orderHistoryService.saveLatest(queryByOrderId(orderId));
         });
-    }
-
-    @Override
-    public void award(String orderId) {
-        log.info("orderId {}", orderId);
-        // TODO 账务变动
     }
 
     @Override
@@ -105,13 +108,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BigDecimal statBetAmount(String matchId) {
-        if (StringUtils.isEmpty(matchId)) {
+    public BigDecimal statBetAmount(Long userId, String matchId) {
+        if (StringUtils.isEmpty(matchId) || userId == null) {
             return BigDecimal.ZERO;
         }
         QueryWrapper<OrderInfo> query = new QueryWrapper<>();
 
         query.select("sum(bet_amount) bet_amount")
+                .eq("user_id", userId)
                 .eq("match_id", matchId);
         OrderInfo order = lambdaQuery().getBaseMapper().selectOne(query);
         return Optional.ofNullable(order).map(OrderInfo::getBetAmount).orElse(BigDecimal.ZERO);
@@ -126,6 +130,22 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 .lt(end != null, OrderInfo::getCreateTime, end);
         wrapper.page(page);
         List<OrderInfo> records = page.getRecords();
-        return new PageResult<OrderInfo>(records, page.getTotal(), pageIndex, pageSize);
+        return new PageResult<>(records, page.getTotal(), pageIndex, pageSize);
+    }
+
+    @Override
+    public void updateProxyAmount(String orderId, BigDecimal proxy1Amount, BigDecimal proxy2Amount, BigDecimal proxy3Amount) {
+        transactionSupport.execute(()->{
+            boolean update = lambdaUpdate().eq(OrderInfo::getOrderId, orderId)
+
+                    .set(proxy1Amount != null, OrderInfo::getProxy1Amount, proxy1Amount)
+                    .set(proxy2Amount != null, OrderInfo::getProxy2Amount, proxy2Amount)
+                    .set(proxy3Amount != null, OrderInfo::getProxy3Amount, proxy3Amount)
+                    .update();
+            log.info("orderId {} proxy1Amount {} proxy2Amount {} proxy3Amount {} update {}",orderId,proxy1Amount,proxy2Amount,proxy3Amount,update);
+
+            // 增加历史
+            orderHistoryService.saveLatest(queryByOrderId(orderId));
+        });
     }
 }

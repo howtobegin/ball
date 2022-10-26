@@ -30,17 +30,20 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
     void settled(String orderId, AnalyzeResult analyzeResult);
 
     /**
-     * 根据结算结果，派奖
-     * @param orderId
-     */
-    void award(String orderId);
-
-    /**
      * 只要未完成都可以取消
      */
     void cancel(String orderId);
 
-    BigDecimal statBetAmount(String matchId);
+    /**
+     * 统计，用户单场投注金额
+     */
+    BigDecimal statBetAmount(Long userId, String matchId);
 
     PageResult<OrderInfo> queryByStatusAndDate(List<String> statusList, LocalDate start, LocalDate end, Integer pageIndex, Integer pageSize);
+
+    /**
+     * 更新代理占成
+     */
+    void updateProxyAmount(String orderId, BigDecimal proxy1Amount, BigDecimal proxy2Amount, BigDecimal proxy3Amount);
+
 }

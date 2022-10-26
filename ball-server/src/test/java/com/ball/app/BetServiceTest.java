@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = BallServerApplication.class)
+@SpringBootTest(classes = BallServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class BetServiceTest {
     @Autowired
     private ISchedulesService schedulesService;
@@ -35,6 +35,8 @@ public class BetServiceTest {
     private IOddsService oddsService;
     @Autowired
     private IOddsScoreService oddsScoreService;
+
+    private static final Long USER_NO= 9012457L;
 
     @Test
     public void testRandomBet() {
@@ -88,7 +90,7 @@ public class BetServiceTest {
 
     private BetBo buildBetBo(String bizNo, HandicapType type) {
         return BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.HOME)
@@ -105,26 +107,26 @@ public class BetServiceTest {
 
     @Test
     public void testHandicap() {
-        testHandicap("6989167335500152832", HandicapType.HANDICAP);
-        testHandicap("6989167335525318659", HandicapType.HANDICAP_HALF);
+        testHandicap("6990696980368326686", HandicapType.HANDICAP);
+        testHandicap("6990696980368326723", HandicapType.HANDICAP_HALF);
 
     }
 
     public void testHandicap(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.HOME)
-                .betAmount(BigDecimal.ONE)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
         betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.AWAY)
-                .betAmount(BigDecimal.ONE)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
     }
@@ -138,19 +140,19 @@ public class BetServiceTest {
 
     public void testOverUnder(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.UNDER)
-                .betAmount(BigDecimal.ONE)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
         betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.OVER)
-                .betAmount(BigDecimal.ONE)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
     }
@@ -161,27 +163,27 @@ public class BetServiceTest {
     }
     public void testEuropeOdds(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.DRAW)
-                .betAmount(BigDecimal.TEN)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
         betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.HOME)
-                .betAmount(BigDecimal.TEN)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
         betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.AWAY)
-                .betAmount(BigDecimal.TEN)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
     }
@@ -193,11 +195,11 @@ public class BetServiceTest {
     }
     public void testCorrectScore(String bizNo, HandicapType type) {
         BetBo betBo = BetBo.builder()
-                .userNo(9012433L)
+                .userNo(USER_NO)
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.SCORE)
-                .betAmount(BigDecimal.TEN)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
     }

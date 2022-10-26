@@ -39,7 +39,8 @@ CREATE TABLE `order_info`
 
     unique KEY uniq_order_id (`order_id`),
     key idx_user_order(user_id,order_id),
-    key idx_match(match_id)
+    key idx_match_user(match_id, user_id),
+    key idx_user_time_status(user_id,create_time,status)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单表';
 
 DROP TABLE IF EXISTS `order_history`;
@@ -50,9 +51,9 @@ CREATE TABLE `order_history`
     home_last_score       int    null COMMENT '主队最后得分（来自schedule表）',
     away_last_score       int    null COMMENT '客队最后得分（来自schedule表）',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
-    win_amount      decimal(12,2) default 0 COMMENT '赢金额（不包含）',
-    lose_amount     decimal(12,2) default 0 COMMENT '输金额',
     bet_result      varchar(15)  default 'UNSETTLED' COMMENT '结果:UNSETTLED 未结算；LOSE 输；WIN 赢；LOSE_HALF 输一半；WIN_HALF 赢一半；DRAW 平',
-    status          varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM；已结算 SETTLED； 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
+    status   varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM；已结算 SETTLED； 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
+    create_time     datetime     not null default current_timestamp comment '创建时间',
+    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
     key idx_order(order_id)
 )ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单历史表';

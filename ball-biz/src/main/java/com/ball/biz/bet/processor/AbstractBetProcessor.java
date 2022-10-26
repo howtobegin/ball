@@ -24,6 +24,7 @@ import com.ball.biz.match.service.IOddsScoreService;
 import com.ball.biz.match.service.IOddsService;
 import com.ball.biz.match.service.ISchedulesService;
 import com.ball.biz.order.entity.OrderInfo;
+import com.ball.biz.order.service.IOrderHistoryService;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
@@ -56,6 +57,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOrderInfoService orderInfoService;
     @Autowired
     private UserProxyCache userProxyCache;
+    @Autowired
+    private IOrderHistoryService orderHistoryService;
 
     /**
      * 单注最低
@@ -90,6 +93,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         transactionSupport.execute(()->{
             // 保存订单信息
             orderInfoService.save(order);
+            // 增加历史
+            orderHistoryService.saveLatest(order);
             // 冻结
             userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
         });
@@ -110,6 +115,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected void checkSchedule(BetBo bo) {
         Schedules schedules = schedulesService.queryOne(bo.getMatchId());
         Integer status = schedules.getStatus();
+        log.info("matchId {} status {}", schedules.getMatchId(), status);
         // 全场，校验状态
         if (bo.getHandicapType().getMatchTimeType() == MatchTimeType.FULL) {
             BizAssert.isTrue(ScheduleStatus.canBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
@@ -123,20 +129,24 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected void checkUser(BetBo bo) {
         // 用户状态
         UserInfo user = userInfoService.getByUid(bo.getUserNo());
+        log.info("userId {} status {}", bo.getUserNo(), user.getStatus());
         BizAssert.isTrue(YesOrNo.YES.v == user.getStatus(), BizErrCode.USER_LOCKED);
         // 用户单项投注限额，最大，最小
+        log.info("userId {} betAmount {} min {} max {}",bo.getUserNo(), bo.getBetAmount(), betMin, betMax);
         BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
         BizAssert.isTrue(bo.getBetAmount().compareTo(betMax) <= 0, BizErrCode.BET_AMOUNT_TOO_MAX);
 
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
         BizAssert.notNull(account, BizErrCode.ACCOUNT_NOT_EXIST);
+        log.info("userId {} betAmount {} balance {} freeze {}",bo.getUserNo(), bo.getBetAmount(), account.getBalance(), account.getFreezeAmount());
         BizAssert.isTrue(account.getBalance().subtract(account.getFreezeAmount()).compareTo(bo.getBetAmount()) >= 0, BizErrCode.ACCOUNT_BALANCE_INSUFFICIENT);
 
         // 单场限额
         // 单场已投注
-        BigDecimal betAmount = orderInfoService.statBetAmount(bo.getMatchId());
-        BizAssert.isTrue(betAmount.add(bo.getBetAmount()).compareTo(matchBetMax) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
+        BigDecimal matchBetAmount = orderInfoService.statBetAmount(bo.getUserNo(), bo.getMatchId());
+        log.info("userId {} betAmount {} matchId {} matchBetAmount {} matchBetMax {}",bo.getUserNo(), bo.getBetAmount(), bo.getMatchId(), matchBetAmount, matchBetMax);
+        BizAssert.isTrue(matchBetAmount.add(bo.getBetAmount()).compareTo(matchBetMax) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
     }
 
     protected void checkOdds(BetBo bo) {
@@ -146,6 +156,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         BizAssert.isTrue(bo.getHandicapType().isMe(odds.getType()), BizErrCode.PARAM_ERROR_DESC, "handicapType");
         // 未返回是否关闭，是否当未关闭处理？
         boolean isClose = odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose();
+        log.info("matchId {} close {}",bo.getMatchId(), isClose);
         // 投注是否关闭
         BizAssert.isTrue(!isClose, BizErrCode.ODDS_CLOSE);
 
@@ -219,9 +230,5 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     @Override
     public void afterPropertiesSet() throws Exception {
         BetProcessorHolder.register(getHandicapType(), this);
-    }
-
-    protected void logInfo(String message, String...args) {
-        log.info("processor {} " + message, getHandicapType(), args);
     }
 }
