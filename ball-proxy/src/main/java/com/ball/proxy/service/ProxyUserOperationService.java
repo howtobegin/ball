@@ -63,7 +63,7 @@ public class ProxyUserOperationService {
                     UserContext.getUserNo(), req.getBalanceMode());
             // 添加扩展属性
             userExtendService.save(new UserExtend().setId(userId).setProxyRate(req.getProxyRate())
-                    .setTotalProxyRate(userExtend.getProxyRate()));
+                    .setTotalProxyRate(userExtend.getProxyRate()).setUserType(typeEnum.next));
             // 初始化代理账户
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(typeEnum.next), allowanceModeEnum);
             // 调整账务
@@ -87,7 +87,7 @@ public class ProxyUserOperationService {
             Long userId = proxyUserService.addProxyOne(req.getAccount(), req.getUserName(), req.getPassword(), req.getBalanceMode());
             // 设置扩展属性
             userExtendService.save(new UserExtend().setId(userId).setProxyRate(req.getProxyRate())
-                    .setTotalProxyRate(BigDecimal.ONE));
+                    .setTotalProxyRate(BigDecimal.ONE).setUserType(UserTypeEnum.PROXY_ONE.v));
             // 初始化代理账户
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(UserTypeEnum.PROXY_ONE.v),
                     allowanceModeEnum);

@@ -74,7 +74,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             userLoginSessionService.save(new UserLoginSession()
                 .setUserId(userId).setSessionId(Const.SESSION_DEFAULT)
             );
-            userExtendService.save(new UserExtend().setId(userId));
+            userExtendService.save(new UserExtend().setId(userId).setUserType(UserTypeEnum.GENERAL.v));
         });
         return info;
     }
