@@ -262,6 +262,11 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
                     .last(" and freeze_amount>=" + amountStr)
                     .update();
             BizAssert.isTrue(flag, BizErrCode.ACCOUNT_FREEZE_INSUFFICIENT);
+            // 记录日志
+            assetChangeLogService.save(new AssetChangeLog().setAmount(assetFreezeChange.getAmount())
+                    .setFee(BigDecimal.ZERO).setDirect(DirectionType.OUT.name())
+                    .setOrderNo(orderNo).setTransactionType(assetFreezeChange.getTransactionType())
+                    .setUserId(assetFreezeChange.getUserId()));
         });
     }
 }
