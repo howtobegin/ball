@@ -138,7 +138,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 .isMaintenance(odds.getMaintenance() == null ? Boolean.FALSE : odds.getMaintenance())
                 .isClose(odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose())
                 .latestChangeTime(odds.getChangeTime())
-                .latestUpdateTime(odds.getUpdateTime())
+                .latestUpdateTime(odds.getLastResTime() == null ? LocalDateTime.now() : odds.getLastResTime())
                 .build();
     }
 

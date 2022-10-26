@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
                 .isClose(oddsScore.getIsClose() == null ? Boolean.FALSE : oddsScore.getIsClose())
                 .isMaintenance(false)
                 .latestChangeTime(oddsScore.getChangeTime())
-                .latestUpdateTime(oddsScore.getUpdateTime())
+                .latestUpdateTime(oddsScore.getLastResTime() == null ? LocalDateTime.now() : oddsScore.getLastResTime())
                 .build();
     }
 

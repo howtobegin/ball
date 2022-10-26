@@ -59,6 +59,11 @@ public class OddsScore extends Paging {
     private Boolean isClose;
 
     /**
+     * 最新接口成功响应时间
+     */
+    private LocalDateTime lastResTime;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

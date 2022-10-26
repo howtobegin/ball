@@ -17,7 +17,7 @@ public class OddsScoreData {
     /**
      * 投注的bizNo
      */
-    private String bizNo;
+    private Long bizNo;
 
     private Integer homeScore;
 

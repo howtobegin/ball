@@ -36,12 +36,14 @@ public class BetServiceTest {
     @Autowired
     private IOddsScoreService oddsScoreService;
 
-    private static final Long USER_NO= 9012457L;
+    private static final Long USER_NO2= 9012457L;
+
+    private static final Long USER_NO= 9012448L;
 
     @Test
     public void testRandomBet() {
         LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = start.plusDays(1);
+        LocalDateTime end = start.plusDays(4);
         List<Schedules> schedules = schedulesService.queryByDate(start, end);
         for (Schedules schedule : schedules) {
             testBetAll(schedule.getMatchId());
@@ -60,21 +62,21 @@ public class BetServiceTest {
      */
     public void testBetAll(String matchId) {
         List<Odds> odds = oddsService.queryByMatchId(matchId);
-        for (Odds odd : odds) {
-            HandicapType type = HandicapType.parse(odd.getType());
-            switch (type) {
-                case HANDICAP:
-                case HANDICAP_HALF:
-                    testHandicap(odd.getBizNo(), type);
-                    break;
-                case OVER_UNDER_HALF:
-                case OVER_UNDER:
-                    testOverUnder(odd.getBizNo(), type);
-                    break;
-                case EUROPE_ODDS:
-                    testEuropeOdds(odd.getBizNo(), type);
-            }
-        }
+//        for (Odds odd : odds) {
+//            HandicapType type = HandicapType.parse(odd.getType());
+//            switch (type) {
+//                case HANDICAP:
+//                case HANDICAP_HALF:
+//                    testHandicap(odd.getBizNo(), type);
+//                    break;
+//                case OVER_UNDER_HALF:
+//                case OVER_UNDER:
+//                    testOverUnder(odd.getBizNo(), type);
+//                    break;
+//                case EUROPE_ODDS:
+//                    testEuropeOdds(odd.getBizNo(), type);
+//            }
+//        }
 
         List<OddsScore> oddsScores = oddsScoreService.queryByMatch(matchId, null);
         for (OddsScore oddsScore : oddsScores) {

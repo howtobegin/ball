@@ -101,6 +101,11 @@ public class Odds extends Paging {
     private Integer oddsType;
 
     /**
+     * 最新接口成功响应时间
+     */
+    private LocalDateTime lastResTime;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

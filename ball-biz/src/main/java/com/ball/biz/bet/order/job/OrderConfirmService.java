@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,6 +58,10 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
     @Override
     public boolean executeOne(OrderInfo data) {
         String bizNo = JSON.parseObject(data.getOddsData()).getString("bizNo");
+        if (StringUtils.isEmpty(bizNo)) {
+            log.warn("orderId {} bizNo is empty", data.getOrderId());
+            return false;
+        }
         HandicapType handicapType = HandicapType.parse(data.getHandicapType());
 
         if (!rebetCheck(data, bizNo, handicapType) || !checkScore(data)) {
