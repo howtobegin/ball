@@ -75,7 +75,8 @@ public class BizOrderQueryService {
             }
 
             BigDecimal winAmount = resp.getBetAmount().multiply(resp.getBetOdds());
-            if (OrderStatus.parse(resp.getStatus()).isFinish()) {
+            OrderStatus status = OrderStatus.parse(resp.getStatus());
+            if (status != null && status.isFinish()) {
                 winAmount = resp.getResultAmount().subtract(resp.getBetAmount());
             }
             resp.setWinAmount(winAmount);

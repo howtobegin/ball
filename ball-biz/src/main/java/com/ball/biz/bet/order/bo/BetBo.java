@@ -4,6 +4,7 @@ import com.ball.biz.bet.enums.BetOption;
 import com.ball.biz.bet.enums.HandicapType;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 public class BetBo {
     private Long userNo;
 
@@ -27,4 +28,14 @@ public class BetBo {
     private BigDecimal betAmount;
 
     private String matchId;
+
+    @Builder
+    public BetBo(Long userNo, HandicapType handicapType, String bizNo, BetOption betOption, BigDecimal betAmount, String matchId) {
+        this.userNo = userNo;
+        this.handicapType = handicapType;
+        this.bizNo = bizNo;
+        this.betOption = betOption;
+        this.betAmount = betAmount;
+        this.matchId = matchId;
+    }
 }

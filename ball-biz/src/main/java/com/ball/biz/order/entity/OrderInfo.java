@@ -85,6 +85,11 @@ public class OrderInfo extends Paging {
     private BigDecimal betOdds;
 
     /**
+     * 投注类型：1 早盘；2 赛前即时；3 滚盘
+     */
+    private Integer oddsType;
+
+    /**
      * 投注金额
      */
     private BigDecimal betAmount;

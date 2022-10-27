@@ -231,6 +231,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setBetOption(bo.getBetOption().name());
         order.setBetAmount(bo.getBetAmount());
         order.setBetOdds(new BigDecimal(betInfo.getBetOddsStr()));
+        order.setOddsType(betInfo.getOddsType());
 
         Schedules schedules = schedulesService.queryOne(betInfo.getMatchId());
         order.setHomeCurrentScore(schedules.getHomeScore());
@@ -281,6 +282,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 .companyId(companyId)
                 .betOddsStr(betOddsStr)
                 .instantHandicap(handicapStr)
+                .oddsType(odds.getOddsType())
                 .build();
     }
 

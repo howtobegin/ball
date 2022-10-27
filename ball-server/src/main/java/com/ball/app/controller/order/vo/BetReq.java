@@ -29,7 +29,7 @@ public class BetReq {
     private String bizNo;
 
     @ApiModelProperty("投注选项，选队伍的传：主队 HOME、客队 AWAY、平 DRAW；大小就传：OVER 大、UNDER 小；波胆投注：SCORE 具体比分、SCORE_OTHER 其他比分")
-    @NotBlank
+    @NotNull
     private BetOption betOption;
 
     @ApiModelProperty("投注金额")

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @author lhl
@@ -42,7 +43,7 @@ public class OrderResp {
     /**
      * 投注选项，选队伍的就是队伍ID，大小就是OVER或UNDER
      */
-    @ApiModelProperty("投注选项，选队伍的就是队伍ID，大小就是OVER或UNDER")
+    @ApiModelProperty("投注选项，选队伍的传：主队 HOME、客队 AWAY、平 DRAW；大小就传：OVER 大、UNDER 小；波胆投注：SCORE 具体比分、SCORE_OTHER 其他比分")
     private String betOption;
 
     /**
@@ -140,4 +141,13 @@ public class OrderResp {
 
     @ApiModelProperty("联赛简称")
     private String leagueShortName;
+
+    @ApiModelProperty("创建时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 投注类型：1 早盘；2 赛前即时；3 滚盘
+     */
+    @ApiModelProperty("投注类型：1 早盘；2 赛前即时；3 滚盘。if ((handicapType == HANDICAP或者HANDICAP_HALF) and oddsType == 3) 才显示 滚球，其他不用管这个")
+    private Integer oddsType;
 }

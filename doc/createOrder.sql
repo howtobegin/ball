@@ -22,6 +22,7 @@ CREATE TABLE `order_info`
     bet_result      varchar(30) default 'UNSETTLED' not null comment '投注结果:UNSETTLED 未结算；LOSE 输；WIN 赢；LOSE_HALF 输一半；WIN_HALF 赢一半；DRAW 平',
 
     bet_odds        decimal(12,2) NOT NULL COMMENT '投注赔率',
+    odds_type       tinyint       not null COMMENT '投注类型：1 早盘；2 赛前即时；3 滚盘；波胆：1 prematch;2 inplay',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',

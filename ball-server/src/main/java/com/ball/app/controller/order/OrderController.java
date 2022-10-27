@@ -9,7 +9,6 @@ import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.processor.BetProcessorHolder;
-import com.ball.biz.order.entity.OrderInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +32,10 @@ public class OrderController {
 
     @ApiOperation("下注")
     @PostMapping("bet")
-    public OrderResp bet(@RequestBody @Valid BetReq req) {
+    public void bet(@RequestBody @Valid BetReq req) {
         BetBo bo = BeanUtil.copy(req, BetBo.class);
         bo.setUserNo(UserContext.getUserNo());
-        OrderInfo order = BetProcessorHolder.get(req.getHandicapType()).bet(bo);
-        return BeanUtil.copy(order, OrderResp.class);
+        BetProcessorHolder.get(req.getHandicapType()).bet(bo);
     }
 
     @ApiOperation("记录")

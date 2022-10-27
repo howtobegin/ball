@@ -75,6 +75,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
                 .companyId(companyId)
                 .betOddsStr(betOddsStr)
                 .instantHandicap(handicapStr)
+                .oddsType(oddsScore.getStatus())
                 .build();
     }
 

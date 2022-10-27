@@ -15,17 +15,10 @@ import lombok.Setter;
 public class OddsData {
     private String bizNo;
 
-    private String initialHandicap;
-
-    private String initialHome;
-
-    private String initialAway;
-
-    private String initialDraw;
-
-    private String initialOver;
-
-    private String initialUnder;
+    /**
+     * 1: Macauslot,3: Crown
+     */
+    private String companyId;
 
     private String instantHandicap;
 
@@ -45,11 +38,6 @@ public class OddsData {
     private Boolean inPlay;
 
     /**
-     * When the handicapIndex is 1, it is the data of the main market.
-     */
-    private Integer handicapIndex;
-
-    /**
      * Change time, unix timestamp
      */
     private Integer changeTime;
@@ -60,13 +48,8 @@ public class OddsData {
     private Integer oddsType;
 
     @Builder
-    public OddsData(String initialHandicap, String initialHome, String initialAway, String initialDraw, String initialOver, String initialUnder, String instantHandicap, String instantHome, String instantAway, String instantDraw, String instantOver, String instantUnder, Boolean inPlay, Integer handicapIndex, Integer changeTime, Integer oddsType) {
-        this.initialHandicap = initialHandicap;
-        this.initialHome = initialHome;
-        this.initialAway = initialAway;
-        this.initialDraw = initialDraw;
-        this.initialOver = initialOver;
-        this.initialUnder = initialUnder;
+    public OddsData(String bizNo, String instantHandicap, String instantHome, String instantAway, String instantDraw, String instantOver, String instantUnder, Boolean inPlay, Integer changeTime, Integer oddsType) {
+        this.bizNo = bizNo;
         this.instantHandicap = instantHandicap;
         this.instantHome = instantHome;
         this.instantAway = instantAway;
@@ -74,7 +57,6 @@ public class OddsData {
         this.instantOver = instantOver;
         this.instantUnder = instantUnder;
         this.inPlay = inPlay;
-        this.handicapIndex = handicapIndex;
         this.changeTime = changeTime;
         this.oddsType = oddsType;
     }
