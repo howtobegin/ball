@@ -89,6 +89,7 @@ public enum BizErrCode implements IBizErrCode {
     ACCOUNT_FREEZE_NOT_FOUND("A105", "找不到冻结记录"),
     ACCOUNT_FREEZE_INSUFFICIENT("A106", "冻结余额不足"),
     ACCOUNT_BALANCE_INSUFFICIENT_OR_CONCURRENT("A104", "余额不足或者并发问题，请重试"),
+    TRADE_CONFIG_INLLEGAL("TC101", "比例不能超过上级代理"),
 
     CURRENCY_NOT_FOUND("C101", "币种不支持"),
 
