@@ -3,6 +3,7 @@ package com.ball.biz.order.service;
 import com.ball.base.model.PageResult;
 import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
+import com.ball.biz.order.bo.OrderFinishBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.common.service.IBaseService;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -29,6 +30,8 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
      */
     void settled(String orderId, AnalyzeResult analyzeResult);
 
+    void finish(OrderFinishBo bo);
+
     /**
      * 只要未完成都可以取消
      */
@@ -40,10 +43,4 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
     BigDecimal statBetAmount(Long userId, String matchId);
 
     PageResult<OrderInfo> queryByStatusAndDate(List<String> statusList, LocalDate start, LocalDate end, Integer pageIndex, Integer pageSize);
-
-    /**
-     * 更新代理占成
-     */
-    void updateProxyAmount(String orderId, BigDecimal proxy1Amount, BigDecimal proxy2Amount, BigDecimal proxy3Amount);
-
 }

@@ -20,6 +20,8 @@ public enum BizErrCode implements IBizErrCode {
     MATCH_BET_AMOUNT_TOO_MAX("B00012","单场投注超过最大值"),
     ODDS_MAINTENANCE("B00013","投注已关闭"),
     ODDS_DELAY("B00014","赔率延迟，暂无法下注"),
+    BET_ALL_CLOSE("B00015","下注临时关闭"),
+    BET_THIS_TYPE_CLOSE("B00016","该类型下注临时关闭"),
 
     DATA_ERROR("14000", "data error"),
     DATA_NOT_EXISTS("14002", "data not exists"),

@@ -25,11 +25,15 @@ CREATE TABLE `order_info`
     odds_type       tinyint       not null COMMENT '投注类型：1 早盘；2 赛前即时；3 滚盘；波胆：1 prematch;2 inplay',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
+    valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
     proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
 
     odds_data       text        not null comment '赔率JSON数据，根据不同type解析',
+    bet_year        tinyint    NOT NULL COMMENT '投注年',
+    bet_month       tinyint    NOT NULL COMMENT '投注月',
+    bet_day         tinyint    NOT NULL COMMENT '投注日',
 
     schedule_status tinyint null comment '比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed',
     settle_status   tinyint  default 0 COMMENT '结算状态:0 未结算；1 已结算',

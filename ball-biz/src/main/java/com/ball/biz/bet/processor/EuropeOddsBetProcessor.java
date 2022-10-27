@@ -5,6 +5,7 @@ import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.match.entity.Odds;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class EuropeOddsBetProcessor extends AbstractBetProcessor {
+    @Value("${bet.europe.odds.enable:true}")
+    private boolean enable;
     @Override
     public HandicapType getHandicapType() {
         return HandicapType.EUROPE_ODDS;
@@ -23,5 +26,10 @@ public class EuropeOddsBetProcessor extends AbstractBetProcessor {
     protected String getBetOdds(Odds odds, BetBo bo) {
         return BetOption.HOME == bo.getBetOption() ? odds.getInstantHome() :
                 BetOption.AWAY == bo.getBetOption() ? odds.getInstantAway() : odds.getInstantDraw();
+    }
+
+    @Override
+    protected boolean isEnable() {
+        return enable;
     }
 }

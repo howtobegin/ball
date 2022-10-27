@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@ApiModel("订单请求信息")
+@ApiModel("订单信息")
 public class OrderResp {
     /**
      * 订单编号
@@ -69,6 +69,9 @@ public class OrderResp {
      */
     @ApiModelProperty("投注结果金额")
     private BigDecimal resultAmount;
+
+    @ApiModelProperty("有效金额")
+    private BigDecimal validAmount;
 
     /**
      * 页面显示赢金额

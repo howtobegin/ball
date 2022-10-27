@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -88,13 +89,21 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     private Long allowDelay;
 
     /**
+     * 下注总控
+     */
+    @Value("${bet.enable:true}")
+    private boolean enable;
+
+    /**
      * 投注
      * @param bo
      * @return
      */
     @Override
     public OrderInfo bet(BetBo bo) {
-        log.info("betBo {}", JSON.toJSON(bo));
+        log.info("betBo {} enable {} isEnable {}", JSON.toJSON(bo), enable, isEnable());
+        BizAssert.isTrue(enable, BizErrCode.BET_ALL_CLOSE);
+        BizAssert.isTrue(isEnable(), BizErrCode.BET_THIS_TYPE_CLOSE);
 
         betCheck(bo, true);
         String orderNo = IDCreator.get();
@@ -240,6 +249,11 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
 
         order.setOddsData(betInfo.getOddsData());
         order.setInstantHandicap(betInfo.getInstantHandicap());
+        LocalDate date = LocalDate.now();
+        order.setBetYear(date.getYear());
+        order.setBetMonth(date.getMonthValue());
+        order.setBetDay(date.getDayOfMonth());
+
         log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;
     }
@@ -294,6 +308,14 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
      */
     protected String getBetOdds(Odds odds, BetBo bo) {
         throw new BizException(BizErrCode.NOT_FOUND_BET_OPTION);
+    }
+
+    /**
+     * 各实现控制
+     * @return
+     */
+    protected boolean isEnable() {
+        return true;
     }
 
     @Override

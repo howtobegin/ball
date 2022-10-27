@@ -9,6 +9,7 @@ import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.bo.ProxyAmount;
 import com.ball.biz.bet.order.calculate.CalculatorHolder;
 import com.ball.biz.bet.order.calculate.bo.CalcResult;
+import com.ball.biz.order.bo.OrderFinishBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.user.bo.ProxyRateInfo;
@@ -61,6 +62,9 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
         Long userId = data.getUserId();
         // 用户输赢
         BigDecimal userWinAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount());
+        // 计算代理占成
+        ProxyAmount proxyAmount = calcProxyAmount(userId, userWinAmount);
+        OrderFinishBo orderFinishBo = buildOrderFinishBo(orderId, calcResult, proxyAmount);
         transactionSupport.execute(()->{
             // 解冻
             userAccountService.unfreeze(data.getOrderId(), AccountTransactionType.TRADE);
@@ -78,15 +82,31 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
                 // 用户出
                 userAccountService.payout(userId, userLose, orderId, AccountTransactionType.TRADE);
             }
-            // 计算代理占成
-            ProxyAmount proxyAmount = calcProxyAmount(userId, userWinAmount);
-            // 记录代理占成，支出用负数表示
-            orderInfoService.updateProxyAmount(orderId, proxyAmount.getProxy1Amount(), proxyAmount.getProxy2Amount(), proxyAmount.getProxy3Amount());
-            // 修改订单状态
-            orderInfoService.updateStatus(orderId, OrderStatus.SETTLED, OrderStatus.FINISH);
+            // 订单完成，更新对应数据
+            orderInfoService.finish(orderFinishBo);
 
         });
         return true;
+    }
+
+    private OrderFinishBo buildOrderFinishBo(String orderId, CalcResult calcResult, ProxyAmount proxyAmount) {
+        // 赢或输.abs()
+        BigDecimal validAmount = BigDecimal.ZERO;
+        if (calcResult.getResult() == BetResult.WIN || calcResult.getResult() == BetResult.WIN_HALF) {
+            validAmount = calcResult.getResultAmount();
+        } else if (calcResult.getResult() == BetResult.LOSE || calcResult.getResult() == BetResult.LOSE_HALF) {
+            validAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount()).abs();
+        }
+
+        return OrderFinishBo.builder()
+                .orderId(orderId)
+                .pre(OrderStatus.SETTLED)
+                .resultAmount(calcResult.getResultAmount())
+                .validAmount(validAmount)
+                .proxy1Amount(proxyAmount.getProxy1Amount())
+                .proxy2Amount(proxyAmount.getProxy2Amount())
+                .proxy3Amount(proxyAmount.getProxy3Amount())
+                .build();
     }
 
     /**

@@ -1,11 +1,8 @@
 package com.ball.app.controller.order;
 
-import com.ball.app.controller.order.vo.BetHistoryReq;
-import com.ball.app.controller.order.vo.BetReq;
-import com.ball.app.controller.order.vo.OrderResp;
+import com.ball.app.controller.order.vo.*;
 import com.ball.app.service.BizOrderQueryService;
 import com.ball.base.context.UserContext;
-import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.processor.BetProcessorHolder;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author lhl
@@ -38,9 +36,21 @@ public class OrderController {
         BetProcessorHolder.get(req.getHandicapType()).bet(bo);
     }
 
-    @ApiOperation("记录")
+    @ApiOperation("交易状况")
+    @PostMapping("bet/current")
+    public List<OrderResp> betCurrent() {
+        return bizOrderQueryService.current();
+    }
+
+    @ApiOperation("账户历史")
     @PostMapping("bet/history")
-    public PageResult<OrderResp> betHistory(@RequestBody @Valid BetHistoryReq req) {
-        return bizOrderQueryService.history(req);
+    public List<OrderHistoryResp> betHistory(@RequestBody @Valid BetHistoryReq req) {
+        return bizOrderQueryService.history(UserContext.getUserNo(), req.getStart(), req.getEnd());
+    }
+
+    @ApiOperation("账户历史 - 指定某天")
+    @PostMapping("bet/history/date")
+    public List<OrderResp> betHistoryDate(@RequestBody @Valid BetHistoryDateReq req) {
+        return bizOrderQueryService.historyDate(UserContext.getUserNo(), req.getDate());
     }
 }

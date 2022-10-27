@@ -15,12 +15,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ApiModel("投注记录请求信息")
-public class BetHistoryReq {
-    @ApiModelProperty("开始时间")
+public class BetHistoryDateReq {
+    @ApiModelProperty("时间")
     @NotNull
-    private LocalDate start;
-
-    @ApiModelProperty("结束时间")
-    @NotNull
-    private LocalDate end;
+    private LocalDate date;
 }

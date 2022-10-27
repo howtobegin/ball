@@ -5,6 +5,7 @@ import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.match.entity.Odds;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class HandicapBetProcessor extends AbstractBetProcessor {
+    @Value("${bet.handicap.enable:true}")
+    private boolean enable;
     @Override
     public HandicapType getHandicapType() {
         return HandicapType.HANDICAP;
@@ -22,5 +25,10 @@ public class HandicapBetProcessor extends AbstractBetProcessor {
     @Override
     protected String getBetOdds(Odds odds, BetBo bo) {
         return BetOption.HOME == bo.getBetOption() ? odds.getInstantHome() : odds.getInstantAway();
+    }
+
+    @Override
+    protected boolean isEnable() {
+        return enable;
     }
 }

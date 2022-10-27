@@ -105,6 +105,11 @@ public class OrderInfo extends Paging {
     private BigDecimal resultAmount;
 
     /**
+     * 有效金额
+     */
+    private BigDecimal validAmount;
+
+    /**
      * 代理1收入或支出金额
      */
     private BigDecimal proxy1Amount;
@@ -148,6 +153,12 @@ public class OrderInfo extends Paging {
      * 赔率数据
      */
     private String oddsData;
+
+    private Integer betYear;
+
+    private Integer betMonth;
+
+    private Integer betDay;
 
     /**
      * 比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed

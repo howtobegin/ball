@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 public class CorrectScoreBetProcessor extends AbstractBetProcessor {
     @Value("${bet.odds.score.allow.delay:20}")
     private Long allowDelay;
+    @Value("${bet.score.enable:true}")
+    private boolean enable;
 
     @Override
     public HandicapType getHandicapType() {
@@ -86,5 +88,10 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
     @Override
     protected Long getAllowDelay() {
         return allowDelay;
+    }
+
+    @Override
+    protected boolean isEnable() {
+        return enable;
     }
 }

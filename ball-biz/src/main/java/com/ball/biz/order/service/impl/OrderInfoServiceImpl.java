@@ -10,6 +10,7 @@ import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.order.bo.OrderFinishBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.mapper.OrderInfoMapper;
 import com.ball.biz.order.service.IOrderHistoryService;
@@ -96,6 +97,25 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
+    public void finish(OrderFinishBo bo) {
+        log.info("orderId {}", bo.getOrderId());
+
+        boolean update = lambdaUpdate()
+                .set(OrderInfo::getStatus, OrderStatus.FINISH.getCode())
+                .set(OrderInfo::getResultAmount, bo.getResultAmount())
+                .set(OrderInfo::getValidAmount, bo.getValidAmount())
+                .set(OrderInfo::getProxy1Amount, bo.getProxy1Amount())
+                .set(OrderInfo::getProxy2Amount, bo.getProxy2Amount())
+                .set(OrderInfo::getProxy3Amount, bo.getProxy3Amount())
+
+                .eq(OrderInfo::getOrderId, bo.getOrderId())
+                .eq(OrderInfo::getStatus, bo.getPre().getCode())
+                .update();
+        log.info("orderId {} update {}", update);
+        BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
+    }
+
+    @Override
     public void cancel(String orderId) {
         log.info("orderId {}", orderId);
         OrderInfo order = queryByOrderId(orderId);
@@ -138,21 +158,5 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         wrapper.page(page);
         List<OrderInfo> records = page.getRecords();
         return new PageResult<>(records, page.getTotal(), pageIndex, pageSize);
-    }
-
-    @Override
-    public void updateProxyAmount(String orderId, BigDecimal proxy1Amount, BigDecimal proxy2Amount, BigDecimal proxy3Amount) {
-        transactionSupport.execute(()->{
-            boolean update = lambdaUpdate().eq(OrderInfo::getOrderId, orderId)
-
-                    .set(proxy1Amount != null, OrderInfo::getProxy1Amount, proxy1Amount)
-                    .set(proxy2Amount != null, OrderInfo::getProxy2Amount, proxy2Amount)
-                    .set(proxy3Amount != null, OrderInfo::getProxy3Amount, proxy3Amount)
-                    .update();
-            log.info("orderId {} proxy1Amount {} proxy2Amount {} proxy3Amount {} update {}",orderId,proxy1Amount,proxy2Amount,proxy3Amount,update);
-
-            // 增加历史
-            orderHistoryService.saveLatest(queryByOrderId(orderId));
-        });
     }
 }
