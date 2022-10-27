@@ -12,6 +12,7 @@ import com.ball.biz.order.entity.OrderInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 
 /**
@@ -22,6 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
     @Autowired
     private ISchedulesService schedulesService;
+
+    /**
+     * 校验比赛状态类型：1 校验订单上的比赛状态；2 比赛上的状态；3 都校验
+     * @param order
+     * @return
+     */
+    @Value("${analyzer.check.status.type:1}")
+    private int checkStatusType;
 
     @Override
     public AnalyzeResult analyze(OrderInfo order) {
@@ -46,7 +55,7 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
         log.info("orderId {} matchId {} status {}", order.getOrderId(), schedules.getMatchId(), schedules.getStatus());
         // 结算状态和订单状态都是未结算
         boolean unsettled = YesOrNo.NO.isMe(order.getSettleStatus()) && OrderStatus.CONFIRM.isMe(order.getStatus());
-        return unsettled && isFinish(schedules);
+        return unsettled && isFinish(order, schedules);
     }
 
     /**
@@ -54,13 +63,25 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
      * @param schedules
      * @return
      */
-    protected boolean isFinish(Schedules schedules) {
-        // 全场
-        if (MatchTimeType.FULL == getHandicapType().getMatchTimeType()) {
-            return ScheduleStatus.FINISHED.isMe(schedules.getStatus());
+    protected boolean isFinish(OrderInfo order, Schedules schedules) {
+        if (checkStatusType < 3) {
+            Integer checkStatus = checkStatusType == 1 ? order.getScheduleStatus() : schedules.getStatus();
+            // 全场
+            if (MatchTimeType.FULL == getHandicapType().getMatchTimeType()) {
+                return ScheduleStatus.FINISHED.isMe(checkStatus);
+            }
+            // 半场
+            return ScheduleStatus.halfSettleCodes().contains(checkStatus);
+        } else {
+            Integer checkStatus1 = order.getScheduleStatus();
+            Integer checkStatus2 = schedules.getStatus();
+            // 全场
+            if (MatchTimeType.FULL == getHandicapType().getMatchTimeType()) {
+                return ScheduleStatus.FINISHED.isMe(checkStatus1) && ScheduleStatus.FINISHED.isMe(checkStatus2);
+            }
+            // 半场
+            return ScheduleStatus.halfSettleCodes().contains(checkStatus1) && ScheduleStatus.halfSettleCodes().contains(checkStatus2);
         }
-        // 半场
-        return ScheduleStatus.halfSettleCodes().contains(schedules.getStatus());
     }
 
     /**
