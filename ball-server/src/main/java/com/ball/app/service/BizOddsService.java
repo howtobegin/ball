@@ -133,7 +133,11 @@ public class BizOddsService {
         Map<HandicapType, List<OddsScoreResp>> oddsScore = Maps.newHashMap();
         if (matchOfOddsScore != null) {
             Map<Integer, List<OddsScoreResp>> tmp = matchOfOddsScore.stream()
-                    .map(o -> BeanUtil.copy(o, OddsScoreResp.class))
+                    .map(o -> {
+                        OddsScoreResp resp = BeanUtil.copy(o, OddsScoreResp.class);
+                        resp.setBizNo(o.getBizNo()+"");
+                        return resp;
+                    })
                     .collect(Collectors.groupingBy(OddsScoreResp::getType));
             oddsScore.put(HandicapType.CORRECT_SCORE, tmp.get(1));
             oddsScore.put(HandicapType.CORRECT_SCORE_HALL, tmp.get(2));
