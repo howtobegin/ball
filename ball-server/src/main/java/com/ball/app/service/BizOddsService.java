@@ -70,29 +70,47 @@ public class BizOddsService {
      * @return
      */
     public List<HandicapMatchOddsResp> mainOddsList(List<Schedules> schedules, Integer oddsScoreStatus) {
+        log.info("start");
         List<HandicapMatchOddsResp> ret = Lists.newArrayList();
-        List<String> leagueIds = schedules.stream().map(Schedules::getLeagueId).collect(Collectors.toList());
+        // 联赛ID
+        List<String> leagueIds = schedules.stream().map(Schedules::getLeagueId).distinct().collect(Collectors.toList());
+        log.info("leagueIds size {}", leagueIds.size());
         List<Leagues> leagues = leaguesService.query(leagueIds);
+        log.info("leagues's size {}", leagues.size());
         Map<String, Leagues> leagueMap = leagues.stream().collect(Collectors.toMap(Leagues::getLeagueId, Function.identity()));
+        Map<String, Schedules> matchSchedules = schedules.stream().collect(Collectors.toMap(Schedules::getMatchId, Function.identity()));
 
-        Map<String, List<Schedules>> leagueSchedules = schedules.stream().collect(Collectors.groupingBy(Schedules::getLeagueId));
-        leagueSchedules.forEach((leagueId, list) -> {
+        List<String> matchIds = schedules.stream().map(Schedules::getMatchId).distinct().collect(Collectors.toList());
+        List<Odds> odds = oddsService.queryByMatchId(matchIds);
+        log.info("odds size {}", odds.size());
+        // <比赛ID, List<赔率>>
+        Map<String, List<Odds>> matchOdds = odds.stream().collect(Collectors.groupingBy(Odds::getMatchId));
+        // 波胆
+        List<OddsScore> oddsScores = oddsScoreService.queryByMatchId(matchIds, oddsScoreStatus, null);
+        log.info("oddsScores size {}", oddsScores.size());
+        // <比赛ID， List<波胆>>
+        Map<String, List<OddsScore>> matchOddsScore = oddsScores.stream().collect(Collectors.groupingBy(OddsScore::getMatchId));
+        // <联赛ID, List<比赛ID>>
+        Map<String, List<String>> leagueMatchIds = schedules.stream().collect(Collectors.toMap(Schedules::getLeagueId, s -> {
+            List<String> v = Lists.newArrayList();
+            v.add(s.getMatchId());
+            return v;
+        }, (List<String> v1, List<String> v2) -> {
+            v1.addAll(v2);
+            return v1;
+        }));
+        leagueMatchIds.forEach((leagueId, matchIdOfLeague) -> {
             LeagueResp leagueResp = BeanUtil.copy(leagueMap.get(leagueId), LeagueResp.class);
-
-            List<String> matchIds = list.stream().map(Schedules::getMatchId).collect(Collectors.toList());
-            List<Odds> odds = oddsService.queryByMatchId(matchIds);
-            Map<String, List<Odds>> matchOdds = odds.stream().collect(Collectors.groupingBy(Odds::getMatchId));
-            List<OddsScore> oddsScores = oddsScoreService.queryByMatchId(matchIds, oddsScoreStatus, null);
-            Map<String, List<OddsScore>> matchOddsScore = oddsScores.stream().collect(Collectors.groupingBy(OddsScore::getMatchId));
 
             List<MatchOddsResp> matchOddsRespList = Lists.newArrayList();
             List<MatchOddsScoreResp> matchOddsScoreRespList = Lists.newArrayList();
-            matchOdds.forEach((matchId, matchOfOdds) -> {
+            for (String matchId : matchIdOfLeague) {
+                List<Odds> matchOfOdds = matchOdds.get(matchId);
                 // 主要玩儿法，全场
                 Map<HandicapType, List<OddsResp>> fullOdds = Maps.newHashMap();
                 // 主要玩儿法，半场
                 Map<HandicapType, List<OddsResp>> halfOdds = Maps.newHashMap();
-                for (Odds odd : odds) {
+                for (Odds odd : matchOfOdds) {
                     HandicapType type = HandicapType.parse(odd.getType());
                     OddsResp oddsResp = BeanUtil.copy(odd, OddsResp.class);
                     oddsResp.setInstantHandicapDesc(OrderHelper.translate(oddsResp.getInstantHandicap()));
@@ -107,7 +125,7 @@ public class BizOddsService {
                 List<OddsScore> matchOfOddsScore = matchOddsScore.get(matchId);
                 Map<HandicapType, List<OddsScoreResp>> oddsScore = groupOddsScore(matchOfOddsScore);
 
-                MatchResp matchResp = BeanUtil.copy(schedulesService.queryOne(matchId), MatchResp.class);
+                MatchResp matchResp = BeanUtil.copy(matchSchedules.get(matchId), MatchResp.class);
                 matchOddsRespList.add(MatchOddsResp.builder()
                         .count(matchOfOdds.size())
                         .match(matchResp)
@@ -119,13 +137,14 @@ public class BizOddsService {
                         .match(matchResp)
                         .odds(oddsScore)
                         .build());
-            });
+            }
             ret.add(HandicapMatchOddsResp.builder()
                     .league(leagueResp)
                     .matchOddsResp(matchOddsRespList)
                     .matchOddsScoreResp(matchOddsScoreRespList)
                     .build());
         });
+        log.info("end");
         return ret;
     }
 
