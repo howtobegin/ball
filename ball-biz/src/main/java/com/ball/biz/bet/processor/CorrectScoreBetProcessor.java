@@ -11,6 +11,7 @@ import com.ball.biz.bet.order.bo.OddsScoreData;
 import com.ball.biz.bet.processor.bo.BetInfo;
 import com.ball.biz.bet.processor.bo.OddsCheckInfo;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.match.entity.Odds;
 import com.ball.biz.match.entity.OddsScore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,7 +71,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
         List<OddsScoreData.OddsScoreItem> items = oddsScores.stream().map(o -> BeanUtil.copy(o, OddsScoreData.OddsScoreItem.class)).collect(Collectors.toList());
         oddsScoreData.setOtherItems(items);
         String oddsData = JSON.toJSONString(oddsScoreData);
-        String handicapStr = oddsScore.getHomeScore() + ":" + oddsScore.getAwayScore();
+        String handicapStr = bo.getBetOption() == BetOption.SCORE ? oddsScore.getHomeScore() + ":" + oddsScore.getAwayScore() : null;
         return BetInfo.builder()
                 .oddsData(oddsData)
                 .matchId(matchId)
@@ -93,5 +94,14 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
     @Override
     protected boolean isEnable() {
         return enable;
+    }
+
+    @Override
+    protected String getBetOdds(Odds odds, BetBo bo) {
+        OddsScore oddsScore = oddsScoreService.queryByBizNo(bo.getBizNo());
+        if (BetOption.SCORE == bo.getBetOption()) {
+            return oddsScore.getOdds();
+        }
+        return oddsScore.getOtherOdds();
     }
 }

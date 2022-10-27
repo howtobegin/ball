@@ -36,4 +36,6 @@ public class BetReq {
     @NotNull
     @Min(0)
     private BigDecimal betAmount;
+
+    private String matchId;
 }

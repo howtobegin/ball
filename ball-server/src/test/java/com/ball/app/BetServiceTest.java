@@ -191,8 +191,8 @@ public class BetServiceTest {
     }
     @Test
     public void testCorrectScore() {
-        //testCorrectScore("6989167335516930048",HandicapType.CORRECT_SCORE);
-        testCorrectScore("6990262009052790824",HandicapType.CORRECT_SCORE_HALL);
+        testCorrectScore("6990257937490903060",HandicapType.CORRECT_SCORE);
+        //testCorrectScore("6990262018208956000",HandicapType.CORRECT_SCORE_HALL);
 
     }
     public void testCorrectScore(String bizNo, HandicapType type) {
@@ -201,6 +201,14 @@ public class BetServiceTest {
                 .handicapType(type)
                 .bizNo(bizNo)
                 .betOption(BetOption.SCORE)
+                .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
+                .build();
+        BetProcessorHolder.get(type).bet(betBo);
+        betBo = BetBo.builder()
+                .userNo(USER_NO)
+                .handicapType(type)
+                .bizNo(bizNo)
+                .betOption(BetOption.SCORE_OTHER)
                 .betAmount(BigDecimal.TEN.multiply(BigDecimal.TEN))
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
