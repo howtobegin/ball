@@ -25,7 +25,7 @@ public class MybatisPlusGenerator {
         DataSourceConfig dataSourceConfig = new DataSourceConfig()
                 .setDbType(DbType.MYSQL)  // 设置数据库类型
                 .setDriverName("com.mysql.cj.jdbc.Driver")
-                .setUrl("jdbc:mysql://172.29.18.245:3306/" + dbName + "?useUnicode=true&useSSL=false&characterEncoding=utf8")
+                .setUrl("jdbc:mysql://e2c5589a96e946839af0dd460774ce84in01.internal.cn-south-1.mysql.rds.myhuaweicloud.com:3306/" + dbName + "?useUnicode=true&useSSL=false&characterEncoding=utf8")
                 .setUsername("hnt_user")
                 .setPassword("wmt18iYJCekG91eQ")
                 ;

@@ -7,14 +7,8 @@ import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.exception.BizErrCode;
-import com.ball.biz.match.entity.Leagues;
-import com.ball.biz.match.entity.Odds;
-import com.ball.biz.match.entity.OddsScore;
-import com.ball.biz.match.entity.Schedules;
-import com.ball.biz.match.service.ILeaguesService;
-import com.ball.biz.match.service.IOddsScoreService;
-import com.ball.biz.match.service.IOddsService;
-import com.ball.biz.match.service.ISchedulesService;
+import com.ball.biz.match.entity.*;
+import com.ball.biz.match.service.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +36,8 @@ public class BizOddsService {
     private IOddsService oddsService;
     @Autowired
     private IOddsScoreService oddsScoreService;
+    @Autowired
+    private IFavoriteService favoriteService;
 
     public List<HandicapMatchOddsResp> oddsList(Integer type, List<String> leagueIds, String matchId) {
         BizAssert.notEmpty(leagueIds, BizErrCode.PARAM_ERROR_DESC,"leagueIds");
@@ -187,5 +183,13 @@ public class BizOddsService {
             return !CollectionUtils.isEmpty(matchOddsRespList) ? matchOddsRespList.get(0) : null;
         }
         return null;
+    }
+
+    public List<HandicapMatchOddsResp> favoriteList(Long userId) {
+        List<Favorite> favorites = favoriteService.queryList(userId);
+        List<String> matchIds = favorites.stream().map(Favorite::getMatchId).collect(Collectors.toList());
+        List<Schedules> schedules = schedulesService.batchQuery(matchIds);
+
+        return mainOddsList(schedules, 1);
     }
 }

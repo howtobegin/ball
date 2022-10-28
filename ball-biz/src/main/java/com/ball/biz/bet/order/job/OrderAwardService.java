@@ -134,7 +134,7 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
                     log.info("userId {} userLevel", userId, l);
                     UserLevelEnum e = UserLevelEnum.valueOf(l);
                     return UserLevelEnum.A == e ? config.getA() : UserLevelEnum.B == e ? config.getB() : UserLevelEnum.C == e ? config.getC() : config.getD();
-                }).map(BigDecimal::valueOf).orElse(BigDecimal.ZERO);
+                }).orElse(BigDecimal.ZERO);
         log.info("betAmount {} backwaterPercent {} hasConfig {}",betAmount, backwaterPercent, config != null);
         BizAssert.isTrue(backwaterPercent.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.TRADE_CONFIG_BACKWATER_PERCENT_MUST_BIGGER_ZERO);
         return betAmount.multiply(backwaterPercent);

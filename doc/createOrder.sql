@@ -63,3 +63,16 @@ CREATE TABLE `order_history`
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
     key idx_order(order_id)
 )ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单历史表';
+
+DROP TABLE IF EXISTS `favorite`;
+CREATE TABLE `favorite`
+(
+    id              bigint unsigned primary key auto_increment comment '自增编号',
+    user_id         bigint  NOT NULL COMMENT '用户编号',
+    league_id       varchar(30)  NOT NULL COMMENT '联赛ID',
+    match_id        varchar(30)  NOT NULL COMMENT '比赛ID',
+    favorite_type   tinyint      NOT NULL COMMENT '收藏类型：1 滚球；2 今日；3 早盘',
+    create_time     datetime     not null default current_timestamp comment '创建时间',
+    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
+    key idx_user_match(user_id, match_id)
+)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='收藏夹表';
