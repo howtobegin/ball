@@ -11,6 +11,7 @@ public enum AccountTransactionType {
     AGENT_ADJUSTMENT_OUT,//调账
     DEPOSIT,//充值
     WITHDRAW,//提现
-    TRADE//交易
+    TRADE,//交易
+    REBATE//退水
     ;
 }
