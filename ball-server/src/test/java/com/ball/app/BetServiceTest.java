@@ -213,4 +213,10 @@ public class BetServiceTest {
                 .build();
         BetProcessorHolder.get(type).bet(betBo);
     }
+
+    @Test
+    public void testLimit() {
+        List<OddsScore> list = oddsScoreService.list();
+        log.info("list size {}", list.size());
+    }
 }
