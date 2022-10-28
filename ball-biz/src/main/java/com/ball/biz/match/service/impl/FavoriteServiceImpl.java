@@ -22,7 +22,7 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
     public Favorite queryOne(Long userId, String matchId) {
         return lambdaQuery()
                 .eq(Favorite::getUserId, userId)
-                .eq(Favorite::getCreateTime, matchId)
+                .eq(Favorite::getMatchId, matchId)
                 .one();
     }
 
