@@ -1,4 +1,4 @@
-package com.ball.boss.controller.user.vo;
+package com.ball.app.controller.account.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

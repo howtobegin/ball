@@ -30,7 +30,7 @@ public class TradeConfigController {
 
     @ApiOperation("查询代理退水限额配置")
     @PostMapping(value = "/getAgentConfig" )
-    List<AgentTradeConfigResp> getAgentConfig(@RequestBody @Valid GetTradeConfigReq req){
+    public List<AgentTradeConfigResp> getAgentConfig(@RequestBody @Valid GetTradeConfigReq req){
         return tradeConfigService.getUserConfig(req.getUserNo()).stream().map(a->{
           return BeanUtil.copy(a,AgentTradeConfigResp.class );
         }).collect(Collectors.toList());
@@ -39,9 +39,11 @@ public class TradeConfigController {
 
     @ApiOperation("查询代理退水限额配置")
     @PostMapping(value = "/getUserConfig" )
-    List<UserTradeConfigResp> getUserConfig(@RequestBody @Valid GetTradeConfigReq req){
+    public List<UserTradeConfigResp> getUserConfig(@RequestBody @Valid GetTradeConfigReq req){
         return tradeConfigService.getUserConfig(req.getUserNo()).stream().map(a->{
-            return BeanUtil.copy(a,UserTradeConfigResp.class );
+            UserTradeConfigResp resp = BeanUtil.copy(a,UserTradeConfigResp.class );
+            resp.setV(tradeConfigService.getUserRate(a));
+            return resp;
         }).collect(Collectors.toList());
     }
 

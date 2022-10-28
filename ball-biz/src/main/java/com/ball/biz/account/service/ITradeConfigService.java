@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import com.ball.common.service.IBaseService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -31,4 +32,6 @@ public interface ITradeConfigService extends IService<TradeConfig>, IBaseService
     TradeConfig getUserConfig(Long userId, SportEnum sport, PlayTypeEnum type);
 
     boolean update(TradeConfig tradeConfig);
+
+    BigDecimal getUserRate(TradeConfig tradeConfig);
 }

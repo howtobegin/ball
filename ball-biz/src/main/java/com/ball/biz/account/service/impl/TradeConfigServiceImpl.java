@@ -11,6 +11,7 @@ import com.ball.biz.exception.BizErrCode;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -101,5 +102,21 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
         }
 
 
+    }
+
+    @Override
+    public BigDecimal getUserRate(TradeConfig tradeConfig) {
+        UserLevelEnum levelEnum = UserLevelEnum.valueOf(tradeConfig.getUserLevel());
+        switch (levelEnum) {
+            case A:
+                return tradeConfig.getA();
+            case B:
+                return tradeConfig.getB();
+            case C:
+                return tradeConfig.getC();
+            case D:
+                return tradeConfig.getD();
+        }
+        return null;
     }
 }
