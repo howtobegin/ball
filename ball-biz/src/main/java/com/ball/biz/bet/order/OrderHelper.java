@@ -2,7 +2,10 @@ package com.ball.biz.bet.order;
 
 import com.alibaba.fastjson.JSON;
 import com.ball.base.exception.BizException;
+import com.ball.biz.account.enums.PlayTypeEnum;
 import com.ball.biz.bet.enums.BetType;
+import com.ball.biz.bet.enums.HandicapType;
+import com.ball.biz.bet.enums.OddsType;
 import com.ball.biz.bet.order.bo.Handicap;
 import com.ball.biz.bet.order.settle.assist.OverUnderAssist;
 import org.springframework.util.StringUtils;
@@ -44,5 +47,18 @@ public class OrderHelper {
                 .map(BigDecimal::stripTrailingZeros)
                 .map(BigDecimal::toPlainString)
                 .orElse("");
+    }
+
+    public static PlayTypeEnum getPlayTypeEnum(HandicapType type, Integer oddsType) {
+        switch (type) {
+            case HANDICAP:
+            case HANDICAP_HALF:
+                return OddsType.IN_PLAY_ODDS.isMe(oddsType) ? PlayTypeEnum.HOE_INPAY : PlayTypeEnum.HOE;
+            case OVER_UNDER:
+            case OVER_UNDER_HALF:
+                return PlayTypeEnum.HOE;
+            default:
+                return null;
+        }
     }
 }

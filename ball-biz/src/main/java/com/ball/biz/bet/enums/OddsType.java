@@ -31,4 +31,8 @@ public enum OddsType {
         }
         throw new BizException(BizErrCode.PARAM_ERROR_DESC, "code");
     }
+
+    public boolean isMe(Integer code) {
+        return code != null && this.code.equals(code);
+    }
 }

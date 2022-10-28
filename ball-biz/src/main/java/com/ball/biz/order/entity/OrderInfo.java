@@ -125,6 +125,11 @@ public class OrderInfo extends Paging {
     private BigDecimal proxy3Amount;
 
     /**
+     * 退水
+     */
+    private BigDecimal backwaterAmount;
+
+    /**
      * 主队当前得分（来自schedule表）
      */
     private Integer homeCurrentScore;

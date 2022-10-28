@@ -2,13 +2,22 @@ package com.ball.biz.bet.order.job;
 
 import com.alibaba.fastjson.JSON;
 import com.ball.base.transaction.TransactionSupport;
+import com.ball.base.util.BizAssert;
+import com.ball.biz.account.entity.TradeConfig;
 import com.ball.biz.account.enums.AccountTransactionType;
+import com.ball.biz.account.enums.PlayTypeEnum;
+import com.ball.biz.account.enums.SportEnum;
+import com.ball.biz.account.enums.UserLevelEnum;
+import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.BetResult;
+import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.OrderStatus;
+import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.ProxyAmount;
 import com.ball.biz.bet.order.calculate.CalculatorHolder;
 import com.ball.biz.bet.order.calculate.bo.CalcResult;
+import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.bo.OrderFinishBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
@@ -43,6 +52,8 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
     private TransactionSupport transactionSupport;
     @Autowired
     private ProxyUserService proxyUserService;
+    @Autowired
+    private ITradeConfigService tradeConfigService;
 
     @Value("${order.match.reward.page.size:100}")
     private int pageSize;
@@ -65,28 +76,68 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
         // 计算代理占成
         ProxyAmount proxyAmount = calcProxyAmount(userId, userWinAmount);
         OrderFinishBo orderFinishBo = buildOrderFinishBo(orderId, calcResult, proxyAmount);
-        transactionSupport.execute(()->{
-            // 解冻
-            userAccountService.unfreeze(data.getOrderId(), AccountTransactionType.TRADE);
+        BigDecimal backwaterAmount = getBackwaterAmount(userId, data.getBetAmount(), data.getHandicapType(), data.getOddsType());
+        orderFinishBo.setBackwaterAmount(backwaterAmount);
 
-            // 用户赢，代理出
-            if (userWinAmount.compareTo(BigDecimal.ZERO) > 0) {
-                userAccountService.income(userId, userWinAmount, orderId, AccountTransactionType.TRADE);
-            }
-            // 用户不输不赢
-            else if (userWinAmount.compareTo(BigDecimal.ZERO) == 0) {
-            }
-            // 用户输
-            else {
-                BigDecimal userLose = BigDecimal.ZERO.subtract(userWinAmount);
-                // 用户出
-                userAccountService.payout(userId, userLose, orderId, AccountTransactionType.TRADE);
-            }
+        transactionSupport.execute(()->{
+            handleUserAmount(userId, orderId, calcResult.getResult(), userWinAmount, backwaterAmount);
             // 订单完成，更新对应数据
             orderInfoService.finish(orderFinishBo);
 
         });
         return true;
+    }
+
+    /**
+     * 处理用户额度
+     * @param userId
+     * @param orderId
+     * @param userWinAmount
+     * @param backwaterAmount 退水
+     */
+    private void handleUserAmount(Long userId, String orderId, BetResult betResult, BigDecimal userWinAmount, BigDecimal backwaterAmount) {
+        // 解冻
+        userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+        // 退水
+        if (betResult.isBackwater()) {
+            userAccountService.income(userId, backwaterAmount, orderId, AccountTransactionType.REBATE);
+        }
+
+        // 用户赢，代理出
+        if (userWinAmount.compareTo(BigDecimal.ZERO) > 0) {
+            userAccountService.income(userId, userWinAmount, orderId, AccountTransactionType.TRADE);
+        }
+        // 用户不输不赢
+        else if (userWinAmount.compareTo(BigDecimal.ZERO) == 0) {
+        }
+        // 用户输
+        else {
+            BigDecimal userLose = BigDecimal.ZERO.subtract(userWinAmount);
+            // 用户出
+            userAccountService.payout(userId, userLose, orderId, AccountTransactionType.TRADE);
+        }
+    }
+
+    private BigDecimal getBackwaterAmount(Long userId, BigDecimal betAmount, String handicapType, Integer oddsType) {
+        HandicapType type = HandicapType.parse(handicapType);
+        PlayTypeEnum playTypeEnum = OrderHelper.getPlayTypeEnum(type, oddsType);
+        log.info("userId {} betAmount {} handicapType {} oddsType {} playTypeEnum {}", userId, betAmount, handicapType, oddsType, playTypeEnum);
+        if (playTypeEnum == null) {
+            return BigDecimal.ZERO;
+        }
+        // 退水配置
+        TradeConfig config = tradeConfigService.getUserConfig(userId, SportEnum.FOOTBALL, PlayTypeEnum.HOE);
+        log.info("config {}", JSON.toJSONString(config));
+        BigDecimal backwaterPercent = Optional.ofNullable(config)
+                .map(TradeConfig::getUserLevel)
+                .map(l -> {
+                    log.info("userId {} userLevel", userId, l);
+                    UserLevelEnum e = UserLevelEnum.valueOf(l);
+                    return UserLevelEnum.A == e ? config.getA() : UserLevelEnum.B == e ? config.getB() : UserLevelEnum.C == e ? config.getC() : config.getD();
+                }).map(BigDecimal::valueOf).orElse(BigDecimal.ZERO);
+        log.info("betAmount {} backwaterPercent {} hasConfig {}",betAmount, backwaterPercent, config != null);
+        BizAssert.isTrue(backwaterPercent.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.TRADE_CONFIG_BACKWATER_PERCENT_MUST_BIGGER_ZERO);
+        return betAmount.multiply(backwaterPercent);
     }
 
     private OrderFinishBo buildOrderFinishBo(String orderId, CalcResult calcResult, ProxyAmount proxyAmount) {

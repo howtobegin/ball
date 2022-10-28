@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -218,5 +219,10 @@ public class BetServiceTest {
     public void testLimit() {
         List<OddsScore> list = oddsScoreService.list();
         log.info("list size {}", list.size());
+    }
+
+
+    private static String test(@Nullable String x) {
+        return x;
     }
 }

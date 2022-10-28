@@ -19,5 +19,5 @@ public interface IOddsScoreService extends IService<OddsScore>, IBaseService {
 
     List<OddsScore> queryByMatch(String matchId, Integer type);
 
-    List<OddsScore> queryByMatchId(List<String> matchIds, Integer type, Integer status);
+    List<OddsScore> queryByMatchIds(List<String> matchIds, Integer type, Integer status);
 }

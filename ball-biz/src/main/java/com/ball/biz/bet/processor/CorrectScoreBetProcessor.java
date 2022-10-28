@@ -48,6 +48,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
         return OddsCheckInfo.builder()
                 .matchId(oddsScore.getMatchId())
                 .type(getHandicapType())
+                .oddsType(oddsScore.getStatus())
                 .isClose(oddsScore.getIsClose() == null ? Boolean.FALSE : oddsScore.getIsClose())
                 .isMaintenance(false)
                 .latestChangeTime(oddsScore.getChangeTime())

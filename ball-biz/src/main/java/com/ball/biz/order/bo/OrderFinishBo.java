@@ -30,8 +30,10 @@ public class OrderFinishBo {
 
     private BigDecimal proxy3Amount;
 
+    private BigDecimal backwaterAmount;
+
     @Builder
-    public OrderFinishBo(String orderId, OrderStatus pre, BigDecimal resultAmount, BigDecimal validAmount, BigDecimal proxy1Amount, BigDecimal proxy2Amount, BigDecimal proxy3Amount) {
+    public OrderFinishBo(String orderId, OrderStatus pre, BigDecimal resultAmount, BigDecimal validAmount, BigDecimal proxy1Amount, BigDecimal proxy2Amount, BigDecimal proxy3Amount, BigDecimal backwaterAmount) {
         this.orderId = orderId;
         this.pre = pre;
         this.resultAmount = resultAmount;
@@ -39,5 +41,6 @@ public class OrderFinishBo {
         this.proxy1Amount = proxy1Amount;
         this.proxy2Amount = proxy2Amount;
         this.proxy3Amount = proxy3Amount;
+        this.backwaterAmount = backwaterAmount;
     }
 }

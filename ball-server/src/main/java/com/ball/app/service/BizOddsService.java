@@ -18,6 +18,7 @@ import com.ball.biz.match.service.ISchedulesService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -86,7 +87,7 @@ public class BizOddsService {
         // <比赛ID, List<赔率>>
         Map<String, List<Odds>> matchOdds = odds.stream().collect(Collectors.groupingBy(Odds::getMatchId));
         // 波胆
-        List<OddsScore> oddsScores = oddsScoreService.queryByMatchId(matchIds, oddsScoreStatus, null);
+        List<OddsScore> oddsScores = oddsScoreService.queryByMatchIds(matchIds, oddsScoreStatus, null);
         log.info("oddsScores size {}", oddsScores.size());
         // <比赛ID， List<波胆>>
         Map<String, List<OddsScore>> matchOddsScore = oddsScores.stream().collect(Collectors.groupingBy(OddsScore::getMatchId));
@@ -171,5 +172,20 @@ public class BizOddsService {
             map.putIfAbsent(type, list);
         }
         list.add(resp);
+    }
+
+    /**
+     * 查某个比赛赔率
+     * @return
+     */
+    public MatchOddsResp matchOddsList(String matchId) {
+        Schedules schedules = schedulesService.queryOne(matchId);
+        List<Schedules> list = Lists.newArrayList(schedules);
+        List<HandicapMatchOddsResp> handicapMatchOddsResps = mainOddsList(list, 1);
+        if (!CollectionUtils.isEmpty(handicapMatchOddsResps)) {
+            List<MatchOddsResp> matchOddsRespList = handicapMatchOddsResps.get(0).getMatchOddsResp();
+            return !CollectionUtils.isEmpty(matchOddsRespList) ? matchOddsRespList.get(0) : null;
+        }
+        return null;
     }
 }
