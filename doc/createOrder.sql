@@ -29,6 +29,7 @@ CREATE TABLE `order_info`
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
     proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
+    backwater_amount   decimal(12,2) default 0 COMMENT '退水',
 
     odds_data       text        not null comment '赔率JSON数据，根据不同type解析',
     bet_year        tinyint    NOT NULL COMMENT '投注年',

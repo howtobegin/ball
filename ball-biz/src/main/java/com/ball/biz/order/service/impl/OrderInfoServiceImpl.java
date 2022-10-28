@@ -107,6 +107,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 .set(OrderInfo::getProxy1Amount, bo.getProxy1Amount())
                 .set(OrderInfo::getProxy2Amount, bo.getProxy2Amount())
                 .set(OrderInfo::getProxy3Amount, bo.getProxy3Amount())
+                .set(OrderInfo::getBackwaterAmount, bo.getBackwaterAmount())
 
                 .eq(OrderInfo::getOrderId, bo.getOrderId())
                 .eq(OrderInfo::getStatus, bo.getPre().getCode())

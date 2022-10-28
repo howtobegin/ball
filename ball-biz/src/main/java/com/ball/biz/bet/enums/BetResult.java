@@ -15,19 +15,23 @@ import java.util.List;
 @AllArgsConstructor
 public enum BetResult {
     // 未结算
-    UNSETTLED("UNSETTLED"),
+    UNSETTLED("UNSETTLED", false),
     // 赢
-    WIN("WIN"),
+    WIN("WIN", true),
     // 负
-    LOSE("LOSE"),
+    LOSE("LOSE", true),
     // 半胜
-    WIN_HALF("WIN_HALF"),
+    WIN_HALF("WIN_HALF", true),
     // 半负
-    LOSE_HALF("LOSE_HALF"),
+    LOSE_HALF("LOSE_HALF", true),
     // 不赢不输
-    DRAW("DRAW");
+    DRAW("DRAW", false);
 
     private String code;
+    /**
+     * 是否退水
+     */
+    private boolean backwater;
 
     public static List<BetResult> settled() {
         return Lists.newArrayList(

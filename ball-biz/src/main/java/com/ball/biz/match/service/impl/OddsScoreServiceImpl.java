@@ -6,7 +6,7 @@ import com.ball.biz.match.service.IOddsScoreService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -34,8 +34,8 @@ public class OddsScoreServiceImpl extends ServiceImpl<OddsScoreMapper, OddsScore
     }
 
     @Override
-    public List<OddsScore> queryByMatchId(List<String> matchIds, Integer type, Integer status) {
-        if (StringUtils.isEmpty(matchIds)) {
+    public List<OddsScore> queryByMatchIds(List<String> matchIds, Integer type, Integer status) {
+        if (CollectionUtils.isEmpty(matchIds)) {
             return Lists.newArrayList();
         }
         return lambdaQuery().in(OddsScore::getMatchId, matchIds)

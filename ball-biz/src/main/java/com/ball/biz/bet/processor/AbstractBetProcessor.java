@@ -6,8 +6,12 @@ import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.base.util.IDCreator;
+import com.ball.biz.account.entity.TradeConfig;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
+import com.ball.biz.account.enums.PlayTypeEnum;
+import com.ball.biz.account.enums.SportEnum;
+import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
@@ -63,22 +67,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOrderInfoService orderInfoService;
     @Autowired
     protected IOrderHistoryService orderHistoryService;
-
-    /**
-     * 单注最低
-     */
-    @Value("${bet.min:50}")
-    private BigDecimal betMin;
-    /**
-     * 单注最高
-     */
-    @Value("${bet.max:25000}")
-    private BigDecimal betMax;
-    /**
-     * 单场最高
-     */
-    @Value("${bet.max:50000}")
-    private BigDecimal matchBetMax;
+    @Autowired
+    private ITradeConfigService tradeConfigService;
 
     /**
      * 赔率允许延迟的时间，默认-1，表示不限制
@@ -132,7 +122,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         BizAssert.isTrue(bo.getHandicapType().getBetOptions().contains(bo.getBetOption()), BizErrCode.PARAM_ERROR_DESC, "betOption");
         if (checkUser) {
             // 校验用户状态，余额等
-            checkUser(bo);
+            checkUser(bo, checkInfo.getOddsType());
         }
     }
 
@@ -144,6 +134,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         return OddsCheckInfo.builder()
                 .matchId(odds.getMatchId())
                 .type(HandicapType.parse(odds.getType()))
+                .oddsType(odds.getOddsType())
                 .isMaintenance(odds.getMaintenance() == null ? Boolean.FALSE : odds.getMaintenance())
                 .isClose(odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose())
                 .latestChangeTime(odds.getChangeTime())
@@ -198,27 +189,37 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         return matchId;
     }
 
-    protected void checkUser(BetBo bo) {
+    protected void checkUser(BetBo bo, Integer oddsType) {
         // 用户状态
         UserInfo user = userInfoService.getByUid(bo.getUserNo());
         log.info("userId {} status {}", bo.getUserNo(), user.getStatus());
         BizAssert.isTrue(YesOrNo.YES.v == user.getStatus(), BizErrCode.USER_LOCKED);
-        // 用户单项投注限额，最大，最小
-        log.info("userId {} betAmount {} min {} max {}",bo.getUserNo(), bo.getBetAmount(), betMin, betMax);
-        BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
-        BizAssert.isTrue(bo.getBetAmount().compareTo(betMax) <= 0, BizErrCode.BET_AMOUNT_TOO_MAX);
 
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
         BizAssert.notNull(account, BizErrCode.ACCOUNT_NOT_EXIST);
-        log.info("userId {} betAmount {} balance {} freeze {}",bo.getUserNo(), bo.getBetAmount(), account.getBalance(), account.getFreezeAmount());
+        log.info("userId {} betAmount {} balance {} freeze {}", bo.getUserNo(), bo.getBetAmount(), account.getBalance(), account.getFreezeAmount());
         BizAssert.isTrue(account.getBalance().subtract(account.getFreezeAmount()).compareTo(bo.getBetAmount()) >= 0, BizErrCode.ACCOUNT_BALANCE_INSUFFICIENT);
 
         // 单场限额
-        // 单场已投注
-        BigDecimal matchBetAmount = orderInfoService.statBetAmount(bo.getUserNo(), bo.getMatchId());
-        log.info("userId {} betAmount {} matchId {} matchBetAmount {} matchBetMax {}",bo.getUserNo(), bo.getBetAmount(), bo.getMatchId(), matchBetAmount, matchBetMax);
-        BizAssert.isTrue(matchBetAmount.add(bo.getBetAmount()).compareTo(matchBetMax) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
+        PlayTypeEnum playTypeEnum = OrderHelper.getPlayTypeEnum(bo.getHandicapType(), oddsType);
+        log.info("userId {} playTypeEnum {}", bo.getUserNo(), playTypeEnum);
+        if (playTypeEnum != null) {
+            TradeConfig tradeConfig = tradeConfigService.getUserConfig(bo.getUserNo(), SportEnum.FOOTBALL, playTypeEnum);
+            log.info("userId {} tradeConfig not null {}", bo.getUserNo(), tradeConfig != null);
+            if (tradeConfig != null) {
+                BigDecimal betMin = tradeConfig.getMin();
+                BigDecimal betMax = tradeConfig.getOrderLimit();
+                // 用户单项投注限额，最大，最小
+                log.info("userId {} betAmount {} min {} max {}", bo.getUserNo(), bo.getBetAmount(), betMin, betMax);
+                BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
+                BizAssert.isTrue(bo.getBetAmount().compareTo(betMax) <= 0, BizErrCode.BET_AMOUNT_TOO_MAX);
+                // 单场已投注
+                BigDecimal matchBetAmount = orderInfoService.statBetAmount(bo.getUserNo(), bo.getMatchId());
+                log.info("userId {} betAmount {} matchId {} matchBetAmount {} matchBetMax {}", bo.getUserNo(), bo.getBetAmount(), bo.getMatchId(), matchBetAmount, tradeConfig.getMatchLimit());
+                BizAssert.isTrue(matchBetAmount.add(bo.getBetAmount()).compareTo(tradeConfig.getMatchLimit()) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
+            }
+        }
     }
 
 
