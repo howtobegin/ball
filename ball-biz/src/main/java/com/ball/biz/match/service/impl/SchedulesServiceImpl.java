@@ -5,7 +5,9 @@ import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.match.mapper.SchedulesMapper;
 import com.ball.biz.match.service.ISchedulesService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
@@ -29,6 +31,9 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
 
     @Override
     public List<Schedules> batchQuery(List<String> matchIds) {
+        if(CollectionUtils.isEmpty(matchIds)) {
+            return Lists.newArrayList();
+        }
         return lambdaQuery().in(Schedules::getMatchId, matchIds).list();
     }
 
