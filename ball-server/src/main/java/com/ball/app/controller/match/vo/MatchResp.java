@@ -74,6 +74,9 @@ public class MatchResp {
     @ApiModelProperty("0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed")
     private Integer status;
 
+    @ApiModelProperty("状态描述")
+    private String statusDesc;
+
     @ApiModelProperty("homeId")
     private String homeId;
 
@@ -163,4 +166,7 @@ public class MatchResp {
      */
     @ApiModelProperty("e.g. Camp Nou")
     private String location;
+
+    @ApiModelProperty("是否收藏")
+    private boolean isFavorite;
 }

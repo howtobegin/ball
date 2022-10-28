@@ -1,23 +1,25 @@
 package com.ball.app.service;
 
 import com.ball.app.controller.match.vo.*;
+import com.ball.base.context.UserContext;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
+import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.match.entity.*;
 import com.ball.biz.match.service.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,11 @@ public class BizOddsService {
      * @return
      */
     public List<HandicapMatchOddsResp> mainOddsList(List<Schedules> schedules, Integer oddsScoreStatus) {
+        List<Favorite> favorites = favoriteService.queryList(UserContext.getUserNo());
+        Set<String> matchIds = favorites.stream().map(Favorite::getMatchId).collect(Collectors.toSet());
+        return mainOddsList(schedules, oddsScoreStatus, matchIds);
+    }
+    public List<HandicapMatchOddsResp> mainOddsList(List<Schedules> schedules, Integer oddsScoreStatus, Set<String> favoriteMatchIds) {
         log.info("start");
         List<HandicapMatchOddsResp> ret = Lists.newArrayList();
         // 联赛ID
@@ -103,6 +110,9 @@ public class BizOddsService {
             List<MatchOddsScoreResp> matchOddsScoreRespList = Lists.newArrayList();
             for (String matchId : matchIdOfLeague) {
                 List<Odds> matchOfOdds = matchOdds.get(matchId);
+                if(matchOfOdds == null) {
+                    continue;
+                }
                 // 主要玩儿法，全场
                 Map<HandicapType, List<OddsResp>> fullOdds = Maps.newHashMap();
                 // 主要玩儿法，半场
@@ -123,6 +133,7 @@ public class BizOddsService {
                 Map<HandicapType, List<OddsScoreResp>> oddsScore = groupOddsScore(matchOfOddsScore);
 
                 MatchResp matchResp = BeanUtil.copy(matchSchedules.get(matchId), MatchResp.class);
+                setMatchOtherInfo(matchResp, favoriteMatchIds);
                 matchOddsRespList.add(MatchOddsResp.builder()
                         .count(matchOfOdds.size())
                         .match(matchResp)
@@ -143,6 +154,12 @@ public class BizOddsService {
         });
         log.info("end");
         return ret;
+    }
+
+    private void setMatchOtherInfo(MatchResp matchResp, Set<String> favoriteMatchIds) {
+        ScheduleStatus status = ScheduleStatus.parse(matchResp.getStatus());
+        matchResp.setStatusDesc(Optional.ofNullable(status).map(ScheduleStatus::getDesc).orElse(String.valueOf(matchResp.getStatus())));
+        matchResp.setFavorite(favoriteMatchIds.contains(matchResp.getMatchId()));
     }
 
     private Map<HandicapType, List<OddsScoreResp>> groupOddsScore(List<OddsScore> matchOfOddsScore) {
@@ -190,6 +207,6 @@ public class BizOddsService {
         List<String> matchIds = favorites.stream().map(Favorite::getMatchId).collect(Collectors.toList());
         List<Schedules> schedules = schedulesService.batchQuery(matchIds);
 
-        return mainOddsList(schedules, 1);
+        return mainOddsList(schedules, 1, Sets.newHashSet(matchIds));
     }
 }

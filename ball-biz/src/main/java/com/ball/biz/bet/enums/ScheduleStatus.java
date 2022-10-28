@@ -1,7 +1,5 @@
 package com.ball.biz.bet.enums;
 
-import com.ball.biz.exception.BizErrCode;
-import com.ball.biz.exception.BizException;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,31 +15,32 @@ import java.util.List;
 public enum ScheduleStatus {
     // 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed
     // 未开始
-    NOT_STARTED(0),
+    NOT_STARTED(0, "未开始"),
     // 上半场
-    FIRST_HALF(1),
+    FIRST_HALF(1, "上半场"),
     // 半场休息
-    HALF_TIME_BREAK(2),
+    HALF_TIME_BREAK(2, "半场休息"),
     // 下半场
-    SECOND_HALF(3),
+    SECOND_HALF(3, "下半场"),
     // 加时赛
-    EXTRA_TIME(4),
+    EXTRA_TIME(4, "加时赛"),
     // 点球
-    PENALTY(5),
+    PENALTY(5, "点球"),
     // 结束
-    FINISHED(-1),
+    FINISHED(-1, "结束"),
     // 取消
-    CANCELLED(-10),
+    CANCELLED(-10, "取消"),
     // 待定
-    TBD(-11),
+    TBD(-11, "待定"),
     // 终止
-    TERMINATED(-12),
+    TERMINATED(-12, "终止"),
     // 中断
-    INTERRUPTED(-13),
+    INTERRUPTED(-13, "中断"),
     // 推迟
-    POSTPONED(-14)
+    POSTPONED(-14, "推迟")
     ;
     private Integer code;
+    private String desc;
 
     public static ScheduleStatus parse(Integer code) {
         for (ScheduleStatus e : values()) {
@@ -49,7 +48,7 @@ public enum ScheduleStatus {
                 return e;
             }
         }
-        throw new BizException(BizErrCode.PARAM_ERROR_DESC);
+        return null;
     }
 
     public boolean isMe(Integer code) {
