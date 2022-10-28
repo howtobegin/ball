@@ -27,5 +27,8 @@ public interface ITradeConfigService extends IService<TradeConfig>, IBaseService
      * @return
      */
     List<TradeConfig> getUserConfig(Long userId);
+
     TradeConfig getUserConfig(Long userId, SportEnum sport, PlayTypeEnum type);
+
+    boolean update(TradeConfig tradeConfig);
 }

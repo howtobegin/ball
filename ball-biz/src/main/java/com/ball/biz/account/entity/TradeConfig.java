@@ -17,7 +17,7 @@ import com.ball.base.model.Paging;
  * </p>
  *
  * @author atom
- * @since 2022-10-27
+ * @since 2022-10-28
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -40,22 +40,22 @@ public class TradeConfig extends Paging {
     /**
      * A类用户退水比例
      */
-    private Float a;
+    private BigDecimal a;
 
     /**
      * b用户退水比例
      */
-    private Float b;
+    private BigDecimal b;
 
     /**
      * c类用户退水比例
      */
-    private Float c;
+    private BigDecimal c;
 
     /**
      * d类用户退水比例
      */
-    private Float d;
+    private BigDecimal d;
 
     /**
      * 运动

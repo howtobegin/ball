@@ -39,6 +39,11 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
 
     }
 
+    @Override
+    public boolean update(TradeConfig tradeConfig) {
+        return updateById(tradeConfig);
+    }
+
     /**
      * 获取用户限额 退水配置
      *
