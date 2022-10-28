@@ -37,5 +37,7 @@ public class BetReq {
     @Min(0)
     private BigDecimal betAmount;
 
+    @ApiModelProperty("比赛ID")
+    @NotBlank
     private String matchId;
 }

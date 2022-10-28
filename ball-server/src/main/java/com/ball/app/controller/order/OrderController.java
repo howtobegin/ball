@@ -1,11 +1,11 @@
 package com.ball.app.controller.order;
 
 import com.ball.app.controller.order.vo.*;
+import com.ball.app.service.BizBetService;
 import com.ball.app.service.BizOrderQueryService;
 import com.ball.base.context.UserContext;
 import com.ball.base.util.BeanUtil;
 import com.ball.biz.bet.order.bo.BetBo;
-import com.ball.biz.bet.processor.BetProcessorHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +27,18 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private BizOrderQueryService bizOrderQueryService;
+    @Autowired
+    private BizBetService bizBetService;
 
     @ApiOperation("下注")
     @PostMapping("bet")
     public void bet(@RequestBody @Valid BetReq req) {
         BetBo bo = BeanUtil.copy(req, BetBo.class);
         bo.setUserNo(UserContext.getUserNo());
-        BetProcessorHolder.get(req.getHandicapType()).bet(bo);
+        bizBetService.bet(bo);
     }
+
+
 
     @ApiOperation("交易状况")
     @PostMapping("bet/current")

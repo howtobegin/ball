@@ -23,6 +23,7 @@ public enum BizErrCode implements IBizErrCode {
     BET_ALL_CLOSE("B00015","下注临时关闭"),
     BET_THIS_TYPE_CLOSE("B00016","该类型下注临时关闭"),
     TRADE_CONFIG_BACKWATER_PERCENT_MUST_BIGGER_ZERO("B00017","用户退水百分比必须大于等于0"),
+    SO_FAST("B00018","手速太快"),
 
     DATA_ERROR("14000", "data error"),
     DATA_NOT_EXISTS("14002", "data not exists"),

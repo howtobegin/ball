@@ -91,7 +91,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
      */
     @Override
     public OrderInfo bet(BetBo bo) {
-        log.info("betBo {} enable {} isEnable {}", JSON.toJSON(bo), enable, isEnable());
+        log.info("bet start betBo {} enable {} isEnable {}", JSON.toJSON(bo), enable, isEnable());
         BizAssert.isTrue(enable, BizErrCode.BET_ALL_CLOSE);
         BizAssert.isTrue(isEnable(), BizErrCode.BET_THIS_TYPE_CLOSE);
 
@@ -108,18 +108,23 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
             // 冻结
             userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
         });
+        log.info("bet end");
         return order;
     }
 
     @Override
     public void betCheck(BetBo bo, boolean checkUser) {
+        log.info("start getOddsCheckInfo");
         OddsCheckInfo checkInfo = getOddsCheckInfo(bo);
+        log.info("start checkOdds");
         // 位置不要挪动，校验投注信息，是否存在，关闭等，拿到matchId，后面用
         checkOdds(checkInfo, bo);
+        log.info("start checkSchedule");
         // 校验赛事
         checkSchedule(bo, checkInfo.getMatchId());
         // 投注选项是否合理
         BizAssert.isTrue(bo.getHandicapType().getBetOptions().contains(bo.getBetOption()), BizErrCode.PARAM_ERROR_DESC, "betOption");
+        log.info("start checkUser");
         if (checkUser) {
             // 校验用户状态，余额等
             checkUser(bo, checkInfo.getOddsType());

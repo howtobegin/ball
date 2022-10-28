@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -28,13 +29,13 @@ public class FavoriteController {
 
     @ApiOperation("收藏")
     @PostMapping("like")
-    public void like(@RequestBody LikeReq req) {
+    public void like(@RequestBody @Valid LikeReq req) {
         favoriteService.like(UserContext.getUserNo(), req.getType(), req.getLeagueId(), req.getMatchId());
     }
 
     @ApiOperation("取消收藏")
     @PostMapping("unlike")
-    public void unlike(@RequestBody UnlikeReq req) {
+    public void unlike(@RequestBody @Valid UnlikeReq req) {
         favoriteService.unLike(UserContext.getUserNo(), req.getMatchId());
     }
 
