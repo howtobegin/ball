@@ -49,7 +49,7 @@ public class IdempotentAspect {
         Cache<String, Object> cache = localCacheMap.get(time);
         if (cache == null) {
             // 有点影响，问题不大
-            synchronized (localCacheMap) {
+            synchronized (String.valueOf(time).intern()) {
                 cache = CacheBuilder.newBuilder().maximumSize(100000).expireAfterWrite(time, TimeUnit.MILLISECONDS).build();
                 localCacheMap.putIfAbsent(time, cache);
             }
