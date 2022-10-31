@@ -4,7 +4,9 @@ import com.ball.base.context.UserContext;
 import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.biz.enums.UserTypeEnum;
+import com.ball.biz.user.bo.ProxyUserInfo;
 import com.ball.biz.user.entity.UserInfo;
+import com.ball.biz.user.mapper.ext.UserExtMapper;
 import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.config.HttpSessionConfig;
@@ -14,11 +16,16 @@ import com.ball.proxy.service.ProxyUserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author JimChery
@@ -35,6 +42,9 @@ public class ProxyUserController {
 
     @Autowired
     private ProxyUserOperationService proxyUserOperationService;
+
+    @Autowired
+    private UserExtMapper userExtMapper;
 
     @ApiOperation("登录")
     @PostMapping("login")
@@ -83,13 +93,21 @@ public class ProxyUserController {
                 .eq(req.hasBalanceMode(), UserInfo::getBalanceMode, req.getBalanceMode())
                 .gt(UserInfo::getUserType, UserTypeEnum.PROXY_ONE.v)
                 .like(req.hasAccount(), UserInfo::getAccount, req.getAccount()), req, ProxyUserResp.class);
-
-        resp.foreach(o -> {
-            if (o.getAccount().equals(o.getLoginAccount())) {
-                o.setLoginAccount(null);
+        if (resp.hasResult()) {
+            List<Long> proxyUids = resp.stream().map(ProxyUserResp::getUserNo).collect(Collectors.toList());
+            List<ProxyUserInfo> proxyUserInfos = userExtMapper.proxyUser(proxyUids);
+            Map<Long, Integer> proxyUserCountMap = new HashMap<>();
+            if (!CollectionUtils.isEmpty(proxyUserInfos)) {
+               proxyUserInfos.forEach(o -> proxyUserCountMap.put(o.getProxyUid(), o.getUserCount()));
             }
-            // todo 计算每个代理3的会员数
-        });
+            resp.foreach(o -> {
+                if (o.getAccount().equals(o.getLoginAccount())) {
+                    o.setLoginAccount(null);
+                }
+                o.setUserCount(proxyUserCountMap.get(o.getUserNo()));
+            });
+        }
+
         return resp;
     }
 
