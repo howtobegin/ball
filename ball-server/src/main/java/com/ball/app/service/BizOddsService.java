@@ -74,7 +74,7 @@ public class BizOddsService {
         return mainOddsList(schedules, oddsScoreStatus, matchIds);
     }
     public List<HandicapMatchOddsResp> mainOddsList(List<Schedules> schedules, Integer oddsScoreStatus, Set<String> favoriteMatchIds) {
-        log.info("start");
+        log.info("start schedules size {}",schedules.size());
         List<HandicapMatchOddsResp> ret = Lists.newArrayList();
         // 联赛ID
         List<String> leagueIds = schedules.stream().map(Schedules::getLeagueId).distinct().collect(Collectors.toList());

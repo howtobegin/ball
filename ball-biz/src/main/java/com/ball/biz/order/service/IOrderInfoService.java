@@ -25,6 +25,8 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
 
     void updateStatus(String orderId, OrderStatus pre, OrderStatus next);
 
+    void updateStatus(String orderId, OrderStatus pre, OrderStatus next, String reason);
+
     /**
      * 仅仅结算投注选项
      */
@@ -35,7 +37,7 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
     /**
      * 只要未完成都可以取消
      */
-    void cancel(String orderId);
+    void cancel(String orderId, String reason);
 
     /**
      * 统计，用户单场投注金额

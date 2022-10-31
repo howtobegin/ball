@@ -21,6 +21,7 @@ import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsData;
 import com.ball.biz.bet.processor.bo.BetInfo;
 import com.ball.biz.bet.processor.bo.OddsCheckInfo;
+import com.ball.biz.bet.processor.cache.BetCache;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Odds;
@@ -95,19 +96,24 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         BizAssert.isTrue(enable, BizErrCode.BET_ALL_CLOSE);
         BizAssert.isTrue(isEnable(), BizErrCode.BET_THIS_TYPE_CLOSE);
 
-        betCheck(bo, true);
-        String orderNo = IDCreator.get();
-        BigDecimal fee = BigDecimal.ZERO;
-        // 构建订单信息，状态待确认
-        OrderInfo order = buildOrder(bo, orderNo);
-        transactionSupport.execute(()->{
-            // 保存订单信息
-            orderInfoService.save(order);
-            // 增加历史
-            orderHistoryService.saveLatest(order);
-            // 冻结
-            userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
-        });
+        OrderInfo order;
+        try {
+            betCheck(bo, true);
+            String orderNo = IDCreator.get();
+            BigDecimal fee = BigDecimal.ZERO;
+            // 构建订单信息，状态待确认
+            order = buildOrder(bo, orderNo);
+            transactionSupport.execute(()->{
+                // 保存订单信息
+                orderInfoService.save(order);
+                // 增加历史
+                orderHistoryService.saveLatest(order);
+                // 冻结
+                userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
+            });
+        } finally {
+            BetCache.clear();
+        }
         log.info("bet end");
         return order;
     }
@@ -171,6 +177,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         HandicapType handicapType = bo.getHandicapType();
 
         Schedules schedules = schedulesService.queryOne(matchId);
+        BetCache.setSchedule(schedules);
         Integer status = schedules.getStatus();
         log.info("matchId {} status {}", schedules.getMatchId(), status);
         // 全场，校验状态
@@ -240,6 +247,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
 
         setProxy(order, bo.getUserNo());
 
+        order.setLeagueId(betInfo.getLeagueId());
         order.setMatchId(betInfo.getMatchId());
         order.setCompanyId(betInfo.getCompanyId());
         order.setHandicapType(bo.getHandicapType().getCode());
@@ -298,12 +306,21 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         log.info("type {} betOption {} betOdds {} instantHandicap {} handicapStr {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr, odds.getInstantHandicap(), handicapStr);
         return BetInfo.builder()
                 .oddsData(oddsData)
+                .leagueId(getLeagueId(matchId))
                 .matchId(matchId)
                 .companyId(companyId)
                 .betOddsStr(betOddsStr)
                 .instantHandicap(handicapStr)
                 .oddsType(odds.getOddsType())
                 .build();
+    }
+
+    protected String getLeagueId(String matchId) {
+        Schedules schedule = BetCache.getSchedule();
+        if (schedule == null) {
+            schedule = schedulesService.queryOne(matchId);
+        }
+        return schedule.getLeagueId();
     }
 
     /**

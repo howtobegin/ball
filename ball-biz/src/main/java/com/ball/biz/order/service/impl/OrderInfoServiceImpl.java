@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +64,25 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     .eq(OrderInfo::getStatus, pre.getCode())
 
                     .set(OrderInfo::getStatus, next.getCode())
+                    .set(next.isFinish(), OrderInfo::getFinishTime, LocalDateTime.now())
+                    .update();
+            BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
+            // 增加历史
+            orderHistoryService.saveLatest(queryByOrderId(orderId));
+        });
+    }
+
+    @Override
+    public void updateStatus(String orderId, OrderStatus pre, OrderStatus next, String reason) {
+        log.info("orderId {} pre {} next {}",orderId, pre, next);
+        BizAssert.isTrue(!pre.isFinish(), BizErrCode.UPDATE_FAIL);
+        transactionSupport.execute(()->{
+            boolean update = lambdaUpdate().eq(OrderInfo::getOrderId, orderId)
+                    .eq(OrderInfo::getStatus, pre.getCode())
+
+                    .set(OrderInfo::getStatus, next.getCode())
+                    .set(next.isFinish(), OrderInfo::getFinishTime, LocalDateTime.now())
+                    .set(!StringUtils.isEmpty(reason), OrderInfo::getReason, reason)
                     .update();
             BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
             // 增加历史
@@ -108,6 +128,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 .set(OrderInfo::getProxy2Amount, bo.getProxy2Amount())
                 .set(OrderInfo::getProxy3Amount, bo.getProxy3Amount())
                 .set(OrderInfo::getBackwaterAmount, bo.getBackwaterAmount())
+                .set(OrderInfo::getFinishTime, LocalDateTime.now())
 
                 .eq(OrderInfo::getOrderId, bo.getOrderId())
                 .eq(OrderInfo::getStatus, bo.getPre().getCode())
@@ -117,7 +138,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public void cancel(String orderId) {
+    public void cancel(String orderId, String reason) {
         log.info("orderId {}", orderId);
         OrderInfo order = queryByOrderId(orderId);
         boolean isCancel = OrderStatus.cancelCodes().contains(order.getStatus());

@@ -75,6 +75,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
         String handicapStr = bo.getBetOption() == BetOption.SCORE ? oddsScore.getHomeScore() + ":" + oddsScore.getAwayScore() : null;
         return BetInfo.builder()
                 .oddsData(oddsData)
+                .leagueId(getLeagueId(matchId))
                 .matchId(matchId)
                 .companyId(companyId)
                 .betOddsStr(betOddsStr)

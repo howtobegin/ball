@@ -12,6 +12,7 @@ import lombok.Setter;
 @Getter
 public class BetInfo {
     private String oddsData;
+    private String leagueId;
     private String matchId;
     private String companyId;
     private String betOddsStr;
@@ -19,8 +20,9 @@ public class BetInfo {
     private Integer oddsType;
 
     @Builder
-    public BetInfo(String oddsData, String matchId, String companyId, String betOddsStr, String instantHandicap, Integer oddsType) {
+    public BetInfo(String oddsData, String leagueId, String matchId, String companyId, String betOddsStr, String instantHandicap, Integer oddsType) {
         this.oddsData = oddsData;
+        this.leagueId = leagueId;
         this.matchId = matchId;
         this.companyId = companyId;
         this.betOddsStr = betOddsStr;

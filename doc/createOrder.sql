@@ -9,6 +9,7 @@ CREATE TABLE `order_info`
     proxy2          bigint   NULL COMMENT '二级代理',
     proxy3          bigint   NULL COMMENT '三级代理',
 
+    league_id       varchar(30)  NOT NULL COMMENT '联赛ID',
     match_id        varchar(30)  NOT NULL COMMENT '比赛ID',
     company_id      varchar(256) null comment '1: Macauslot,3: Crown',
     handicap_type   varchar(30)  NOT NULL COMMENT '盘口类型,让球，欧赔，大小，波胆，参考：HandicapType',
@@ -39,6 +40,8 @@ CREATE TABLE `order_info`
     schedule_status tinyint null comment '比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed',
     settle_status   tinyint  default 0 COMMENT '结算状态:0 未结算；1 已结算',
     status          varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM；已结算 SETTLED； 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
+    cancel_reason   varchar(128) null COMMENT '取消原因',
+    finish_time     datetime null COMMENT '结束时间',
 
     create_time     datetime     not null default current_timestamp comment '创建时间',
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
@@ -76,3 +79,72 @@ CREATE TABLE `favorite`
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
     unique key idx_user_match(user_id, match_id)
 )ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='收藏夹表';
+
+
+
+
+
+
+DROP TABLE IF EXISTS `order_summary`;
+CREATE TABLE `order_summary`
+(
+    id              bigint unsigned primary key auto_increment comment '自增编号',
+    year            tinyint    NOT NULL COMMENT '年',
+    month           tinyint    NOT NULL COMMENT '月',
+    day             tinyint    NOT NULL COMMENT '日',
+    sport           tinyint    default 1 COMMENT '运动类型：1 足球',
+    complete_count  bigint     default 0 COMMENT '有结果',
+    undone_count    bigint     default 0 COMMENT '未有结果',
+    create_time     datetime     not null default current_timestamp comment '创建时间',
+    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
+    key idx_year_month_day_sport(`year`,`month`,`day`,sport)
+)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='赛事结果概要';
+
+DROP TABLE IF EXISTS `monthly_account_period`;
+CREATE TABLE `monthly_account_period`
+(
+    id              bigint unsigned primary key auto_increment comment '自增编号',
+    start_date      datetime  NOT NULL COMMENT '开始日期',
+    end_date        datetime  NOT NULL COMMENT '结束日期',
+    create_time     datetime     not null default current_timestamp comment '创建时间',
+    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
+    unique key idx_start_end(start_date, end_date)
+)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='月帐期数表';
+
+DROP TABLE IF EXISTS `exchange_rate`;
+CREATE TABLE `exchange_rate`
+(
+    id              bigint unsigned primary key auto_increment comment '自增编号',
+    currency        varchar(30)  not null COMMENT '货币名称',
+    currency_code   varchar(30)  not null COMMENT '货币代码',
+    rate            decimal(20,10) default 0 COMMENT '汇率',
+    create_time     datetime     not null default current_timestamp comment '创建时间',
+    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
+    unique key idx_currency_code(currency_code)
+)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='汇率表';
+
+
+
+DROP TABLE IF EXISTS `order_stat`;
+CREATE TABLE `order_stat`
+(
+    id              bigint unsigned primary key auto_increment comment '自增编号',
+    bet_date        tinyint    NOT NULL COMMENT '投注日期',
+    proxy1          bigint   NULL COMMENT '一级代理',
+    proxy2          bigint   NULL COMMENT '二级代理',
+    proxy3          bigint   NULL COMMENT '三级代理',
+
+    bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
+    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
+    valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
+    proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
+    proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
+    proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
+
+    bet_count       bigint   default 0 COMMENT '投注人数',
+
+    create_time     datetime     not null default current_timestamp comment '创建时间',
+    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
+
+    unique KEY uniq_bet_date_proxy (bet_date,proxy1,proxy2,proxy3)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单代理商统计表';
