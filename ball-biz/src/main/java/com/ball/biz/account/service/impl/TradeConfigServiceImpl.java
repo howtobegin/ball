@@ -41,7 +41,19 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
     }
 
     @Override
-    public boolean update(TradeConfig tradeConfig) {
+    public boolean update(TradeConfig tradeConfig,Long parentUserNo) {
+        BizAssert.notNull(parentUserNo,BizErrCode.PARAM_ERROR_DESC,"parentUserNo");
+        TradeConfig parent = lambdaQuery().eq(TradeConfig::getUserNo, parentUserNo)
+                .eq(TradeConfig::getType,tradeConfig.getType())
+                .eq(TradeConfig::getSport, tradeConfig.getSport()).one();
+        BizAssert.notNull(parent,BizErrCode.TRADE_CONFIG_PARENT_NOT_FOUND);
+        TradeConfig db = lambdaQuery().eq(TradeConfig::getId,tradeConfig.getId()).one();
+        BizAssert.notNull(db,BizErrCode.TRADE_CONFIG_NOT_FOUND);
+        tradeConfig.setType(db.getType());
+        tradeConfig.setUserNo(db.getUserNo());
+        tradeConfig.setSport(db.getSport());
+        _check(tradeConfig, parent);
+
         return updateById(tradeConfig);
     }
 
@@ -116,6 +128,22 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
                 return tradeConfig.getC();
             case D:
                 return tradeConfig.getD();
+        }
+        return null;
+    }
+
+    @Override
+    public TradeConfig setUserRate(TradeConfig tradeConfig, BigDecimal v) {
+        UserLevelEnum levelEnum = UserLevelEnum.valueOf(tradeConfig.getUserLevel());
+        switch (levelEnum) {
+            case A:
+                return tradeConfig.setA(v);
+            case B:
+                return tradeConfig.setB(v);
+            case C:
+                return tradeConfig.setC(v);
+            case D:
+                return tradeConfig.setD(v);
         }
         return null;
     }

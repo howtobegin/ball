@@ -1,10 +1,14 @@
 package com.ball.proxy.controller.proxy;
 
+import com.ball.base.context.UserContext;
 import com.ball.base.util.BeanUtil;
+import com.ball.base.util.BizAssert;
+import com.ball.biz.account.entity.TradeConfig;
 import com.ball.biz.account.service.ITradeConfigService;
-import com.ball.proxy.controller.proxy.vo.AgentTradeConfigResp;
-import com.ball.proxy.controller.proxy.vo.GetTradeConfigReq;
-import com.ball.proxy.controller.proxy.vo.UserTradeConfigResp;
+import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.user.entity.UserInfo;
+import com.ball.biz.user.service.IUserInfoService;
+import com.ball.proxy.controller.proxy.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +33,27 @@ public class TradeConfigController {
 
     @Autowired
     ITradeConfigService tradeConfigService;
+    @Autowired
+    IUserInfoService iUserInfoService;
 
     @ApiOperation("查询代理退水限额配置")
-    @PostMapping(value = "/getAgentConfig" )
+    @PostMapping(value = "/getProxyConfig" )
     public List<AgentTradeConfigResp> getAgentConfig(@RequestBody @Valid GetTradeConfigReq req){
         return tradeConfigService.getUserConfig(req.getUserNo()).stream().map(a->{
           return BeanUtil.copy(a,AgentTradeConfigResp.class );
         }).collect(Collectors.toList());
     }
 
+    @ApiOperation("修改代理退水限额配置")
+    @PostMapping(value = "/updateProxyConfig" )
+    public void updateProxyConfig(@RequestBody @Valid List<AgentTradeConfigReq> reqList) {
+        reqList.forEach(r->{
+            tradeConfigService.update(BeanUtil.copy(r, TradeConfig.class), UserContext.getUserNo());
+        });
+    }
 
-    @ApiOperation("查询代理退水限额配置")
+
+    @ApiOperation("查询用退水限额配置")
     @PostMapping(value = "/getUserConfig" )
     public List<UserTradeConfigResp> getUserConfig(@RequestBody @Valid GetTradeConfigReq req){
         return tradeConfigService.getUserConfig(req.getUserNo()).stream().map(a->{
@@ -48,5 +62,22 @@ public class TradeConfigController {
             return resp;
         }).collect(Collectors.toList());
     }
+
+    @ApiOperation("修改用户退水限额配置")
+    @PostMapping(value = "/updateUserConfig" )
+    public void updateUserConfig(@RequestBody @Valid List<UserTradeConfigReq> reqList) {
+        Long userNo = reqList.get(0).getUserNo();
+        UserInfo userInfo = iUserInfoService.getByUid(userNo);
+        BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
+        reqList.forEach(r->{
+            TradeConfig config = BeanUtil.copy(r, TradeConfig.class);
+            tradeConfigService.setUserRate(config, r.getV());
+            tradeConfigService.update(config, userInfo.getProxyUserId());
+        });
+    }
+
+
+
+
 
 }

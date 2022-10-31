@@ -31,7 +31,9 @@ public interface ITradeConfigService extends IService<TradeConfig>, IBaseService
 
     TradeConfig getUserConfig(Long userId, SportEnum sport, PlayTypeEnum type);
 
-    boolean update(TradeConfig tradeConfig);
+    boolean update(TradeConfig tradeConfig,Long parentUserNo);
 
     BigDecimal getUserRate(TradeConfig tradeConfig);
+
+    TradeConfig setUserRate(TradeConfig tradeConfig, BigDecimal v);
 }
