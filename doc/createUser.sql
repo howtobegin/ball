@@ -69,6 +69,7 @@ create table user_extend (
     user_type             tinyint           not null comment '用户类型  1:会员 2:代理',
     proxy_rate            decimal(5,4)       null comment '代理分成',
     total_proxy_rate      decimal(5,4)       null comment '总代理分成',
+    handicap_type         varchar(4)         null comment '会员盘口类型',
     create_time     datetime        not null default current_timestamp comment '创建时间',
     update_time     datetime        not null default current_timestamp on update current_timestamp comment '更新时间'
 ) engine = InnoDB default charset = utf8mb4 comment ='用户扩展信息';

@@ -68,7 +68,7 @@ public class ProxyUserController {
         proxyUserOperationService.addProxyUser(req);
     }
 
-    @ApiOperation("添加代理一(暂时放这里)")
+    @ApiOperation("添加代理一(临时接口)")
     @PostMapping("addProxyOne")
     public void addProxyOne(@RequestBody @Valid AddProxyReq req) {
         proxyUserOperationService.addProxyOne(req);
@@ -91,5 +91,17 @@ public class ProxyUserController {
             // todo 计算每个代理3的会员数
         });
         return resp;
+    }
+
+    @ApiOperation("添加代理退水限额配置")
+    @PostMapping("addRefundConfig")
+    public void addRefundConfig(@RequestBody @Valid ProxyRefundReq req) {
+        proxyUserOperationService.addRefundConfig(req, false);
+    }
+
+    @ApiOperation("添加代理一退水限额配置(临时接口)")
+    @PostMapping("addRefundConfigOne")
+    public void addRefundConfigOne(@RequestBody @Valid ProxyRefundReq req) {
+        proxyUserOperationService.addRefundConfig(req, true);
     }
 }

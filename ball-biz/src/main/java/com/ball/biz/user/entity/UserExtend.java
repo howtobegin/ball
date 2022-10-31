@@ -43,6 +43,11 @@ public class UserExtend extends Paging {
     private BigDecimal totalProxyRate;
 
     /**
+     * 盘口类型
+     */
+    private String handicapType;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

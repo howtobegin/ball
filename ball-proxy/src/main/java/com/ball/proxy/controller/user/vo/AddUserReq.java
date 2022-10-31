@@ -20,7 +20,7 @@ public class AddUserReq {
 
     @ApiModelProperty(value = "盘口种类 A B C D", required = true)
     @NotBlank(message = "handicap must be not null")
-    private String handicap;
+    private String handicapType;
 
     @ApiModelProperty(value = "账号", required = true)
     @NotBlank(message = "account must be not null")

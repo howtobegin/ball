@@ -2,9 +2,12 @@ package com.ball.proxy.service;
 
 import com.ball.base.context.UserContext;
 import com.ball.base.transaction.TransactionSupport;
+import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
+import com.ball.biz.account.entity.TradeConfig;
 import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.service.IBizAssetAdjustmentOrderService;
+import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.enums.UserTypeEnum;
@@ -12,9 +15,11 @@ import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.log.enums.OperationBiz;
 import com.ball.biz.log.service.IOperationLogService;
 import com.ball.biz.user.entity.UserExtend;
+import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserExtendService;
 import com.ball.proxy.controller.proxy.vo.AddProxyReq;
+import com.ball.proxy.controller.proxy.vo.ProxyRefundReq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +51,9 @@ public class ProxyUserOperationService {
     @Autowired
     private TransactionSupport transactionSupport;
 
+    @Autowired
+    private ITradeConfigService tradeConfigService;
+
     /**
      * 添加代理用户
      * @param req     -
@@ -68,8 +76,6 @@ public class ProxyUserOperationService {
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(typeEnum.next), allowanceModeEnum);
             // 调整账务
             assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum, UserContext.getUserNo());
-            // 调整上级账务
-
             // 记录操作日志
             operationLogService.addLog(OperationBiz.ADD_PROXY, userId.toString());
         });
@@ -95,6 +101,20 @@ public class ProxyUserOperationService {
             assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum, null);
             // 记录操作日志
             //operationLogService.addLog(OperationBiz.ADD_PROXY, userId.toString(), "添加代理一");
+        });
+    }
+
+    public void addRefundConfig(ProxyRefundReq req, boolean isProxyOne) {
+        // 首先确定当前用户是其上级
+        UserInfo userInfo = proxyUserService.getByUid(req.getProxyUid());
+        BizAssert.isTrue(isProxyOne || userInfo.getProxyUserId().equals(UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        transactionSupport.execute(() -> {
+            req.getConfig().forEach(o -> {
+                TradeConfig config = BeanUtil.copy(o, TradeConfig.class);
+                config.setUserNo(req.getProxyUid());
+                tradeConfigService.init(config, isProxyOne ? null : userInfo.getProxyUserId());
+            });
+            operationLogService.addLog(OperationBiz.ADD_PROXY_REFUND_CONFIG, req.getProxyUid().toString());
         });
     }
 }

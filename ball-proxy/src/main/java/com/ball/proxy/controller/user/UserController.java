@@ -1,6 +1,7 @@
 package com.ball.proxy.controller.user;
 
 import com.ball.proxy.controller.user.vo.AddUserReq;
+import com.ball.proxy.controller.user.vo.UserRefundReq;
 import com.ball.proxy.service.UserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,8 +25,14 @@ public class UserController {
     private UserOperationService userOperationService;
 
     @ApiOperation("添加会员")
-    @PostMapping
+    @PostMapping("add")
     public void add(@RequestBody @Valid AddUserReq req) {
         userOperationService.addUser(req);
+    }
+
+    @ApiOperation("添加退水和限额")
+    @PostMapping("addRefund")
+    public void addRefund(@RequestBody @Valid UserRefundReq req) {
+        userOperationService.addRefund(req);
     }
 }
