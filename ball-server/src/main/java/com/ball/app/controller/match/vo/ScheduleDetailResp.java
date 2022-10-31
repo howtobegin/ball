@@ -33,6 +33,9 @@ public class ScheduleDetailResp {
     @ApiModelProperty("联赛名称")
     private String leagueName;
 
+    @ApiModelProperty("联赛中文名称")
+    private String leagueNameZh;
+
     /**
      * Short name, e.g. BRA D1
      */
@@ -84,11 +87,17 @@ public class ScheduleDetailResp {
     @ApiModelProperty("主队名称")
     private String homeName;
 
+    @ApiModelProperty("主队中文名称")
+    private String homeNameZh;
+
     @ApiModelProperty("客队id")
     private String awayId;
 
     @ApiModelProperty("客队名称")
     private String awayName;
+
+    @ApiModelProperty("客队中文名称")
+    private String awayNameZh;
 
     @ApiModelProperty("主队比分")
     private Integer homeScore;

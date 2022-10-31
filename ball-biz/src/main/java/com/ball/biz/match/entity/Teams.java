@@ -1,15 +1,14 @@
 package com.ball.biz.match.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.ball.base.model.Paging;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import com.ball.base.model.Paging;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -33,6 +32,8 @@ public class Teams extends Paging {
     private String leagueId;
 
     private String name;
+
+    private String nameZh;
 
     /**
      * BetTeam logo url.The picture is saved locally for use, please do not call it directly.

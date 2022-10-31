@@ -44,6 +44,9 @@ public class LeagueResp {
     @ApiModelProperty("全称Full name, e.g. Brazil Serie A")
     private String name;
 
+    @ApiModelProperty("全称中文")
+    private String nameZh;
+
     /**
      * Short name, e.g. BRA D1
      */
@@ -56,18 +59,6 @@ public class LeagueResp {
     @ApiModelProperty("The on-going sub league of the league, e.g. Western Paly Off")
     private String subLeagueName;
 
-    @ApiModelProperty("totalRound")
-    private Integer totalRound;
-
-    @ApiModelProperty("currentRound")
-    private Integer currentRound;
-
-    /**
-     * e.g. 2018-2019
-     */
-    @ApiModelProperty("e.g. 2018-2019")
-    private String currentSeason;
-
     @ApiModelProperty("countryId")
     private String countryId;
 
@@ -77,9 +68,6 @@ public class LeagueResp {
     @ApiModelProperty("Country or region name, e.g. Brazil countryLogostringCountry logo url.The picture is saved for local use, please do not call it directly.")
     private String country;
 
-    /**
-     * 0:International 1:Europe 2: America 3: Asia 4: Oceania 5: Africa
-     */
-    @ApiModelProperty("0:International 1:Europe 2: America 3: Asia 4: Oceania 5: Africa")
-    private Integer areaId;
+    @ApiModelProperty("国家中文")
+    private String countryZh;
 }

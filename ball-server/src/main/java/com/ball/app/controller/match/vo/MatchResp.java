@@ -18,15 +18,6 @@ public class MatchResp {
     private String matchId;
 
     /**
-     * 1: League2: Cup
-     */
-    @ApiModelProperty("1: League2: Cup")
-    private Integer leagueType;
-
-    @ApiModelProperty("leagueId")
-    private String leagueId;
-
-    /**
      * Full name, e.g. Brazil Serie A
      */
     @ApiModelProperty("联赛名")
@@ -40,9 +31,6 @@ public class MatchResp {
 
     @ApiModelProperty("leagueColor")
     private String leagueColor;
-
-    @ApiModelProperty("subLeagueId")
-    private String subLeagueId;
 
     /**
      * The on-going sub league of the league, e.g. Western Paly Off
@@ -83,11 +71,17 @@ public class MatchResp {
     @ApiModelProperty("主队名")
     private String homeName;
 
+    @ApiModelProperty("主队中文名")
+    private String homeNameZh;
+
     @ApiModelProperty("awayId")
     private String awayId;
 
     @ApiModelProperty("客队名")
     private String awayName;
+
+    @ApiModelProperty("客队中文名")
+    private String awayNameZh;
 
     @ApiModelProperty("homeScore")
     private Integer homeScore;
@@ -106,48 +100,6 @@ public class MatchResp {
      */
     @ApiModelProperty("上半场客队得分")
     private Integer awayHalfScore;
-
-    @ApiModelProperty("homeRed")
-    private Integer homeRed;
-
-    @ApiModelProperty("awayRed")
-    private Integer awayRed;
-
-    @ApiModelProperty("homeYellow")
-    private Integer homeYellow;
-
-    @ApiModelProperty("awayYellow")
-    private Integer awayYellow;
-
-    @ApiModelProperty("homeCorner")
-    private Integer homeCorner;
-
-    @ApiModelProperty("awayCorner")
-    private Integer awayCorner;
-
-    /**
-     * The ranking of the team in the league, home team
-     */
-    @ApiModelProperty("The ranking of the team in the league, home team")
-    private String homeRank;
-
-    /**
-     * The ranking of the team in the league, away team
-     */
-    @ApiModelProperty("The ranking of the team in the league, away team")
-    private String awayRank;
-
-    /**
-     * e.g. 2019-2020
-     */
-    @ApiModelProperty("e.g. 2019-2020")
-    private String season;
-
-    /**
-     * Matches with [Interface Cup Stage Profile] stageId; To distinguish the different stages of the cup, the league does not return this data.
-     */
-    @ApiModelProperty("Matches with [Interface Cup Stage Profile] stageId; To distinguish the different stages of the cup, the league does not return this data.")
-    private String stageId;
 
     /**
      * League round or cup stage, e.g. 10

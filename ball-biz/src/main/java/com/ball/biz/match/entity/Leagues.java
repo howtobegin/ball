@@ -54,6 +54,8 @@ public class Leagues extends Paging {
      */
     private String name;
 
+    private String nameZh;
+
     /**
      * Short name, e.g. BRA D1
      */
@@ -79,6 +81,8 @@ public class Leagues extends Paging {
      * Country or region name, e.g. Brazil countryLogostringCountry logo url.The picture is saved for local use, please do not call it directly.
      */
     private String country;
+
+    private String countryZh;
 
     /**
      * 0:International 1:Europe 2: America 3: Asia 4: Oceania 5: Africa

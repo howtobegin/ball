@@ -41,6 +41,8 @@ public class Schedules extends Paging {
      */
     private String leagueName;
 
+    private String leagueNameZh;
+
     /**
      * Short name, e.g. BRA D1
      */
@@ -81,9 +83,13 @@ public class Schedules extends Paging {
 
     private String homeName;
 
+    private String homeNameZh;
+
     private String awayId;
 
     private String awayName;
+
+    private String awayNameZh;
 
     private Integer homeScore;
 

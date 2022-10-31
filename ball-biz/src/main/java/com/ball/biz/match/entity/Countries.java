@@ -34,6 +34,8 @@ public class Countries extends Paging {
 
     private String country;
 
+    private String countryZh;
+
     /**
      * 创建时间
      */
