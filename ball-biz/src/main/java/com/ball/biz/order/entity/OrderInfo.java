@@ -60,6 +60,11 @@ public class OrderInfo extends Paging {
     private Long proxy3;
 
     /**
+     * 联赛ID
+     */
+    private String leagueId;
+
+    /**
      * 比赛ID
      */
     private String matchId;
@@ -179,6 +184,16 @@ public class OrderInfo extends Paging {
      * 状态:INIT 初始化；CONFIRM 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消
      */
     private String status;
+
+    /**
+     * 取消原因
+     */
+    private String reason;
+
+    /**
+     * 结束时间
+     */
+    private LocalDateTime finishTime;
 
     /**
      * 创建时间

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -97,8 +98,9 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
                     .build(), false);
         } catch (AssertException e) {
             log.error("{}", e.getMessage());
+            String reason = "rebet Check error:"+e.getMessage();
             // 取消订单
-            orderInfoService.cancel(order.getOrderId());
+            orderInfoService.cancel(order.getOrderId(), reason.substring(0, Math.min(128, reason.length())));
             return false;
         }
         return true;
@@ -122,8 +124,10 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
         Integer homeScore = schedules.getHomeScore();
         Integer awayScore = schedules.getAwayScore();
         if (!homeCurrentScore.equals(homeScore) || !awayCurrentScore.equals(awayScore)) {
+            log.info("orderId {} matchId {} homeCurrentScore {} awayCurrentScore {} homeScore {} awayScore {}",order.getOrderId(),order.getMatchId(),homeCurrentScore,awayCurrentScore,homeScore,awayScore);
+            String reason = MessageFormat.format("score change:{0}:{1}->{2}:{3}",homeCurrentScore,awayCurrentScore,homeScore,awayScore);
             // 取消订单
-            orderInfoService.cancel(order.getOrderId());
+            orderInfoService.cancel(order.getOrderId(), reason);
             return false;
         }
         return true;

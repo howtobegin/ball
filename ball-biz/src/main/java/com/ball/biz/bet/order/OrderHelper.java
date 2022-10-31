@@ -57,8 +57,10 @@ public class OrderHelper {
             case OVER_UNDER:
             case OVER_UNDER_HALF:
                 return PlayTypeEnum.HOE;
+            case EUROPE_ODDS:
+                return PlayTypeEnum.WINNER_AND_WINNER_INPAY;
             default:
-                return null;
+                return OddsType.IN_PLAY_ODDS.isMe(oddsType) ? PlayTypeEnum.OTHER_INPAY : PlayTypeEnum.OTHER;
         }
     }
 }
