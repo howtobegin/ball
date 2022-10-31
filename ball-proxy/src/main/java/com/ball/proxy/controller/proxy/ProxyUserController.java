@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,24 @@ public class ProxyUserController {
         }
 
         return resp;
+    }
+
+    @ApiOperation("查询所有代理(下拉选择用)")
+    @PostMapping("querySummary")
+    public List<ProxyUserSummaryResp> querySummary() {
+        List<UserInfo> userInfos = userInfoService.lambdaQuery().eq(UserInfo::getProxyUserId, UserContext.getUserNo())
+                .gt(UserInfo::getUserType, UserTypeEnum.PROXY_ONE.v).list();
+        if (CollectionUtils.isEmpty(userInfos)) {
+            return new ArrayList<>();
+        } else {
+            return userInfos.stream().map(o -> {
+                ProxyUserSummaryResp resp = new ProxyUserSummaryResp();
+                resp.setAccount(o.getAccount());
+                resp.setBalanceMode(o.getBalanceMode());
+                resp.setUserNo(o.getId());
+                return resp;
+            }).collect(Collectors.toList());
+        }
     }
 
     @ApiOperation("添加代理退水限额配置")

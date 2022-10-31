@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.ball.common.service.IBaseService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -41,6 +42,13 @@ public interface IUserAccountService extends IService<UserAccount>, IBaseService
      * @return
      */
     UserAccount query(Long userId);
+
+    /**
+     * 查询多个用户
+     * @param userNos - 用户编号集合
+     * @return -
+     */
+    List<UserAccount> queryList(List<Long> userNos);
 
     /**
      * 用户入金

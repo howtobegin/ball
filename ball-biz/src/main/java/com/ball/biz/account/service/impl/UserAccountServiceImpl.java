@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -88,6 +89,11 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
     @Override
     public UserAccount query(Long userId) {
         return lambdaQuery().eq(UserAccount::getUserId, userId).one();
+    }
+
+    @Override
+    public List<UserAccount> queryList(List<Long> userNos) {
+        return lambdaQuery().eq(UserAccount::getUserId, userNos).list();
     }
 
     /**

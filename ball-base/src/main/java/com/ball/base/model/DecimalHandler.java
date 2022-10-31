@@ -37,6 +37,13 @@ public class DecimalHandler {
         return value;
     }
 
+    /**
+     * 归零
+     */
+    public void clear() {
+        this.value = BigDecimal.ZERO;
+    }
+
     public boolean hasAmount() {
         return value.compareTo(BigDecimal.ZERO) > 0;
     }
