@@ -86,6 +86,12 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     private boolean enable;
 
     /**
+     *
+     */
+    @Value("${bet.min:50}")
+    protected BigDecimal betMin;
+
+    /**
      * 投注
      * @param bo
      * @return
@@ -206,6 +212,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         UserInfo user = userInfoService.getByUid(bo.getUserNo());
         log.info("userId {} status {}", bo.getUserNo(), user.getStatus());
         BizAssert.isTrue(YesOrNo.YES.v == user.getStatus(), BizErrCode.USER_LOCKED);
+        // 全场最低投注校验
+        BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
 
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
