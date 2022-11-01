@@ -1,10 +1,13 @@
 package com.ball.proxy.controller.proxy;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.DecimalHandler;
 import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.base.util.BizAssert;
 import com.ball.base.util.PasswordUtil;
+import com.ball.biz.account.entity.UserAccount;
+import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.bo.ProxyUserInfo;
@@ -14,6 +17,7 @@ import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.config.HttpSessionConfig;
 import com.ball.proxy.controller.proxy.vo.*;
+import com.ball.proxy.controller.user.vo.UserInfoResp;
 import com.ball.proxy.interceptor.LoginInterceptor;
 import com.ball.proxy.service.ProxyUserOperationService;
 import io.swagger.annotations.Api;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +54,9 @@ public class ProxyUserController {
 
     @Autowired
     private UserExtMapper userExtMapper;
+
+    @Autowired
+    private IUserAccountService userAccountService;
 
     @ApiOperation("登录")
     @PostMapping("login")
@@ -105,11 +113,20 @@ public class ProxyUserController {
             if (!CollectionUtils.isEmpty(proxyUserInfos)) {
                proxyUserInfos.forEach(o -> proxyUserCountMap.put(o.getProxyUid(), o.getUserCount()));
             }
+            DecimalHandler handler = DecimalHandler.instance();
+            // 计算余额和币种
+            List<UserAccount> userAccounts = userAccountService.queryList(proxyUids);
+            Map<Long, UserAccount> userAccountMap = userAccounts.stream().collect(Collectors.toMap(UserAccount::getUserId, Function.identity()));
             resp.foreach(o -> {
                 if (o.getAccount().equals(o.getLoginAccount())) {
                     o.setLoginAccount(null);
                 }
                 o.setUserCount(proxyUserCountMap.get(o.getUserNo()));
+                UserAccount account = userAccountMap.get(o.getUserNo());
+                if (account != null) {
+                    o.setBalance(handler.add(account.getBalance()).subtract(account.getFreezeAmount()).getValue());
+                }
+                handler.clear();
             });
         }
 
