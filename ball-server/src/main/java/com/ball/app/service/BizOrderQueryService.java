@@ -81,7 +81,7 @@ public class BizOrderQueryService {
 
     public List<OrderResp> historyDate(Long userNo, LocalDate date) {
         // 校验时间
-        BizAssert.isTrue(LocalDate.now().plusDays(-8).isBefore(date), BizErrCode.PARAM_ERROR_DESC,"date");
+        BizAssert.isTrue(LocalDate.now().plusDays(-8).isBefore(date), BizErrCode.BET_HISTORY_DAY_ERROR,date.toString());
         List<String> statusList = OrderStatus.finishCodes(true);
         LocalDate end = date.plusDays(1);
         log.info("userNo {} statusList {} date {} end {}", userNo, statusList, date, end);
@@ -97,7 +97,7 @@ public class BizOrderQueryService {
     }
 
     private List<OrderResp> setOtherInfo(List<OrderResp> list) {
-        List<String> matchIds = list.stream().map(OrderResp::getMatchId).collect(Collectors.toList());
+        List<String> matchIds = list.stream().map(OrderResp::getMatchId).distinct().collect(Collectors.toList());
         if (matchIds.isEmpty()) {
             return list;
         }

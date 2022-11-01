@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Api(tags = "退水限额配置管理接口")
 @RestController
-@RequestMapping("/boss/tradeconfig")
+@RequestMapping("/proxy/tradeconfig")
 public class TradeConfigController {
 
     @Autowired
