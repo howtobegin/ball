@@ -18,11 +18,18 @@ public class QueryProxyUserReq extends Paging {
     @ApiModelProperty("额度模式 RECOVERY:自动恢复 BALANCE:余额浮动")
     private String balanceMode;
 
+    @ApiModelProperty("状态 1:正常 0:锁定")
+    private Integer status;
+
     public boolean hasAccount() {
         return StringUtils.hasText(account);
     }
 
     public boolean hasBalanceMode() {
         return StringUtils.hasText(balanceMode);
+    }
+
+    public boolean hasStatus() {
+        return status != null;
     }
 }
