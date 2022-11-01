@@ -95,6 +95,7 @@ public class ProxyUserController {
         PageResult<ProxyUserResp> resp = userInfoService.pageQuery(userInfoService.lambdaQuery()
                 .eq(UserInfo::getProxyUserId, userNo)
                 .eq(req.hasBalanceMode(), UserInfo::getBalanceMode, req.getBalanceMode())
+                .eq(req.hasStatus(), UserInfo::getStatus, req.getStatus())
                 .gt(UserInfo::getUserType, UserTypeEnum.PROXY_ONE.v)
                 .like(req.hasAccount(), UserInfo::getAccount, req.getAccount()), req, ProxyUserResp.class);
         if (resp.hasResult()) {
