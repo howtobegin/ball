@@ -1,4 +1,4 @@
-package com.ball.app.controller.socket;
+package com.ball.proxy.controller.socket;
 
 import com.ball.biz.socket.WebsocketManager;
 import com.ball.biz.user.service.IUserLoginLogService;
