@@ -1,6 +1,7 @@
 package com.ball.biz.log.service.impl;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
 import com.ball.biz.log.entity.OperationLog;
 import com.ball.biz.log.enums.OperationBiz;
 import com.ball.biz.log.mapper.OperationLogMapper;
@@ -24,10 +25,17 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         if (remark != null && remark.length() > 500) {
             remark = remark.substring(0, 500);
         }
+        String proxyInfo = UserContext.getProxyInfo();
+        if (proxyInfo == null) {
+            proxyInfo = "";
+        } else {
+            proxyInfo = proxyInfo + Const.RELATION_SPLIT;
+        }
         save(new OperationLog()
             .setBizId(bizId).setBizChild(biz.bizChild)
                 .setBizType(biz.biz).setOperationAccount(UserContext.getAccount())
                 .setOperationUid(UserContext.getUserNo())
+                .setRelation(proxyInfo + UserContext.getUserNo())
                 .setRemark(remark)
         );
     }

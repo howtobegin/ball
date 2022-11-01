@@ -63,7 +63,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 .setProxyAccount(proxy.getAccount()).setStatus(YesOrNo.YES.v)
                 .setUserName(userName).setUserType(UserTypeEnum.GENERAL.v)
                 .setProxyUserId(proxyUid).setProxyInfo(proxyInfo)
-                .setBalanceMode(proxy.getBalanceMode());
+                .setBalanceMode(proxy.getBalanceMode()).setChangePasswordTime(0L);
         transactionSupport.execute(() -> {
             save(info);
             userLoginSessionService.save(new UserLoginSession()
@@ -111,6 +111,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         BizAssert.isTrue(PasswordUtil.checkPass(oldPassword, userInfo.getPassword()), BizErrCode.USER_PASSWORD_ERROR);
         userInfo.setChangePasswordFlag(YesOrNo.YES.v)
                 .setPassword(PasswordUtil.get(newPassword))
+                .setChangePasswordTime(System.currentTimeMillis())
                 .setUpdateTime(null);
     }
 
@@ -121,6 +122,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 .eq(UserInfo::getChangePasswordFlag, YesOrNo.NO.v)
                 .set(UserInfo::getPassword, PasswordUtil.get(password))
                 .set(UserInfo::getChangePasswordFlag, YesOrNo.YES.v)
+                .set(UserInfo::getChangePasswordTime, System.currentTimeMillis())
                 .update();
         BizAssert.isTrue(flag, BizErrCode.DATA_ERROR);
     }

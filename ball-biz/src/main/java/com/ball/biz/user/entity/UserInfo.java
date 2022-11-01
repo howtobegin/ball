@@ -67,6 +67,11 @@ public class UserInfo extends Paging {
     private Integer changePasswordFlag;
 
     /**
+     * 最后修改密码时间
+     */
+    private Long changePasswordTime;
+
+    /**
      * 锁屏密码
      */
     private String lockPassword;

@@ -6,8 +6,10 @@ create table operation_log(
     biz_type          varchar(64)     not null comment '业务类型',
     biz_child         varchar(64)     not null comment '子类型',
     biz_id            varchar(64)     not null comment '业务编号',
+    relation          varchar(64)     not null comment '代理关系，包含自己',
     remark            varchar(500)             comment '操作说明',
     operation_time    datetime        not null default current_timestamp comment '操作时间',
     key idx_biz_type(biz_type, biz_child, biz_id),
-    key idx_uid(operation_uid)
+    key idx_uid(operation_uid),
+    key idx_relation(relation)
 ) engine = InnoDB default charset = utf8mb4 comment ='操作日志表';

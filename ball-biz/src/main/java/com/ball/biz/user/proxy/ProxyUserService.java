@@ -163,7 +163,7 @@ public class ProxyUserService {
                     .setProxyAccount(proxyAccount).setStatus(YesOrNo.YES.v)
                     .setUserName(userName).setUserType(userType)
                     .setProxyUserId(proxyUid).setProxyInfo(proxyInfo)
-                    .setBalanceMode(balanceMode)
+                    .setBalanceMode(balanceMode).setChangePasswordTime(0L)
             );
             userLoginSessionService.save(new UserLoginSession()
                     .setUserId(userId).setSessionId(Const.SESSION_DEFAULT)

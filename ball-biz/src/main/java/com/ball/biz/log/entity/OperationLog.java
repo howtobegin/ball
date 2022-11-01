@@ -55,6 +55,11 @@ public class OperationLog extends Paging {
     private String bizId;
 
     /**
+     * 代理关系，包含自己
+     */
+    private String relation;
+
+    /**
      * 操作说明
      */
     private String remark;

@@ -22,6 +22,7 @@ create table user_info (
     mobile_no             varchar(18)           null comment '手机号',
     password              varchar(32)       not null comment '密码',
     change_password_flag  tinyint           not null comment '修改密码标志',
+    change_password_time  bigint unsigned   not null comment '最后更改密码时间',
     lock_password         varchar(32)           null comment '锁屏密码',
     secret_password       varchar(32)           null comment '安全密码',
     user_type             tinyint           not null comment '用户类型  1:会员 2:代理',

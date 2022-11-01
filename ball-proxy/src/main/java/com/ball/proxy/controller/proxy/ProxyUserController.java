@@ -3,7 +3,10 @@ package com.ball.proxy.controller.proxy;
 import com.ball.base.context.UserContext;
 import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
+import com.ball.base.util.BizAssert;
+import com.ball.base.util.PasswordUtil;
 import com.ball.biz.enums.UserTypeEnum;
+import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.bo.ProxyUserInfo;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.mapper.ext.UserExtMapper;
@@ -140,5 +143,41 @@ public class ProxyUserController {
     @PostMapping("addRefundConfigOne")
     public void addRefundConfigOne(@RequestBody @Valid ProxyRefundReq req) {
         proxyUserOperationService.addRefundConfig(req, true);
+    }
+
+    @ApiOperation("修改密码")
+    @PostMapping("changePassword")
+    public void changePassword(@RequestBody @Valid ChangePasswordReq req) {
+        // 校验密码合法性
+        BizAssert.isTrue(PasswordUtil.checkValid(req.getNewPassword()), BizErrCode.USER_PASSWORD_INVALID);
+        proxyUserOperationService.updatePassword(UserContext.getUserNo(), req.getOldPassword(), req.getNewPassword());
+    }
+
+    @ApiOperation("首次修改密码")
+    @PostMapping("changePasswordFirst")
+    public void changePasswordFirst(@RequestBody @Valid FirstChangePasswordReq req) {
+        // 校验密码合法性
+        BizAssert.isTrue(PasswordUtil.checkValid(req.getPassword()), BizErrCode.USER_PASSWORD_INVALID);
+        proxyUserOperationService.updatePasswordFirst(UserContext.getUserNo(), req.getPassword());
+    }
+
+    @ApiOperation("修改登入账号")
+    @PostMapping("changeLoginAccount")
+    public void changeLoginAccount(@RequestBody @Valid LoginAccountReq req) {
+        req.valid();
+        userInfoService.changeLogin(UserContext.getUserNo(), req.getLoginAccount());
+    }
+
+    @ApiOperation("检查登入账号是否可用")
+    @PostMapping("checkLoginAccount")
+    public boolean checkLoginAccount(@RequestBody @Valid LoginAccountReq req) {
+        int count = userInfoService.lambdaQuery().eq(UserInfo::getAccount, req.getLoginAccount())
+                .gt(UserInfo::getUserType, UserTypeEnum.GENERAL.v).count();
+        if (count > 0) {
+            return false;
+        }
+        count = userInfoService.lambdaQuery().eq(UserInfo::getLoginAccount, req.getLoginAccount())
+                .gt(UserInfo::getUserType, UserTypeEnum.GENERAL.v).count();
+        return count <= 0;
     }
 }

@@ -18,6 +18,7 @@ import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserExtendService;
+import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.proxy.vo.AddProxyReq;
 import com.ball.proxy.controller.proxy.vo.ProxyRefundReq;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,9 @@ public class ProxyUserOperationService {
 
     @Autowired
     private IUserExtendService userExtendService;
+
+    @Autowired
+    private IUserInfoService userInfoService;
 
     @Autowired
     private ProxyUserService proxyUserService;
@@ -115,6 +119,20 @@ public class ProxyUserOperationService {
                 tradeConfigService.init(config, isProxyOne ? null : userInfo.getProxyUserId());
             });
             operationLogService.addLog(OperationBiz.ADD_PROXY_REFUND_CONFIG, req.getProxyUid().toString());
+        });
+    }
+
+    public void updatePassword(Long userNo, String oldPassword, String password) {
+        transactionSupport.execute(() -> {
+            userInfoService.changePassword(userNo, oldPassword, password);
+            operationLogService.addLog(OperationBiz.PROXY_CHANGE_PASSWORD, userNo.toString());
+        });
+    }
+
+    public void updatePasswordFirst(Long userNo, String password) {
+        transactionSupport.execute(() -> {
+            userInfoService.firstChangePassword(userNo, password);
+            operationLogService.addLog(OperationBiz.PROXY_CHANGE_PASSWORD, userNo.toString());
         });
     }
 }
