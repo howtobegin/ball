@@ -6,6 +6,7 @@ import com.ball.biz.match.mapper.SchedulesMapper;
 import com.ball.biz.match.service.ISchedulesService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -24,6 +25,9 @@ import java.util.List;
  */
 @Service
 public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules> implements ISchedulesService {
+    @Value("${early.day:14}")
+    private int earlyDay;
+
     @Override
     public Schedules queryOne(String matchId) {
         return lambdaQuery().eq(Schedules::getMatchId , matchId).one();
@@ -70,7 +74,7 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
                 .eq(!StringUtils.isEmpty(matchId), Schedules::getMatchId, matchId)
                 .in(!StringUtils.isEmpty(leagueIds), Schedules::getLeagueId, leagueIds)
                 .gt(Schedules::getMatchDate, LocalDate.now().plusDays(1))
-                .lt(Schedules::getMatchDate, LocalDate.now().plusDays(15))
+                .lt(Schedules::getMatchDate, LocalDate.now().plusDays(earlyDay + 1))
                 .eq(Schedules::getStatus, ScheduleStatus.NOT_STARTED.getCode())
                 .list();
     }
