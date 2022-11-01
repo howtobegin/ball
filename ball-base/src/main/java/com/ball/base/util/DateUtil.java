@@ -24,6 +24,7 @@ public class DateUtil {
     private static final DateTimeFormatter DATE_FORMAT_NO_SPLIT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter DATE_FORMAT_HAS_SPLIT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATE_FORMAT_WEEK = DateTimeFormatter.ofPattern("EEEE dd/MM");
+    private static final DateTimeFormatter DATE_FORMAT_YEAR = DateTimeFormatter.ofPattern("yyyy");
 
 
     /**
@@ -67,6 +68,10 @@ public class DateUtil {
 
     public static String formatWeek(LocalDateTime localDateTime) {
         return localDateTime.format(DATE_FORMAT_WEEK);
+    }
+
+    public static String formatYear(LocalDateTime localDateTime) {
+        return localDateTime.format(DATE_FORMAT_YEAR);
     }
 
     public static void main(String[] argv) {
