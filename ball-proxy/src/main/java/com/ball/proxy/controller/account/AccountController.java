@@ -11,6 +11,7 @@ import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
+import com.ball.proxy.controller.account.vo.AccountAllowanceUpdateReq;
 import com.ball.proxy.controller.account.vo.AccountModifyReq;
 import com.ball.proxy.controller.account.vo.AccountModifyResp;
 import com.ball.proxy.controller.account.vo.AccountResp;
@@ -32,10 +33,13 @@ import java.util.stream.Collectors;
 
 @Api(tags = "账户信息")
 @RestController
-@RequestMapping("/boss/account")
+@RequestMapping("/proxy/account")
 public class AccountController {
     @Autowired
     IUserAccountService iUserAccountService;
+
+    @Autowired
+    IUserInfoService iUserInfoService;
 
     @Autowired
     IBizAssetAdjustmentOrderService iBizAssetAdjustmentOrderService;
@@ -52,6 +56,11 @@ public class AccountController {
     }
 
 
+    @ApiOperation("修改信用额度")
+    @PostMapping(value = "updateAllowance")
+    public void updateAllowance(@RequestBody @Valid AccountAllowanceUpdateReq req) {
+        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),UserContext.getUserNo());
+    }
 
     @ApiOperation("查询额度修改记录")
     @RequestMapping(value = "modifyRecord",method = {RequestMethod.GET,RequestMethod.POST})

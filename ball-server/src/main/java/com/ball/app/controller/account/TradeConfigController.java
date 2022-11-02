@@ -22,14 +22,14 @@ import java.util.stream.Collectors;
 
 @Api(tags = "退水限额配置管理接口")
 @RestController
-@RequestMapping("/boss/tradeconfig")
+@RequestMapping("/app/tradeconfig")
 public class TradeConfigController {
 
     @Autowired
     ITradeConfigService tradeConfigService;
 
 
-    @ApiOperation("查询代理退水限额配置")
+    @ApiOperation("查询用户退水限额配置")
     @PostMapping(value = "/getUserConfig" )
     public List<UserTradeConfigResp> getUserConfig(){
         return tradeConfigService.getUserConfig(UserContext.getUserNo()).stream().map(a->{

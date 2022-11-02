@@ -51,4 +51,8 @@ public enum OrderStatus {
     public static List<String> cancelCodes() {
         return Lists.newArrayList(CANCEL.code, MATCH_CANCEL.code);
     }
+
+    public static boolean isCancel(OrderStatus status) {
+        return cancelCodes().contains(status.getCode());
+    }
 }

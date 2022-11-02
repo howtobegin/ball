@@ -270,10 +270,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
 
         order.setOddsData(betInfo.getOddsData());
         order.setInstantHandicap(betInfo.getInstantHandicap());
-        LocalDate date = LocalDate.now();
-        order.setBetYear(date.getYear());
-        order.setBetMonth(date.getMonthValue());
-        order.setBetDay(date.getDayOfMonth());
+        order.setBetDate(LocalDate.now());
 
         log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;
