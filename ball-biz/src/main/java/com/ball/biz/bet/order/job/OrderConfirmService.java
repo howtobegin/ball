@@ -95,6 +95,7 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
                     .bizNo(bizNo)
                     .betOption(BetOption.valueOf(order.getBetOption()))
                     .betAmount(order.getBetAmount())
+                    .betTime(order.getCreateTime())
                     .build(), false);
         } catch (AssertException e) {
             log.error("{}", e.getMessage());

@@ -173,7 +173,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         // 更新时间校验
         if (getAllowDelay() > 0) {
             LocalDateTime latestUpdateTime = checkInfo.getLatestUpdateTime();
-            boolean delay = latestUpdateTime.plusSeconds(getAllowDelay()).isBefore(LocalDateTime.now());
+            boolean delay = latestUpdateTime.plusSeconds(getAllowDelay()).isBefore(bo.getBetTime());
             log.info("bizNo {} latestUpdateTime {} allowDelay {} delay {}",bo.getBizNo(), latestUpdateTime, getAllowDelay(), delay);
             BizAssert.isTrue(!delay, BizErrCode.ODDS_DELAY);
         }
