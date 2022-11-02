@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -35,6 +36,7 @@ public class OrderController {
     public void bet(@RequestBody @Valid BetReq req) {
         BetBo bo = BeanUtil.copy(req, BetBo.class);
         bo.setUserNo(UserContext.getUserNo());
+        bo.setBetTime(LocalDateTime.now());
         bizBetService.bet(bo);
     }
 

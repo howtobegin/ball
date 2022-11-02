@@ -164,4 +164,23 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     public void logout(Long userId) {
         loginAssist.logout(userId, SPRING_SESSION_KEY_PREFIX, SPRING_SESSION_EXPIRE_PREFIX);
     }
+
+    @Override
+    public void lock(Long userId, Long currentUid) {
+        setStatus(userId, currentUid, YesOrNo.NO.v);
+    }
+
+    @Override
+    public void unlock(Long userId, Long currentUid) {
+        setStatus(userId, currentUid, YesOrNo.YES.v);
+    }
+
+    private void setStatus(Long userId, Long currentUid, Integer status) {
+        UserInfo userInfo = getByUid(userId);
+        // 判断是否包含
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), currentUid), BizErrCode.DATA_ERROR);
+        lambdaUpdate().set(UserInfo::getStatus, status)
+                .eq(UserInfo::getId, userId)
+                .update();
+    }
 }

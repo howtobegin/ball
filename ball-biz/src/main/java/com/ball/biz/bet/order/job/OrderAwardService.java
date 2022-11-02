@@ -68,11 +68,13 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
             log.warn("orderId {} betResult {}", data.getOrderId(), betResult);
             return false;
         }
-        CalcResult calcResult = CalculatorHolder.get(betResult).calc(data.getBetAmount(), data.getBetOdds());
+        CalcResult calcResult = CalculatorHolder.get(betResult).calc(data.getBetAmount(), getBetOdds(data));
         String orderId = data.getOrderId();
         Long userId = data.getUserId();
         // 用户输赢
         BigDecimal userWinAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount());
+        // 简单校验
+        userWinAmountCheck(betResult, userWinAmount);
         // 计算代理占成
         ProxyAmount proxyAmount = calcProxyAmount(userId, userWinAmount);
         OrderFinishBo orderFinishBo = buildOrderFinishBo(orderId, calcResult, proxyAmount);
@@ -88,6 +90,30 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
         return true;
     }
 
+    private BigDecimal getBetOdds(OrderInfo order) {
+        // 默认香港盘，赔率+1
+        return order.getBetOdds().add(BigDecimal.ONE);
+    }
+
+    private void userWinAmountCheck(BetResult betResult, BigDecimal userWinAmount) {
+        switch (betResult) {
+            case WIN:
+            case WIN_HALF:
+                BizAssert.isTrue(userWinAmount.compareTo(BigDecimal.ZERO) > 0, BizErrCode.USER_WIN_AMOUNT_ERROR);
+                break;
+            case LOSE:
+            case LOSE_HALF:
+                BizAssert.isTrue(userWinAmount.compareTo(BigDecimal.ZERO) < 0, BizErrCode.USER_WIN_AMOUNT_ERROR);
+                break;
+            case DRAW:
+                BizAssert.isTrue(userWinAmount.compareTo(BigDecimal.ZERO) == 0, BizErrCode.USER_WIN_AMOUNT_ERROR);
+                break;
+            case UNSETTLED:
+                default:
+                    break;
+        }
+    }
+
     /**
      * 处理用户额度
      * @param userId
@@ -98,8 +124,8 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
     private void handleUserAmount(Long userId, String orderId, BetResult betResult, BigDecimal userWinAmount, BigDecimal backwaterAmount) {
         // 解冻
         userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
-        // 退水
-        if (betResult.isBackwater()) {
+        // 退水 & 退水金额大于0
+        if (betResult.isBackwater() && backwaterAmount.compareTo(BigDecimal.ZERO) > 0) {
             userAccountService.income(userId, backwaterAmount, orderId, AccountTransactionType.REBATE);
         }
 

@@ -36,16 +36,21 @@ public class OrderSettleService extends BaseJobService<OrderInfo> {
 
     @Override
     public boolean executeOne(OrderInfo data) {
-        Integer scheduleStatus = data.getScheduleStatus();
-        log.info("ScheduleStatus {}", scheduleStatus);
-        HandicapType handicapType = HandicapType.parse(data.getHandicapType());
-        log.info("orderId {} handicapType {}", data.getOrderId(), handicapType);
-        if (handicapType == null) {
+        try {
+            Integer scheduleStatus = data.getScheduleStatus();
+            log.info("ScheduleStatus {}", scheduleStatus);
+            HandicapType handicapType = HandicapType.parse(data.getHandicapType());
+            log.info("orderId {} handicapType {}", data.getOrderId(), handicapType);
+            if (handicapType == null) {
+                return false;
+            }
+            AnalyzeResult analyzeResult = AnalyzerHolder.get(handicapType).analyze(data);
+            orderInfoService.settled(data.getOrderId(), analyzeResult);
+            return true;
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
             return false;
         }
-        AnalyzeResult analyzeResult = AnalyzerHolder.get(handicapType).analyze(data);
-        orderInfoService.settled(data.getOrderId(), analyzeResult);
-        return true;
     }
 
     /**

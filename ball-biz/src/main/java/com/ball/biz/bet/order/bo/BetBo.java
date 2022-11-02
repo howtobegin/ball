@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @author lhl
@@ -29,13 +30,16 @@ public class BetBo {
 
     private String matchId;
 
+    private LocalDateTime betTime;
+
     @Builder
-    public BetBo(Long userNo, HandicapType handicapType, String bizNo, BetOption betOption, BigDecimal betAmount, String matchId) {
+    public BetBo(Long userNo, HandicapType handicapType, String bizNo, BetOption betOption, BigDecimal betAmount, String matchId, LocalDateTime betTime) {
         this.userNo = userNo;
         this.handicapType = handicapType;
         this.bizNo = bizNo;
         this.betOption = betOption;
         this.betAmount = betAmount;
         this.matchId = matchId;
+        this.betTime = betTime;
     }
 }

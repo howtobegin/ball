@@ -172,7 +172,7 @@ public class ProxyUserService {
         return userId;
     }
 
-    public List<Long> getUidByProxyInfo(String proxyInfo) {
+    private List<Long> getUidByProxyInfo(String proxyInfo) {
         String[] uids = proxyInfo.split(Const.RELATION_SPLIT);
         List<Long> uid = new ArrayList<>();
         for (String s : uids) {
