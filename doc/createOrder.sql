@@ -9,6 +9,8 @@ CREATE TABLE `order_info`
     proxy2          bigint   NULL COMMENT '二级代理',
     proxy3          bigint   NULL COMMENT '三级代理',
 
+    sport           tinyint  default 1 COMMENT '运动类型：1 足球',
+
     league_id       varchar(30)  NOT NULL COMMENT '联赛ID',
     match_id        varchar(30)  NOT NULL COMMENT '比赛ID',
     company_id      varchar(256) null comment '1: Macauslot,3: Crown',
@@ -100,7 +102,7 @@ DROP TABLE IF EXISTS `order_stat`;
 CREATE TABLE `order_stat`
 (
     id              bigint unsigned primary key auto_increment comment '自增编号',
-    bet_date        tinyint    NOT NULL COMMENT '投注日期',
+    bet_date        date     NOT NULL COMMENT '投注/结算日期',
     proxy1          bigint   NULL COMMENT '一级代理',
     proxy2          bigint   NULL COMMENT '二级代理',
     proxy3          bigint   NULL COMMENT '三级代理',
@@ -112,7 +114,7 @@ CREATE TABLE `order_stat`
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
     proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
 
-    bet_count       bigint   default 0 COMMENT '投注人数',
+    bet_count       bigint   default 1 COMMENT '投注人数',
 
     create_time     datetime     not null default current_timestamp comment '创建时间',
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',

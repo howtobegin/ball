@@ -61,6 +61,11 @@ public class OrderInfo extends Paging {
     private Long proxy3;
 
     /**
+     * 运动类型：1 足球
+     */
+    private Integer sport;
+
+    /**
      * 联赛ID
      */
     private String leagueId;

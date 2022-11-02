@@ -104,7 +104,7 @@ public class BizOddsService {
             return v1;
         }));
         leagueMatchIds.forEach((leagueId, matchIdOfLeague) -> {
-            LeagueResp leagueResp = BeanUtil.copy(leagueMap.get(leagueId), LeagueResp.class);
+            LeagueResp leagueResp = translate(leagueMap.get(leagueId));
 
             List<MatchOddsResp> matchOddsRespList = Lists.newArrayList();
             List<MatchOddsScoreResp> matchOddsScoreRespList = Lists.newArrayList();
@@ -132,7 +132,7 @@ public class BizOddsService {
                 List<OddsScore> matchOfOddsScore = matchOddsScore.get(matchId);
                 Map<HandicapType, List<OddsScoreResp>> oddsScore = groupOddsScore(matchOfOddsScore);
 
-                MatchResp matchResp = BeanUtil.copy(matchSchedules.get(matchId), MatchResp.class);
+                MatchResp matchResp = translate(matchSchedules.get(matchId));
                 setMatchOtherInfo(matchResp, favoriteMatchIds);
                 matchOddsRespList.add(MatchOddsResp.builder()
                         .count(matchOfOdds.size())
@@ -154,6 +154,23 @@ public class BizOddsService {
         });
         log.info("end");
         return ret;
+    }
+
+    private LeagueResp translate(Leagues league) {
+        LeagueResp leagueResp = BeanUtil.copy(league, LeagueResp.class);
+        if (leagueResp != null) {
+            leagueResp.setName(leagueResp.getNameZh());
+        }
+        return leagueResp;
+    }
+
+    private MatchResp translate(Schedules schedule) {
+        MatchResp matchResp = BeanUtil.copy(schedule, MatchResp.class);
+        if (matchResp != null) {
+            matchResp.setHomeName(matchResp.getHomeNameZh());
+            matchResp.setAwayName(matchResp.getAwayNameZh());
+        }
+        return matchResp;
     }
 
     private void setMatchOtherInfo(MatchResp matchResp, Set<String> favoriteMatchIds) {

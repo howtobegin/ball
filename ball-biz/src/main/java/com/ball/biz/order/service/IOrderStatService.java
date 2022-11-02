@@ -1,9 +1,12 @@
 package com.ball.biz.order.service;
 
+import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.entity.OrderStat;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import com.ball.common.service.IBaseService;
+
+import java.time.LocalDate;
 
 /**
  * <p>
@@ -15,4 +18,11 @@ import com.ball.common.service.IBaseService;
  */
 public interface IOrderStatService extends IService<OrderStat>, IBaseService {
 
+    OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3);
+
+    void addBetCount(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3);
+
+    void newOrderCreate(OrderInfo order);
+
+    void newOrderFinish(OrderInfo order);
 }

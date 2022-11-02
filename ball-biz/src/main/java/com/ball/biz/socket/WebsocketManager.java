@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 public class WebsocketManager {
-    private static final String TOKEN_NAME = "ball:app:token:sessions:";
+    public static String TOKEN_NAME = "ball:app:token:sessions:";
     private static final Map<Long, Session> sessionPool = new ConcurrentHashMap<>();
     private static final Map<Long, String> userToken = new HashMap<>();
     private static AtomicInteger online = new AtomicInteger(0);

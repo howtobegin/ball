@@ -18,7 +18,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-public class UserConfigReq extends Paging {
+public class UserConfigReq {
     /**
      * 类型
      */
