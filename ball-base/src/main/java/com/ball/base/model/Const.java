@@ -33,4 +33,15 @@ public class Const {
     public static final String SESSION_DEFAULT = "SESSION";
 
     public static final LocalDate START_DATE = LocalDate.of(2000,1,1);
+
+    public static boolean hasRelation(String relation, Long parent) {
+        String[] info = relation.split(RELATION_SPLIT);
+        String pp = parent.toString();
+        for (String p : info) {
+            if (pp.equals(p)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
