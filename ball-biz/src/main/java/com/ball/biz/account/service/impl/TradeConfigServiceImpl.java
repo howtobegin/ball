@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -75,13 +76,30 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
                 .eq(TradeConfig::getType, type.name()).one();
     }
 
+    final BigDecimal[] AVAILABLE_A = {new BigDecimal(2.5),new BigDecimal(2.25),new BigDecimal(2)};
+    final BigDecimal[] AVAILABLE_B = {new BigDecimal(1.75),new BigDecimal(1.5),new BigDecimal(1.25)};
+    final BigDecimal[] AVAILABLE_C = {new BigDecimal(1.25),new BigDecimal(1),new BigDecimal(0.75)};
+    final BigDecimal[] AVAILABLE_D = {new BigDecimal(0.5),new BigDecimal(0.25),BigDecimal.ZERO};
+    private boolean isBigdecimalIn(BigDecimal v, BigDecimal[] arr) {
+        for (BigDecimal b: arr) {
+            if (v.compareTo(b) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void _check(TradeConfig tradeConfig, TradeConfig parent) {
         if (tradeConfig.getUserLevel() == null) {
             if (tradeConfig.getType().equalsIgnoreCase(PlayTypeEnum.HOE.name()) || tradeConfig.getType().equalsIgnoreCase(PlayTypeEnum.HOE_INPAY.name())) {
                 BizAssert.isTrue(tradeConfig.getA().compareTo(parent.getA()) <= 0, BizErrCode.TRADE_CONFIG_INLLEGAL);
+                BizAssert.isTrue(isBigdecimalIn(tradeConfig.getA(), AVAILABLE_A), BizErrCode.TRADE_CONFIG_INLLEGAL1);
                 BizAssert.isTrue(tradeConfig.getB().compareTo(parent.getB()) <= 0, BizErrCode.TRADE_CONFIG_INLLEGAL);
+                BizAssert.isTrue(isBigdecimalIn(tradeConfig.getB(), AVAILABLE_B), BizErrCode.TRADE_CONFIG_INLLEGAL1);
                 BizAssert.isTrue(tradeConfig.getC().compareTo(parent.getC()) <= 0, BizErrCode.TRADE_CONFIG_INLLEGAL);
+                BizAssert.isTrue(isBigdecimalIn(tradeConfig.getC(), AVAILABLE_C), BizErrCode.TRADE_CONFIG_INLLEGAL1);
                 BizAssert.isTrue(tradeConfig.getD().compareTo(parent.getD()) <= 0, BizErrCode.TRADE_CONFIG_INLLEGAL);
+                BizAssert.isTrue(isBigdecimalIn(tradeConfig.getD(), AVAILABLE_D), BizErrCode.TRADE_CONFIG_INLLEGAL1);
             } else {
                 BizAssert.isTrue(tradeConfig.getMatchLimit().compareTo(parent.getMatchLimit()) <= 0, BizErrCode.TRADE_CONFIG_INLLEGAL);
                 BizAssert.isTrue(tradeConfig.getOrderLimit().compareTo(parent.getOrderLimit()) <= 0, BizErrCode.TRADE_CONFIG_INLLEGAL);

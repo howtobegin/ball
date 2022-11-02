@@ -1,6 +1,7 @@
 package com.ball.proxy.service;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
 import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
@@ -93,8 +94,7 @@ public class UserOperationService {
         UserExtend userExtend = userExtendService.getByUid(req.getUserId());
         UserLevelEnum userLevelEnum = UserLevelEnum.valueOf(userExtend.getHandicapType());
         // 获取自己的所有上级
-        List<Long> proxyUid = proxyUserService.getUidByProxyInfo(userInfo.getProxyInfo());
-        BizAssert.isTrue(proxyUid.contains(UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
         transactionSupport.execute(() -> {
             req.getConfig().forEach(o -> {
                 TradeConfig config = BeanUtil.copy(o, TradeConfig.class);
@@ -113,6 +113,20 @@ public class UserOperationService {
                 tradeConfigService.init(config, userInfo.getProxyUserId());
             });
             operationLogService.addLog(OperationBiz.ADD_REFUND_CONFIG, req.getUserId().toString());
+        });
+    }
+
+    public void lock(Long userId) {
+        transactionSupport.execute(() -> {
+            userInfoService.lock(userId, UserContext.getUserNo());
+            operationLogService.addLog(OperationBiz.LOCK_USER, userId.toString());
+        });
+    }
+
+    public void unlock(Long userId) {
+        transactionSupport.execute(() -> {
+            userInfoService.unlock(userId, UserContext.getUserNo());
+            operationLogService.addLog(OperationBiz.UNLOCK_USER, userId.toString());
         });
     }
 }

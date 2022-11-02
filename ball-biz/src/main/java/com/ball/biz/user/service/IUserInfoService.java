@@ -104,4 +104,18 @@ public interface IUserInfoService extends IService<UserInfo>, IBaseService {
      */
     void logout(Long userId);
 
+    /**
+     * 停用会员或用户
+     * @param userId      - 停用用户编号
+     * @param currentUid  - 当前登陆用户编号
+     */
+    void lock(Long userId, Long currentUid);
+
+    /**
+     * 启用会员或用户
+     * @param userId      - 停用用户编号
+     * @param currentUid  - 当前登陆用户编号
+     */
+    void unlock(Long userId, Long currentUid);
+
 }

@@ -1,15 +1,20 @@
 package com.ball.proxy.controller.proxy;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
 import com.ball.base.model.DecimalHandler;
 import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
+import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.base.util.PasswordUtil;
+import com.ball.biz.account.entity.SettlementPeriod;
 import com.ball.biz.account.entity.UserAccount;
+import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.user.bo.ProxyStatistics;
 import com.ball.biz.user.bo.ProxyUserInfo;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.mapper.ext.UserExtMapper;
@@ -17,7 +22,6 @@ import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.config.HttpSessionConfig;
 import com.ball.proxy.controller.proxy.vo.*;
-import com.ball.proxy.controller.user.vo.UserInfoResp;
 import com.ball.proxy.interceptor.LoginInterceptor;
 import com.ball.proxy.service.ProxyUserOperationService;
 import io.swagger.annotations.Api;
@@ -58,6 +62,9 @@ public class ProxyUserController {
     @Autowired
     private IUserAccountService userAccountService;
 
+    @Autowired
+    private ISettlementPeriodService settlementPeriodService;
+
     @ApiOperation("登录")
     @PostMapping("login")
     public LoginResp login(@RequestBody @Valid LoginReq req, HttpServletRequest request) {
@@ -71,6 +78,7 @@ public class ProxyUserController {
                 .setChangePasswordFlag(userInfo.getChangePasswordFlag())
                 .setChangeAccountFlag(userInfo.getAccount().equals(userInfo.getLoginAccount()) ? YesOrNo.NO.v : YesOrNo.NO.v);
     }
+
 
     @ApiOperation("登出接口")
     @RequestMapping(value = "logout", method = {RequestMethod.GET, RequestMethod.POST})
@@ -197,5 +205,33 @@ public class ProxyUserController {
         count = userInfoService.lambdaQuery().eq(UserInfo::getLoginAccount, req.getLoginAccount())
                 .gt(UserInfo::getUserType, UserTypeEnum.GENERAL.v).count();
         return count <= 0;
+    }
+
+    @ApiOperation("查询代理详细信息")
+    @PostMapping("queryProxyDetail")
+    public ProxyDetailResp queryProxyDetail(@RequestBody @Valid ProxyDetailReq req) {
+        UserInfo userInfo;
+        // 当前登陆用户必须是代理3自己或者自己的上级
+        if (UserTypeEnum.PROXY_THREE.isMe(UserContext.getUserType())) {
+            userInfo = proxyUserService.getByUid(UserContext.getUserNo());
+        } else {
+            BizAssert.isTrue(req.hasProxyUid(), BizErrCode.PARAM_ERROR_DESC, "proxyUid");
+            userInfo = proxyUserService.getByUid(req.getProxyUid());
+            BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        }
+        ProxyDetailResp resp = BeanUtil.copy(userInfo, ProxyDetailResp.class);
+        resp.setUserNo(userInfo.getId());
+        ProxyStatistics statistics = userExtMapper.selectProxyStatistics(userInfo.getId());
+        if (statistics != null) {
+            resp.setNormalUserCount(statistics.getNormalUserCount());
+            resp.setLockedUserCount(statistics.getLockedUserCount());
+        }
+        // 查询周期内新增会员
+        SettlementPeriod period = settlementPeriodService.currentPeriod();
+        if (period != null) {
+            Integer count = userExtMapper.selectProxyStatistics(period.getStartDate(), period.getEndDate());
+            resp.setPeriodUserCount(count);
+        }
+        return resp;
     }
 }
