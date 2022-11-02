@@ -15,6 +15,8 @@ import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.mapper.OrderInfoMapper;
 import com.ball.biz.order.service.IOrderHistoryService;
 import com.ball.biz.order.service.IOrderInfoService;
+import com.ball.biz.order.service.IOrderStatService;
+import com.ball.biz.order.service.IOrderSummaryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -47,6 +49,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private IOrderHistoryService orderHistoryService;
     @Autowired
     private IUserAccountService userAccountService;
+    @Autowired
+    private IOrderStatService orderStatService;
+    @Autowired
+    private IOrderSummaryService orderSummaryService;
 
     @Override
     public OrderInfo queryByOrderId(String orderId) {
@@ -120,21 +126,28 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     public void finish(OrderFinishBo bo) {
         log.info("orderId {}", bo.getOrderId());
 
-        boolean update = lambdaUpdate()
-                .set(OrderInfo::getStatus, OrderStatus.FINISH.getCode())
-                .set(OrderInfo::getResultAmount, bo.getResultAmount())
-                .set(OrderInfo::getValidAmount, bo.getValidAmount())
-                .set(OrderInfo::getProxy1Amount, bo.getProxy1Amount())
-                .set(OrderInfo::getProxy2Amount, bo.getProxy2Amount())
-                .set(OrderInfo::getProxy3Amount, bo.getProxy3Amount())
-                .set(OrderInfo::getBackwaterAmount, bo.getBackwaterAmount())
-                .set(OrderInfo::getFinishTime, LocalDateTime.now())
+        transactionSupport.execute(()->{
+            boolean update = lambdaUpdate()
+                    .set(OrderInfo::getStatus, OrderStatus.FINISH.getCode())
+                    .set(OrderInfo::getResultAmount, bo.getResultAmount())
+                    .set(OrderInfo::getValidAmount, bo.getValidAmount())
+                    .set(OrderInfo::getProxy1Amount, bo.getProxy1Amount())
+                    .set(OrderInfo::getProxy2Amount, bo.getProxy2Amount())
+                    .set(OrderInfo::getProxy3Amount, bo.getProxy3Amount())
+                    .set(OrderInfo::getBackwaterAmount, bo.getBackwaterAmount())
+                    .set(OrderInfo::getFinishTime, LocalDateTime.now())
 
-                .eq(OrderInfo::getOrderId, bo.getOrderId())
-                .eq(OrderInfo::getStatus, bo.getPre().getCode())
-                .update();
-        log.info("orderId {} update {}", update);
-        BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
+                    .eq(OrderInfo::getOrderId, bo.getOrderId())
+                    .eq(OrderInfo::getStatus, bo.getPre().getCode())
+                    .update();
+            log.info("orderId {} update {}", update);
+            BizAssert.isTrue(update, BizErrCode.UPDATE_FAIL);
+
+            // 处理订单统计
+            OrderInfo order = queryByOrderId(bo.getOrderId());
+            orderStatService.newOrderFinish(order);
+            orderSummaryService.newOrderFinish(order);
+        });
     }
 
     @Override

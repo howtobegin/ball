@@ -16,6 +16,7 @@ import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
 import com.ball.biz.bet.enums.ScheduleStatus;
+import com.ball.biz.bet.enums.Sport;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsData;
@@ -32,6 +33,8 @@ import com.ball.biz.match.service.ISchedulesService;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderHistoryService;
 import com.ball.biz.order.service.IOrderInfoService;
+import com.ball.biz.order.service.IOrderStatService;
+import com.ball.biz.order.service.IOrderSummaryService;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
 import com.google.common.primitives.Longs;
@@ -70,6 +73,10 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOrderHistoryService orderHistoryService;
     @Autowired
     private ITradeConfigService tradeConfigService;
+    @Autowired
+    private IOrderStatService orderStatService;
+    @Autowired
+    private IOrderSummaryService orderSummaryService;
 
     /**
      * 赔率允许延迟的时间，默认-1，表示不限制
@@ -110,12 +117,15 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
             // 构建订单信息，状态待确认
             order = buildOrder(bo, orderNo);
             transactionSupport.execute(()->{
+                // 冻结
+                userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
                 // 保存订单信息
                 orderInfoService.save(order);
                 // 增加历史
                 orderHistoryService.saveLatest(order);
-                // 冻结
-                userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
+                // 处理订单统计
+                orderStatService.newOrderCreate(order);
+                orderSummaryService.newOrderCreate(order);
             });
         } finally {
             BetCache.clear();
@@ -253,6 +263,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setUserId(bo.getUserNo());
 
         setProxy(order, bo.getUserNo());
+
+        order.setSport(Sport.FOOTBALL.getCode());
 
         order.setLeagueId(betInfo.getLeagueId());
         order.setMatchId(betInfo.getMatchId());
