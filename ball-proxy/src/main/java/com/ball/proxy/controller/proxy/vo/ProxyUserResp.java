@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -35,6 +36,9 @@ public class ProxyUserResp {
 
     @ApiModelProperty("会员人数")
     public Integer userCount;
+
+    @ApiModelProperty("信用额度")
+    private BigDecimal balance;
 
     @ApiModelProperty("创建时间")
     private LocalDateTime createTime;

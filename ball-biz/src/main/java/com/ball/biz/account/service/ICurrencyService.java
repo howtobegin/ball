@@ -22,6 +22,12 @@ public interface ICurrencyService extends IService<Currency>, IBaseService {
      * @param currencyCode 币种
      * @return
      */
-    BigDecimal getRate(String currencyCode);
+    BigDecimal getRmbRate(String currencyCode);
 
+    /**
+     * 获取用户币种对USD的汇率 ,精度6位小数，向下取整
+     * @param userNo
+     * @return
+     */
+    BigDecimal getUserUsdRate(Long userNo);
 }

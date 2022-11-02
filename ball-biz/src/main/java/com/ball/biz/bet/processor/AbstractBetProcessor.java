@@ -242,7 +242,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         }
     }
 
-
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
         log.info("start");
         long start = System.currentTimeMillis();

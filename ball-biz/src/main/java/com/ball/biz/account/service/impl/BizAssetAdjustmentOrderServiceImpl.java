@@ -63,7 +63,7 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
                 return;
             }
             String orderNo = String.valueOf(snowflake.next());
-            BigDecimal rate = iCurrencyService.getRate(currency);
+            BigDecimal rate = iCurrencyService.getRmbRate(currency);
             BigDecimal fromUserAdjustAmount = allowance.multiply(rate).setScale(2,RoundingMode.CEILING);//来源方减少额度
             BizAssetAdjustmentOrder bizAssetAdjustmentOrder = null;
             switch (mode) {

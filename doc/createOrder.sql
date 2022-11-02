@@ -89,41 +89,14 @@ DROP TABLE IF EXISTS `order_summary`;
 CREATE TABLE `order_summary`
 (
     id              bigint unsigned primary key auto_increment comment '自增编号',
-    year            tinyint    NOT NULL COMMENT '年',
-    month           tinyint    NOT NULL COMMENT '月',
-    day             tinyint    NOT NULL COMMENT '日',
+    summary_date    date       NOT NULL COMMENT '投注日期',
     sport           tinyint    default 1 COMMENT '运动类型：1 足球',
     complete_count  bigint     default 0 COMMENT '有结果',
     undone_count    bigint     default 0 COMMENT '未有结果',
     create_time     datetime     not null default current_timestamp comment '创建时间',
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
-    key idx_year_month_day_sport(`year`,`month`,`day`,sport)
+    unique key idx_date_sport(`summary_date`,sport)
 )ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='赛事结果概要';
-
-DROP TABLE IF EXISTS `monthly_account_period`;
-CREATE TABLE `monthly_account_period`
-(
-    id              bigint unsigned primary key auto_increment comment '自增编号',
-    start_date      datetime  NOT NULL COMMENT '开始日期',
-    end_date        datetime  NOT NULL COMMENT '结束日期',
-    create_time     datetime     not null default current_timestamp comment '创建时间',
-    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
-    unique key idx_start_end(start_date, end_date)
-)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='月帐期数表';
-
-DROP TABLE IF EXISTS `exchange_rate`;
-CREATE TABLE `exchange_rate`
-(
-    id              bigint unsigned primary key auto_increment comment '自增编号',
-    currency        varchar(30)  not null COMMENT '货币名称',
-    currency_code   varchar(30)  not null COMMENT '货币代码',
-    rate            decimal(20,10) default 0 COMMENT '汇率',
-    create_time     datetime     not null default current_timestamp comment '创建时间',
-    update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
-    unique key idx_currency_code(currency_code)
-)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='汇率表';
-
-
 
 DROP TABLE IF EXISTS `order_stat`;
 CREATE TABLE `order_stat`
