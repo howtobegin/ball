@@ -29,4 +29,13 @@ public interface IBizAssetAdjustmentOrderService extends IService<BizAssetAdjust
      */
     void updateAllowance(Long userId, BigDecimal allowance, String currency,AllowanceModeEnum mode, Long fromUserId);
 
+    /**
+     * 更新额度
+     *
+     * @param userId    用户id
+     * @param allowance 授权额度
+     * @param fromUserId      额度来源代理id
+     */
+    void updateAllowance(Long userId, BigDecimal allowance, Long fromUserId);
+
 }

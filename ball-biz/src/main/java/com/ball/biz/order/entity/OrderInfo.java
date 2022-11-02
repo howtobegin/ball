@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -164,11 +165,7 @@ public class OrderInfo extends Paging {
      */
     private String oddsData;
 
-    private Integer betYear;
-
-    private Integer betMonth;
-
-    private Integer betDay;
+    private LocalDate betDate;
 
     /**
      * 比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed

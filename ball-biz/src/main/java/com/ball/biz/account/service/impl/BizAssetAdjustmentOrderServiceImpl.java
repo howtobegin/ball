@@ -49,24 +49,32 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
      * 更新额度
      *
      * @param userId    用户id
-     * @param currency  币种
+     * @param currency1  币种
      * @param allowance 授权额度
      * @param mode      授权额度模式
      * @param fromUserId      额度来源代理id
      */
     @Override
-    public void updateAllowance(Long userId, BigDecimal allowance, String currency,AllowanceModeEnum mode, Long fromUserId) {
+    public void updateAllowance(Long userId, BigDecimal allowance, String currency1,AllowanceModeEnum mode, Long fromUserId) {
         BizAssert.isTrue(allowance.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.DATA_ERROR);
         transactionSupport.execute(()->{
             UserAccount userAccount = iUserAccountService.query(userId);
             if (userAccount == null) {
                 return;
             }
+            AllowanceModeEnum m = mode;
+            String currency = currency1;
+            if (m == null) {
+                m = AllowanceModeEnum.valueOf(userAccount.getAllowanceMode());
+            }
+            if (currency1 == null) {
+                currency = userAccount.getCurrency();
+            }
             String orderNo = String.valueOf(snowflake.next());
             BigDecimal rate = iCurrencyService.getRmbRate(currency);
             BigDecimal fromUserAdjustAmount = allowance.multiply(rate).setScale(2,RoundingMode.CEILING);//来源方减少额度
             BizAssetAdjustmentOrder bizAssetAdjustmentOrder = null;
-            switch (mode) {
+            switch (m) {
                 case BALANCE://余额模式。直接改动余额
 
                         BigDecimal adjustAmount = allowance.subtract(userAccount.getBalance());
@@ -103,6 +111,18 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
 
         });
 
+    }
+
+    /**
+     * 更新额度
+     *
+     * @param userId     用户id
+     * @param allowance  授权额度
+     * @param fromUserId 额度来源代理id
+     */
+    @Override
+    public void updateAllowance(Long userId, BigDecimal allowance, Long fromUserId) {
+        updateAllowance(userId, allowance,  null, null, fromUserId);
     }
 
     /**
