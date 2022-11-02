@@ -47,7 +47,7 @@ public class BizLeagueService {
         List<CountryLeagueResp> ret = Lists.newArrayList();
         Map<String, List<LeagueResp>> map = list.stream()
                 .map(l -> BeanUtil.copy(l, LeagueResp.class))
-                .collect(Collectors.groupingBy(LeagueResp::getCountry));
+                .collect(Collectors.groupingBy(LeagueResp::getCountryZh));
         map.forEach((k, v)->{
             ret.add(CountryLeagueResp.builder()
                     .country(k)

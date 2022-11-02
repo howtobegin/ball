@@ -1,15 +1,15 @@
 package com.ball.biz.order.entity;
 
-import java.math.BigDecimal;
+import com.ball.base.model.Paging;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import com.ball.base.model.Paging;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -33,7 +33,7 @@ public class OrderStat extends Paging {
     /**
      * 投注日期
      */
-    private Integer betDate;
+    private LocalDate betDate;
 
     /**
      * 一级代理
