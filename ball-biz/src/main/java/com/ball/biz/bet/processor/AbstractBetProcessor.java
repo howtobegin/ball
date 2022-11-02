@@ -11,6 +11,7 @@ import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.enums.PlayTypeEnum;
 import com.ball.biz.account.enums.SportEnum;
+import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.HandicapType;
@@ -23,6 +24,7 @@ import com.ball.biz.bet.order.bo.OddsData;
 import com.ball.biz.bet.processor.bo.BetInfo;
 import com.ball.biz.bet.processor.bo.OddsCheckInfo;
 import com.ball.biz.bet.processor.cache.BetCache;
+import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Odds;
@@ -77,6 +79,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     private IOrderStatService orderStatService;
     @Autowired
     private IOrderSummaryService orderSummaryService;
+    @Autowired
+    private ICurrencyService currencyService;
 
     /**
      * 赔率允许延迟的时间，默认-1，表示不限制
@@ -93,10 +97,10 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     private boolean enable;
 
     /**
-     *
+     * 全站最小限制，单位RMB
      */
-    @Value("${bet.min:50}")
-    protected BigDecimal betMin;
+    @Value("${system.bet.min:50}")
+    protected BigDecimal systemBetMin;
 
     /**
      * 投注
@@ -223,7 +227,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         log.info("userId {} status {}", bo.getUserNo(), user.getStatus());
         BizAssert.isTrue(YesOrNo.YES.v == user.getStatus(), BizErrCode.USER_LOCKED);
         // 全场最低投注校验
-        BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
+        checkSystemBetMin(bo.getBetAmount(), bo.getUserNo());
 
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
@@ -250,6 +254,14 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 BizAssert.isTrue(matchBetAmount.add(bo.getBetAmount()).compareTo(tradeConfig.getMatchLimit()) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
             }
         }
+    }
+
+    protected void checkSystemBetMin(BigDecimal betAmount, Long userId) {
+        BigDecimal userUsdRate = currencyService.getUserUsdRate(userId);
+        BigDecimal rmbRate = currencyService.getRmbRate(CurrencyEnum.USD.name());
+
+        BigDecimal betRmbAmount = betAmount.multiply(userUsdRate).multiply(rmbRate).setScale(0, BigDecimal.ROUND_UP);
+        BizAssert.isTrue(betRmbAmount.compareTo(systemBetMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
     }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {

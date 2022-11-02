@@ -1,6 +1,7 @@
 package com.ball.biz.bet.order.calculate.bo;
 
 import com.ball.biz.bet.enums.BetResult;
+import com.ball.biz.bet.order.bo.ProxyAmount;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +29,11 @@ public class CalcResult {
     private BigDecimal odds;
 
     /**
-     * 包含本金的结果金额
+     * 不包含本金的结果金额
      */
     private BigDecimal resultAmount;
+
+    private ProxyAmount proxyAmount;
+
+    private BigDecimal backwaterAmount;
 }

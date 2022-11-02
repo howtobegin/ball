@@ -30,4 +30,9 @@ public class WinCalculator extends AbstractCalculator {
                 .resultAmount(amount)
                 .build();
     }
+
+    @Override
+    protected BigDecimal getBackwaterBaseAmount(CalcResult calcResult) {
+        return calcResult.getBetAmount();
+    }
 }
