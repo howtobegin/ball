@@ -25,6 +25,7 @@ public enum BizErrCode implements IBizErrCode {
     TRADE_CONFIG_BACKWATER_PERCENT_MUST_BIGGER_ZERO("B00017","用户退水百分比必须大于等于0"),
     SO_FAST("B00018","手速太快"),
     BET_HISTORY_DAY_ERROR("B00019","只能查7天之内的投注历史"),
+    USER_WIN_AMOUNT_ERROR("B00020","用户输赢金额有误"),
 
     DATA_ERROR("14000", "data error"),
     DATA_NOT_EXISTS("14002", "data not exists"),
