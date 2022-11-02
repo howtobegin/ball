@@ -51,7 +51,12 @@ public class ScheduleController {
                     ScheduleResp s = new ScheduleResp();
                     s.setDate(c.getKey());
 
-                    s.setList(c.getValue().stream().map(d-> BeanUtil.copy(d, ScheduleDetailResp.class)).collect(Collectors.toList()));
+                    s.setList(c.getValue().stream().map(d-> {
+                        ScheduleDetailResp detailResp = BeanUtil.copy(d, ScheduleDetailResp.class);
+                        detailResp.setAwayName(String.format("%s(%s)",detailResp.getAwayNameZh(),detailResp.getAwayName()));
+                        detailResp.setHomeName(String.format("%s(%s)",detailResp.getHomeNameZh(),detailResp.getHomeName()));
+                        return detailResp;
+                    }).collect(Collectors.toList()));
                     s.setTime(s.getList().get(0).getMatchDate().withHour(0).withMinute(0).withSecond(0));
                     return s;
                 }).collect(Collectors.toList());

@@ -152,7 +152,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         transactionSupport.execute(()->{
             userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
-            updateStatus(orderId, status, OrderStatus.CANCEL);
+            updateStatus(orderId, status, OrderStatus.CANCEL, reason);
         });
     }
 
