@@ -1,16 +1,18 @@
 package com.ball.app.controller.account;
 
-import com.ball.app.controller.account.vo.AccountModifyReq;
-import com.ball.app.controller.account.vo.AccountModifyResp;
-import com.ball.app.controller.account.vo.AccountResp;
+import com.ball.app.controller.account.vo.*;
 import com.ball.base.context.UserContext;
 import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.base.util.DateUtil;
 import com.ball.biz.account.entity.BizAssetAdjustmentOrder;
+import com.ball.biz.account.entity.TradeConfig;
 import com.ball.biz.account.entity.UserAccount;
+import com.ball.biz.account.enums.PlayTypeEnum;
+import com.ball.biz.account.enums.SportEnum;
 import com.ball.biz.account.service.IBizAssetAdjustmentOrderService;
+import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.exception.BizErrCode;
 import io.swagger.annotations.Api;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +40,9 @@ public class AccountController {
     @Autowired
     IBizAssetAdjustmentOrderService iBizAssetAdjustmentOrderService;
 
+    @Autowired
+    ITradeConfigService tradeConfigService;
+
 
     @ApiOperation("获取用户账户信息")
     @RequestMapping(value = "get",method = {RequestMethod.GET,RequestMethod.POST})
@@ -47,8 +53,6 @@ public class AccountController {
         AccountResp resp = BeanUtil.copy(account, AccountResp.class);
         return resp;
     }
-
-
 
     @ApiOperation("查询额度修改记录")
     @RequestMapping(value = "modifyRecord",method = {RequestMethod.GET,RequestMethod.POST})
@@ -75,5 +79,15 @@ public class AccountController {
 
             return resp;
         }).collect(Collectors.toList()), result.getTotalNum(), result.getPageIndex(),result.getPageSize());
+    }
+
+    @ApiOperation("查询用户退水限额配置")
+    @PostMapping(value = "/tradeConfig" )
+    public UserTradeConfigResp getUserConfig(@RequestBody @Valid UserConfigReq req){
+        TradeConfig config =tradeConfigService.getUserConfig(UserContext.getUserNo(), SportEnum.valueOf(req.getSport()), PlayTypeEnum.valueOf(req.getType()));
+        UserTradeConfigResp resp = BeanUtil.copy(config,UserTradeConfigResp.class );
+        resp.setV(tradeConfigService.getUserRate(config));
+
+        return resp;
     }
 }

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Api(tags = "账期接口")
 @RestController
-@RequestMapping("/boss/settlementperiod")
+@RequestMapping("/proxy/settlementperiod")
 public class SettlementPeriodController {
 
     @Autowired
@@ -56,6 +56,7 @@ public class SettlementPeriodController {
         });
         return res;
     }
+
 
 
 }
