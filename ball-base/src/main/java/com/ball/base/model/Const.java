@@ -1,5 +1,7 @@
 package com.ball.base.model;
 
+import org.springframework.util.StringUtils;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -35,6 +37,9 @@ public class Const {
     public static final LocalDate START_DATE = LocalDate.of(2000,1,1);
 
     public static boolean hasRelation(String relation, Long parent) {
+        if (StringUtils.isEmpty(relation) || parent == null) {
+            return false;
+        }
         String[] info = relation.split(RELATION_SPLIT);
         String pp = parent.toString();
         for (String p : info) {
