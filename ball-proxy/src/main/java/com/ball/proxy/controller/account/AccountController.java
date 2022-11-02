@@ -1,6 +1,7 @@
 package com.ball.proxy.controller.account;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
 import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
@@ -59,6 +60,9 @@ public class AccountController {
     @ApiOperation("修改信用额度")
     @PostMapping(value = "updateAllowance")
     public void updateAllowance(@RequestBody @Valid AccountAllowanceUpdateReq req) {
+        UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
+        BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
         iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),UserContext.getUserNo());
     }
 
