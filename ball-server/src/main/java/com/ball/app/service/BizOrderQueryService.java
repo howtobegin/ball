@@ -57,21 +57,21 @@ public class BizOrderQueryService {
 
         QueryWrapper<OrderInfo> query = new QueryWrapper<>();
 
-        query.select("bet_year, bet_month, bet_day, sum(bet_amount) bet_amount, sum(result_amount) result_amount, sum(valid_amount) valid_amount")
+        query.select("bet_date, sum(bet_amount) bet_amount, sum(result_amount) result_amount, sum(valid_amount) valid_amount")
                 .eq("user_id", userNo)
                 .in("status", statusList)
                 .ge("create_time", start)
                 .lt("create_time", end)
-                .groupBy("bet_year","bet_month","bet_day")
+                .groupBy("bet_date")
         ;
         List<OrderInfo> records = orderInfoService.lambdaQuery().getBaseMapper().selectList(query);
         List<OrderHistoryResp> respList = records.stream().map(o -> {
             OrderHistoryResp resp = BeanUtil.copy(o, OrderHistoryResp.class);
-            if (o.getBetYear() != null) {
-                resp.setDate(LocalDate.of(o.getBetYear(), o.getBetMonth(), o.getBetDay()));
+            if (o.getBetDate() != null) {
+                resp.setDate(o.getBetDate());
                 resp.setWeek(resp.getDate().getDayOfWeek().getValue());
             }
-            BigDecimal winAmount = calcWinAmount(true, o.getBetAmount(), o.getBetOdds(), o.getResultAmount());
+            BigDecimal winAmount = calcWinAmount(OrderStatus.parse(o.getStatus()), o.getBetAmount(), o.getBetOdds(), o.getResultAmount());
             resp.setWinAmount(winAmount);
 
             return resp;
@@ -112,26 +112,28 @@ public class BizOrderQueryService {
                 resp.setLeagueShortName(s.getLeagueShortName());
             }
             OrderStatus status = OrderStatus.parse(resp.getStatus());
-            boolean finish = status != null && status.isFinish();
-            BigDecimal winAmount = calcWinAmount(finish, resp.getBetAmount(), resp.getBetOdds(), resp.getResultAmount());
+            BigDecimal winAmount = calcWinAmount(status, resp.getBetAmount(), resp.getBetOdds(), resp.getResultAmount());
             resp.setWinAmount(winAmount);
         }
         return list;
     }
 
-    private BigDecimal calcWinAmount(boolean finish, BigDecimal betAmount, BigDecimal betOdds, BigDecimal resultAmount) {
-        BigDecimal winAmount;
-        if (finish) {
-            BigDecimal diff = resultAmount.subtract(betAmount);
-            if (diff.compareTo(BigDecimal.ZERO) > 0) {
-                winAmount = resultAmount;
-            } else if (diff.compareTo(BigDecimal.ZERO) == 0) {
-                winAmount =BigDecimal.ZERO;
+    private BigDecimal calcWinAmount(OrderStatus status, BigDecimal betAmount, BigDecimal betOdds, BigDecimal resultAmount) {
+        BigDecimal winAmount = BigDecimal.ZERO;
+        if (status != null) {
+            if (status == OrderStatus.FINISH) {
+                BigDecimal diff = resultAmount.subtract(betAmount);
+                if (diff.compareTo(BigDecimal.ZERO) > 0) {
+                    winAmount = resultAmount;
+                } else if (diff.compareTo(BigDecimal.ZERO) == 0) {
+                    winAmount =BigDecimal.ZERO;
+                } else {
+                    winAmount = diff;
+                }
+            } else if (OrderStatus.isCancel(status)) {
             } else {
-                winAmount = diff;
+                winAmount = betAmount.multiply(betOdds);
             }
-        } else {
-            winAmount = betAmount.multiply(betOdds);
         }
         return winAmount;
     }
