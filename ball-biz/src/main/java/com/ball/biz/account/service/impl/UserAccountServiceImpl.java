@@ -93,7 +93,7 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
 
     @Override
     public List<UserAccount> queryList(List<Long> userNos) {
-        return lambdaQuery().eq(UserAccount::getUserId, userNos).list();
+        return lambdaQuery().in(UserAccount::getUserId, userNos).list();
     }
 
     /**
