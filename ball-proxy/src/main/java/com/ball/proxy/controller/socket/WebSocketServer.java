@@ -22,6 +22,7 @@ public class WebSocketServer {
 
     public static void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
         WebsocketManager.setRedisTemplate(redisTemplate);
+        WebsocketManager.TOKEN_NAME = "ball:proxy:token:sessions:";
     }
 
     public static void setUserLoginLogService(IUserLoginLogService userLoginLogService) {

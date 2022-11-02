@@ -116,6 +116,9 @@ public class ProxyUserOperationService {
             req.getConfig().forEach(o -> {
                 TradeConfig config = BeanUtil.copy(o, TradeConfig.class);
                 config.setUserNo(req.getProxyUid());
+                if (config.getMin() == null) {
+                    config.setMin(BigDecimal.ZERO);
+                }
                 tradeConfigService.init(config, isProxyOne ? null : userInfo.getProxyUserId());
             });
             operationLogService.addLog(OperationBiz.ADD_PROXY_REFUND_CONFIG, req.getProxyUid().toString());
