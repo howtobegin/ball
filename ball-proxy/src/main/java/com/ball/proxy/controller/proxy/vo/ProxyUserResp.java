@@ -25,6 +25,9 @@ public class ProxyUserResp {
     @ApiModelProperty("名称")
     private String userName;
 
+    @ApiModelProperty("代理用户编号")
+    private Long proxyUserId;
+
     @ApiModelProperty("修改密码标志")
     private Integer changePasswordFlag;
 
