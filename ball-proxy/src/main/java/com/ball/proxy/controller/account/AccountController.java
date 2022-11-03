@@ -63,7 +63,7 @@ public class AccountController {
         UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
         BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
         BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
-        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),UserContext.getUserNo());
+        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),userInfo.getProxyUserId());
     }
 
     @ApiOperation("查询额度修改记录")

@@ -72,29 +72,42 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
             }
             String orderNo = String.valueOf(snowflake.next());
             BigDecimal rate = iCurrencyService.getRmbRate(currency);
-            BigDecimal fromUserAdjustAmount = allowance.multiply(rate).setScale(2,RoundingMode.CEILING);//来源方减少额度
+            BigDecimal fromUserAdjustAmount = null;//allowance.multiply(rate).setScale(2,RoundingMode.CEILING);//来源方减少额度
             BizAssetAdjustmentOrder bizAssetAdjustmentOrder = null;
+            BigDecimal adjustAmount = null;
             switch (m) {
                 case BALANCE://余额模式。直接改动余额
 
-                        BigDecimal adjustAmount = allowance.subtract(userAccount.getBalance());
-                        bizAssetAdjustmentOrder = createOrder(userId, adjustAmount,currency,userAccount.getBalance(),allowance,fromUserId,fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
-                        if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
-                            iUserAccountService.incomeWithCheck(userId,adjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN, userAccount.getBalance());
-                        } else {
-                            iUserAccountService.payoutWithCheck(userId,adjustAmount.abs(),orderNo, AccountTransactionType.USER_ADJUSTMENT_OUT, userAccount.getBalance());
-                        }
+                    adjustAmount = allowance.subtract(userAccount.getBalance());
+                    fromUserAdjustAmount=adjustAmount.negate().multiply(rate);
+                    if (fromUserAdjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                        fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.CEILING);
+                    } else {
+                        fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.FLOOR);
+                    }
+                    bizAssetAdjustmentOrder = createOrder(userId, adjustAmount,currency,userAccount.getBalance(),allowance,fromUserId,fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
+                    if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                        iUserAccountService.incomeWithCheck(userId,adjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN, userAccount.getBalance());
+                    } else {
+                        iUserAccountService.payoutWithCheck(userId,adjustAmount.abs(),orderNo, AccountTransactionType.USER_ADJUSTMENT_OUT, userAccount.getBalance());
+                    }
                     break;
                 case RECOVERY://恢复模式。额度和余额同增同减
                         //修改额度
-                        iUserAccountService.updateAllowance(userId, allowance);
-                        BigDecimal adjustAmount1 = allowance.subtract(userAccount.getAllowance());
-                        bizAssetAdjustmentOrder = createOrder(userId, adjustAmount1, currency, userAccount.getBalance(),userAccount.getBalance().add(adjustAmount1) ,fromUserId, fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
-                        if (adjustAmount1.compareTo(BigDecimal.ZERO) >= 0) {
-                            iUserAccountService.income(userId,adjustAmount1,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN);
-                        } else {
-                            iUserAccountService.payout(userId,adjustAmount1.abs(),orderNo, AccountTransactionType.USER_ADJUSTMENT_OUT);
-                        }
+                    iUserAccountService.updateAllowance(userId, allowance);
+                    adjustAmount = allowance.subtract(userAccount.getAllowance());
+                    fromUserAdjustAmount=adjustAmount.negate().multiply(rate);
+                    if (fromUserAdjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                        fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.CEILING);
+                    } else {
+                        fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.FLOOR);
+                    }
+                    bizAssetAdjustmentOrder = createOrder(userId, adjustAmount, currency, userAccount.getBalance(),userAccount.getBalance().add(adjustAmount) ,fromUserId, fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
+                    if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                        iUserAccountService.income(userId,adjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN);
+                    } else {
+                        iUserAccountService.payout(userId,adjustAmount.abs(),orderNo, AccountTransactionType.USER_ADJUSTMENT_OUT);
+                    }
 
                     break;
             }
