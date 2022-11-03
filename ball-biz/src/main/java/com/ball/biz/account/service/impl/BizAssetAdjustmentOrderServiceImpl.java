@@ -120,7 +120,13 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
             if (agent == null) {
                 return;
             }
-            iUserAccountService.payoutWithCheck(fromUserId,fromUserAdjustAmount,orderNo, AccountTransactionType.AGENT_ADJUSTMENT_OUT, agent.getBalance());
+            if (fromUserAdjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                iUserAccountService.incomeWithCheck(fromUserId,fromUserAdjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN, agent.getBalance());
+
+            } else {
+                iUserAccountService.payoutWithCheck(fromUserId,fromUserAdjustAmount.abs(),orderNo, AccountTransactionType.AGENT_ADJUSTMENT_OUT, agent.getBalance());
+
+            }
 
         });
 

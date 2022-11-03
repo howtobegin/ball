@@ -4,6 +4,7 @@ import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.order.job.OrderAwardService;
+import com.ball.biz.enums.UserTypeEnum;
 import com.ball.job.base.BaseBizTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class AccountRecoveryTask extends BaseBizTask {
     public void execute() {
         iUserAccountService.lambdaUpdate().setSql("balance=allowance")
                 .eq(UserAccount::getAllowanceMode, AllowanceModeEnum.RECOVERY.name())
+                .eq(UserAccount::getUserType, UserTypeEnum.GENERAL.v+"")
                 .update();
     }
 }
