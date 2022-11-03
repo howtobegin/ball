@@ -57,7 +57,7 @@ public class BizOrderQueryService {
 
         QueryWrapper<OrderInfo> query = new QueryWrapper<>();
 
-        query.select("bet_date, sum(bet_amount) bet_amount, sum(result_amount) result_amount, sum(valid_amount) valid_amount")
+        query.select("bet_date, sum(bet_amount) bet_amount, sum(result_amount) result_amount, sum(valid_amount) valid_amount, sum(backwater_amount) backwater_amount")
                 .eq("user_id", userNo)
                 .in("status", statusList)
                 .ge("create_time", start)
