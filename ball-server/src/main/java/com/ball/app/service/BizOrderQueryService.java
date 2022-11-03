@@ -71,7 +71,7 @@ public class BizOrderQueryService {
                 resp.setDate(o.getBetDate());
                 resp.setWeek(resp.getDate().getDayOfWeek().getValue());
             }
-            resp.setWinAmount(o.getResultAmount().multiply(o.getBackwaterAmount()));
+            resp.setWinAmount(o.getResultAmount().add(o.getBackwaterAmount()));
 
             return resp;
         }).collect(Collectors.toList());
@@ -110,14 +110,12 @@ public class BizOrderQueryService {
                 resp.setLeagueName(s.getLeagueName());
                 resp.setLeagueShortName(s.getLeagueShortName());
             }
-            OrderStatus status = OrderStatus.parse(resp.getStatus());
-            BigDecimal winAmount = calcWinAmount(status, resp.getBetAmount(), resp.getBetOdds(), resp.getResultAmount());
-            resp.setWinAmount(winAmount);
+            resp.setWinAmount(resp.getResultAmount().add(resp.getBackwaterAmount()));
         }
         return list;
     }
 
-    private BigDecimal calcWinAmount(OrderStatus status, BigDecimal betAmount, BigDecimal betOdds, BigDecimal resultAmount) {
+    private BigDecimal calcWinAmount2(OrderStatus status, BigDecimal betAmount, BigDecimal betOdds, BigDecimal resultAmount) {
         BigDecimal winAmount = BigDecimal.ZERO;
         if (status != null) {
             if (status == OrderStatus.FINISH) {
