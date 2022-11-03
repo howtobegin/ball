@@ -57,4 +57,8 @@ public enum HandicapType {
     public static List<String> fullTypes(MatchTimeType matchTimeType) {
         return Stream.of(values()).filter(e -> e.getMatchTimeType() == matchTimeType).map(HandicapType::getCode).collect(Collectors.toList());
     }
+
+    public boolean full() {
+        return matchTimeType == MatchTimeType.FULL;
+    }
 }

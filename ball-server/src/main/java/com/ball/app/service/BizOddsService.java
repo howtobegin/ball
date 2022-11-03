@@ -117,7 +117,7 @@ public class BizOddsService {
                 if(matchOfOdds == null) {
                     continue;
                 }
-                MatchResp matchResp = translate(matchSchedules.get(matchId));
+                MatchResp matchResp = translate(matchSchedules.get(matchId), leagueResp.getNameZh());
                 setMatchOtherInfo(matchResp, favoriteMatchIds);
 
                 // 主要玩儿法，全场
@@ -182,11 +182,12 @@ public class BizOddsService {
         return leagueResp;
     }
 
-    private MatchResp translate(Schedules schedule) {
+    private MatchResp translate(Schedules schedule, String leagueName) {
         MatchResp matchResp = BeanUtil.copy(schedule, MatchResp.class);
         if (matchResp != null) {
             matchResp.setHomeName(matchResp.getHomeNameZh());
             matchResp.setAwayName(matchResp.getAwayNameZh());
+            matchResp.setLeagueName(leagueName);
         }
         return matchResp;
     }
@@ -228,8 +229,10 @@ public class BizOddsService {
      */
     public MatchOddsResp matchOddsList(String matchId) {
         Schedules schedules = schedulesService.queryOne(matchId);
+        boolean inplay = ScheduleStatus.inplayCodes().contains(schedules.getStatus());
+        Integer oddsScoreStatus = inplay ? 2 : 1;
         List<Schedules> list = Lists.newArrayList(schedules);
-        List<HandicapMatchOddsResp> handicapMatchOddsResps = mainOddsList(list, 1);
+        List<HandicapMatchOddsResp> handicapMatchOddsResps = mainOddsList(list, oddsScoreStatus);
         if (!CollectionUtils.isEmpty(handicapMatchOddsResps)) {
             List<MatchOddsResp> matchOddsRespList = handicapMatchOddsResps.get(0).getMatchOddsResp();
             return !CollectionUtils.isEmpty(matchOddsRespList) ? matchOddsRespList.get(0) : null;

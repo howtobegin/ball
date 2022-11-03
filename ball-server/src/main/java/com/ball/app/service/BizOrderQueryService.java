@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,8 @@ public class BizOrderQueryService {
                 resp.setDate(o.getBetDate());
                 resp.setWeek(resp.getDate().getDayOfWeek().getValue());
             }
-            resp.setWinAmount(o.getResultAmount().add(o.getBackwaterAmount()));
+            BigDecimal winAmount = calcWinAmount(OrderStatus.parse(o.getStatus()), o.getBetAmount(), o.getBetOdds(), o.getResultAmount(), o.getBackwaterAmount());
+            resp.setWinAmount(winAmount);
 
             return resp;
         }).collect(Collectors.toList());
@@ -109,8 +111,22 @@ public class BizOrderQueryService {
                 resp.setLeagueName(s.getLeagueNameZh());
                 resp.setLeagueShortName(s.getLeagueShortName());
             }
-            resp.setWinAmount(resp.getResultAmount().add(resp.getBackwaterAmount()));
+            BigDecimal winAmount = calcWinAmount(OrderStatus.parse(resp.getStatus()), resp.getBetAmount(), resp.getBetOdds(), resp.getResultAmount(), resp.getBackwaterAmount());
+            resp.setWinAmount(winAmount);
         }
         return list;
+    }
+
+    private BigDecimal calcWinAmount(OrderStatus status, BigDecimal betAmount, BigDecimal betOdds, BigDecimal resultAmount, BigDecimal backwaterAmount) {
+        BigDecimal winAmount = BigDecimal.ZERO;
+        if (status != null) {
+            if (status == OrderStatus.FINISH) {
+                winAmount = resultAmount.add(backwaterAmount);
+            } else if (OrderStatus.isCancel(status)) {
+            } else {
+                winAmount = betAmount.multiply(betOdds);
+            }
+        }
+        return winAmount;
     }
 }
