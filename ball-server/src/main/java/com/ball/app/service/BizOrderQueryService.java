@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class BizOrderQueryService {
 
         QueryWrapper<OrderInfo> query = new QueryWrapper<>();
 
-        query.select("bet_date, sum(bet_amount) bet_amount, sum(result_amount) result_amount, sum(valid_amount) valid_amount")
+        query.select("bet_date, sum(bet_amount) bet_amount, sum(result_amount) result_amount, sum(valid_amount) valid_amount, sum(backwater_amount) backwater_amount")
                 .eq("user_id", userNo)
                 .in("status", statusList)
                 .ge("create_time", start)
@@ -71,8 +70,7 @@ public class BizOrderQueryService {
                 resp.setDate(o.getBetDate());
                 resp.setWeek(resp.getDate().getDayOfWeek().getValue());
             }
-            BigDecimal winAmount = calcWinAmount(OrderStatus.parse(o.getStatus()), o.getBetAmount(), o.getBetOdds(), o.getResultAmount());
-            resp.setWinAmount(winAmount);
+            resp.setWinAmount(o.getResultAmount().add(o.getBackwaterAmount()));
 
             return resp;
         }).collect(Collectors.toList());
@@ -106,35 +104,13 @@ public class BizOrderQueryService {
         for (OrderResp resp : list) {
             Schedules s = matchSchedule.get(resp.getMatchId());
             if (s != null) {
-                resp.setHomeName(s.getHomeName());
-                resp.setAwayName(s.getAwayName());
-                resp.setLeagueName(s.getLeagueName());
+                resp.setHomeName(s.getHomeNameZh());
+                resp.setAwayName(s.getAwayNameZh());
+                resp.setLeagueName(s.getLeagueNameZh());
                 resp.setLeagueShortName(s.getLeagueShortName());
             }
-            OrderStatus status = OrderStatus.parse(resp.getStatus());
-            BigDecimal winAmount = calcWinAmount(status, resp.getBetAmount(), resp.getBetOdds(), resp.getResultAmount());
-            resp.setWinAmount(winAmount);
+            resp.setWinAmount(resp.getResultAmount().add(resp.getBackwaterAmount()));
         }
         return list;
-    }
-
-    private BigDecimal calcWinAmount(OrderStatus status, BigDecimal betAmount, BigDecimal betOdds, BigDecimal resultAmount) {
-        BigDecimal winAmount = BigDecimal.ZERO;
-        if (status != null) {
-            if (status == OrderStatus.FINISH) {
-                BigDecimal diff = resultAmount.subtract(betAmount);
-                if (diff.compareTo(BigDecimal.ZERO) > 0) {
-                    winAmount = resultAmount;
-                } else if (diff.compareTo(BigDecimal.ZERO) == 0) {
-                    winAmount =BigDecimal.ZERO;
-                } else {
-                    winAmount = diff;
-                }
-            } else if (OrderStatus.isCancel(status)) {
-            } else {
-                winAmount = betAmount.multiply(betOdds);
-            }
-        }
-        return winAmount;
     }
 }

@@ -25,4 +25,9 @@ public class UnsettledCalculator extends AbstractCalculator {
     protected CalcResult doCalc(BigDecimal betAmount, BigDecimal odds) {
         throw new BizException(BizErrCode.BET_RESULT_UNSETTLED);
     }
+
+    @Override
+    protected BigDecimal getBackwaterBaseAmount(CalcResult calcResult) {
+        return BigDecimal.ZERO;
+    }
 }

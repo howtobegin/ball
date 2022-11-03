@@ -1,9 +1,8 @@
 package com.ball.biz.bet.order.calculate;
 
-import com.ball.biz.bet.order.calculate.bo.CalcResult;
 import com.ball.biz.bet.enums.BetResult;
-
-import java.math.BigDecimal;
+import com.ball.biz.bet.order.calculate.bo.CalcBo;
+import com.ball.biz.bet.order.calculate.bo.CalcResult;
 
 /**
  * 计算器
@@ -15,5 +14,5 @@ import java.math.BigDecimal;
 public interface Calculator {
     BetResult getBetResult();
 
-    CalcResult calc(BigDecimal betAmount, BigDecimal odds);
+    CalcResult calc(CalcBo bo);
 }

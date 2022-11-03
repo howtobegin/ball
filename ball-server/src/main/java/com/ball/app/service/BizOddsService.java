@@ -6,6 +6,7 @@ import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
+import com.ball.biz.bet.enums.OddsType;
 import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.exception.BizErrCode;
@@ -90,7 +91,7 @@ public class BizOddsService {
         // <比赛ID, List<赔率>>
         Map<String, List<Odds>> matchOdds = odds.stream().collect(Collectors.groupingBy(Odds::getMatchId));
         // 波胆
-        List<OddsScore> oddsScores = oddsScoreService.queryByMatchIds(matchIds, oddsScoreStatus, null);
+        List<OddsScore> oddsScores = oddsScoreService.queryByMatchIds(matchIds, null, oddsScoreStatus);
         log.info("oddsScores size {}", oddsScores.size());
         // <比赛ID， List<波胆>>
         Map<String, List<OddsScore>> matchOddsScore = oddsScores.stream().collect(Collectors.groupingBy(OddsScore::getMatchId));
@@ -113,6 +114,9 @@ public class BizOddsService {
                 if(matchOfOdds == null) {
                     continue;
                 }
+                MatchResp matchResp = translate(matchSchedules.get(matchId));
+                setMatchOtherInfo(matchResp, favoriteMatchIds);
+
                 // 主要玩儿法，全场
                 Map<HandicapType, List<OddsResp>> fullOdds = Maps.newHashMap();
                 // 主要玩儿法，半场
@@ -120,10 +124,13 @@ public class BizOddsService {
                 for (Odds odd : matchOfOdds) {
                     HandicapType type = HandicapType.parse(odd.getType());
                     OddsResp oddsResp = BeanUtil.copy(odd, OddsResp.class);
-                    oddsResp.setInstantHandicapDesc(OrderHelper.translate(oddsResp.getInstantHandicap()));
+                    oddsResp.setInstantHandicap(OrderHelper.translate(oddsResp.getInstantHandicap()));
+                    oddsResp.setInstantHandicapDesc(oddsResp.getInstantHandicap());
                     if (HandicapType.fullTypes(MatchTimeType.FULL).contains(odd.getType())) {
                         addToMap(fullOdds, type, oddsResp);
                     } else {
+                        // 半场没有返回close，通过比赛状态判定
+                        judgeClose(matchResp, oddsResp);
                         addToMap(halfOdds, type, oddsResp);
                     }
                 }
@@ -132,8 +139,6 @@ public class BizOddsService {
                 List<OddsScore> matchOfOddsScore = matchOddsScore.get(matchId);
                 Map<HandicapType, List<OddsScoreResp>> oddsScore = groupOddsScore(matchOfOddsScore);
 
-                MatchResp matchResp = translate(matchSchedules.get(matchId));
-                setMatchOtherInfo(matchResp, favoriteMatchIds);
                 matchOddsRespList.add(MatchOddsResp.builder()
                         .count(matchOfOdds.size())
                         .match(matchResp)
@@ -154,6 +159,30 @@ public class BizOddsService {
         });
         log.info("end");
         return ret;
+    }
+
+    private void judgeClose(MatchResp matchResp, OddsResp resp) {
+        HandicapType type = HandicapType.parse(resp.getType());
+        boolean isHalf = type.getMatchTimeType() == MatchTimeType.HALF;
+        if (isHalf) {
+            Integer status = matchResp.getStatus();
+            boolean canBet = false;
+            switch (type) {
+                case HANDICAP_HALF:
+                    // 半场让球的滚球玩法，可以在比赛进行中，投注；否则不让投
+                    if (OddsType.IN_PLAY_ODDS.getCode().equals(resp.getOddsType())) {
+                        canBet = ScheduleStatus.handicapHalfCanBetCodes().contains(status);
+                    } else {
+                        canBet = ScheduleStatus.halfCanBetCodes().contains(status);
+                    }
+                    break;
+                case CORRECT_SCORE_HALL:
+                case OVER_UNDER_HALF:
+                    canBet = ScheduleStatus.halfCanBetCodes().contains(status);
+                    break;
+            }
+            resp.setIsClose(!canBet);
+        }
     }
 
     private LeagueResp translate(Leagues league) {

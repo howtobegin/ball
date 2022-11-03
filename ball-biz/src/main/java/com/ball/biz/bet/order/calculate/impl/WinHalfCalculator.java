@@ -32,4 +32,9 @@ public class WinHalfCalculator extends AbstractCalculator {
                 .resultAmount(half.add(win))
                 .build();
     }
+
+    @Override
+    protected BigDecimal getBackwaterBaseAmount(CalcResult calcResult) {
+        return handleScale(calcResult.getBetAmount().multiply(HALF));
+    }
 }

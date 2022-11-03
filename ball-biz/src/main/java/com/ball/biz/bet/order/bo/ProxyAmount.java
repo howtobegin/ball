@@ -37,4 +37,16 @@ public class ProxyAmount {
         this.proxy2Amount = proxy2Amount;
         this.proxy3Amount = proxy3Amount;
     }
+
+    public static ProxyAmount init() {
+        return ProxyAmount.builder()
+                .amount(BigDecimal.ZERO)
+                .proxy1Percent(BigDecimal.ZERO)
+                .proxy2Percent(BigDecimal.ZERO)
+                .proxy3Percent(BigDecimal.ZERO)
+                .proxy1Amount(BigDecimal.ZERO)
+                .proxy2Amount(BigDecimal.ZERO)
+                .proxy3Amount(BigDecimal.ZERO)
+                .build();
+    }
 }

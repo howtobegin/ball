@@ -68,7 +68,7 @@ public class OrderSummaryServiceImpl extends ServiceImpl<OrderSummaryMapper, Ord
                 // 正常情况，一增一减，不可能出现负
                 .setSql("undone_count = undone_count - 1")
                 .setSql("complete_count = complete_count + 1")
-                .last(" and undoneCount > 0")
+                .last(" and undone_count > 0")
 
                 .eq(OrderSummary::getId, exists.getId())
                 .update();

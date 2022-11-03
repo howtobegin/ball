@@ -6,9 +6,11 @@ import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.account.entity.TradeConfig;
+import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.enums.UserLevelEnum;
 import com.ball.biz.account.service.IBizAssetAdjustmentOrderService;
+import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.UserTypeEnum;
@@ -17,18 +19,19 @@ import com.ball.biz.log.enums.OperationBiz;
 import com.ball.biz.log.service.IOperationLogService;
 import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
-import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.user.vo.AddUserReq;
 import com.ball.proxy.controller.user.vo.UserRefundReq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -56,10 +59,13 @@ public class UserOperationService {
     private IUserExtendService userExtendService;
 
     @Autowired
-    private ProxyUserService proxyUserService;
+    private ITradeConfigService tradeConfigService;
 
     @Autowired
-    private ITradeConfigService tradeConfigService;
+    private ICurrencyService currencyService;
+
+    @Value("${trade.buy.min:50}")
+    private BigDecimal orderMin;
 
     public void addUser(AddUserReq req) {
         // 如果当前代理商是代3，则只能添加自己的用户
@@ -95,6 +101,7 @@ public class UserOperationService {
         UserLevelEnum userLevelEnum = UserLevelEnum.valueOf(userExtend.getHandicapType());
         // 获取自己的所有上级
         BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        BigDecimal minAmount = getMin(req.getUserId());
         transactionSupport.execute(() -> {
             req.getConfig().forEach(o -> {
                 TradeConfig config = BeanUtil.copy(o, TradeConfig.class);
@@ -108,6 +115,7 @@ public class UserOperationService {
                     case D:
                         default: config.setD(o.getV());
                 }
+                config.setMin(minAmount);
                 config.setUserNo(req.getUserId());
                 config.setUserLevel(userExtend.getHandicapType());
                 tradeConfigService.init(config, userInfo.getProxyUserId());
@@ -128,5 +136,13 @@ public class UserOperationService {
             userInfoService.unlock(userId, UserContext.getUserNo());
             operationLogService.addLog(OperationBiz.UNLOCK_USER, userId.toString());
         });
+    }
+
+    private BigDecimal getMin(Long userId) {
+        // 查询用户币种
+        UserAccount userAccount = userAccountService.query(userId);
+        // 汇率
+        BigDecimal rate = currencyService.getRmbRate(userAccount.getCurrency());
+        return orderMin.divide(rate, 0, RoundingMode.DOWN);
     }
 }

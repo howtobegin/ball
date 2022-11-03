@@ -12,10 +12,7 @@ import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
-import com.ball.proxy.controller.account.vo.AccountAllowanceUpdateReq;
-import com.ball.proxy.controller.account.vo.AccountModifyReq;
-import com.ball.proxy.controller.account.vo.AccountModifyResp;
-import com.ball.proxy.controller.account.vo.AccountResp;
+import com.ball.proxy.controller.account.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +53,20 @@ public class AccountController {
         return resp;
     }
 
+    @ApiOperation("获取用户账户信息")
+    @RequestMapping(value = "getById",method = {RequestMethod.GET,RequestMethod.POST})
+    public AccountResp getById(@RequestBody @Valid AccountGetReq req) {
+        UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
+        BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
+
+        UserAccount account = iUserAccountService.lambdaQuery().eq(UserAccount::getUserId, req.getUserNo()).one();
+        BizAssert.notNull(account, BizErrCode.DATA_ERROR);
+        AccountResp resp = BeanUtil.copy(account, AccountResp.class);
+        resp.setAvailableAmount(resp.getBalance().subtract(resp.getFreezeAmount()));
+        return resp;
+    }
+
 
     @ApiOperation("修改信用额度")
     @PostMapping(value = "updateAllowance")
@@ -63,7 +74,7 @@ public class AccountController {
         UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
         BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
         BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
-        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),UserContext.getUserNo());
+        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),userInfo.getProxyUserId());
     }
 
     @ApiOperation("查询额度修改记录")
