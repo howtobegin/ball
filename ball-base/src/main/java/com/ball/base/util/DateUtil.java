@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -23,7 +24,7 @@ public class DateUtil {
 
     private static final DateTimeFormatter DATE_FORMAT_NO_SPLIT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter DATE_FORMAT_HAS_SPLIT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter DATE_FORMAT_WEEK = DateTimeFormatter.ofPattern("EEEE dd/MM");
+    private static final DateTimeFormatter DATE_FORMAT_WEEK = DateTimeFormatter.ofPattern("EEEE dd/MM").withLocale(Locale.CHINA);
     private static final DateTimeFormatter DATE_FORMAT_YEAR = DateTimeFormatter.ofPattern("yyyy");
 
 
