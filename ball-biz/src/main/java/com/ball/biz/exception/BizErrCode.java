@@ -16,8 +16,8 @@ public enum BizErrCode implements IBizErrCode {
     ANALYZE_HANDICAP_ERROR("B00008","分析即使盘口出错"),
     SCHEDULE_CANNT_BET("B00009","赛事不能再投注"),
     // 最小投注金额是{0}{1}
-    BET_AMOUNT_TOO_MIN("B00010","单注投注太小"),
-    BET_AMOUNT_TOO_MAX("B00011","单注投注太大"),
+    BET_AMOUNT_TOO_MIN("B00010","最小投注金额是{0}{1}"),
+    BET_AMOUNT_TOO_MAX("B00011","最大投注金额是{0}{1}"),
     MATCH_BET_AMOUNT_TOO_MAX("B00012","单场投注超过最大值"),
     ODDS_MAINTENANCE("B00013","投注已关闭"),
     ODDS_DELAY("B00014","赔率延迟，暂无法下注"),
@@ -27,6 +27,7 @@ public enum BizErrCode implements IBizErrCode {
     SO_FAST("B00018","手速太快"),
     BET_HISTORY_DAY_ERROR("B00019","只能查7天之内的投注历史"),
     USER_WIN_AMOUNT_ERROR("B00020","用户输赢金额有误"),
+    CURRENCY_RATE_CONFIG_ERROR("B00021","汇率配置错误，必须大于0"),
 
     DATA_ERROR("14000", "data error"),
     DATA_NOT_EXISTS("14002", "data not exists"),

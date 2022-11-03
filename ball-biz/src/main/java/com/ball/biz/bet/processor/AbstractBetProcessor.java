@@ -24,7 +24,6 @@ import com.ball.biz.bet.order.bo.OddsData;
 import com.ball.biz.bet.processor.bo.BetInfo;
 import com.ball.biz.bet.processor.bo.OddsCheckInfo;
 import com.ball.biz.bet.processor.cache.BetCache;
-import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.exception.BizException;
 import com.ball.biz.match.entity.Odds;
@@ -246,8 +245,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 BigDecimal betMax = tradeConfig.getOrderLimit();
                 // 用户单项投注限额，最大，最小
                 log.info("userId {} betAmount {} min {} max {}", bo.getUserNo(), bo.getBetAmount(), betMin, betMax);
-                BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
-                BizAssert.isTrue(bo.getBetAmount().compareTo(betMax) <= 0, BizErrCode.BET_AMOUNT_TOO_MAX);
+                BizAssert.isTrue(bo.getBetAmount().compareTo(betMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN, betMin.stripTrailingZeros().toPlainString(), account.getCurrency());
+                BizAssert.isTrue(bo.getBetAmount().compareTo(betMax) <= 0, BizErrCode.BET_AMOUNT_TOO_MAX, betMin.stripTrailingZeros().toPlainString(), account.getCurrency());
                 // 单场已投注
                 BigDecimal matchBetAmount = orderInfoService.statBetAmount(bo.getUserNo(), bo.getMatchId());
                 log.info("userId {} betAmount {} matchId {} matchBetAmount {} matchBetMax {}", bo.getUserNo(), bo.getBetAmount(), bo.getMatchId(), matchBetAmount, tradeConfig.getMatchLimit());
@@ -257,11 +256,16 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     }
 
     protected void checkSystemBetMin(BigDecimal betAmount, Long userId) {
-        BigDecimal userUsdRate = currencyService.getUserUsdRate(userId);
-        BigDecimal rmbRate = currencyService.getRmbRate(CurrencyEnum.USD.name());
+        UserAccount userAccount = userAccountService.query(userId);
+        BizAssert.notNull(userAccount, BizErrCode.ACCOUNT_NOT_EXIST);
 
-        BigDecimal betRmbAmount = betAmount.multiply(userUsdRate).multiply(rmbRate).setScale(0, BigDecimal.ROUND_UP);
-        BizAssert.isTrue(betRmbAmount.compareTo(systemBetMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN);
+        String currency = userAccount.getCurrency();
+        BigDecimal rmbRate = currencyService.getRmbRate(currency);
+        log.info("currency {} rmbRate {}", currency, rmbRate);
+        BizAssert.isTrue(rmbRate != null && rmbRate.compareTo(BigDecimal.ZERO) > 0, BizErrCode.CURRENCY_RATE_CONFIG_ERROR);
+        BigDecimal currencyBetMin = systemBetMin.divide(rmbRate, 0, BigDecimal.ROUND_UP);
+        log.info("betAmount {} currency {} currencyBetMin {}", betAmount, currency, currencyBetMin);
+        BizAssert.isTrue(betAmount.compareTo(currencyBetMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN, currencyBetMin.stripTrailingZeros().toPlainString(), currency);
     }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
