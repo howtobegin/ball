@@ -72,10 +72,18 @@ public enum ScheduleStatus {
     }
 
     /**
-     * 半场可投注状态
+     * 普通半场可投注状态
      * @return
      */
     public static List<Integer> halfCanBetCodes() {
+        return Lists.newArrayList(NOT_STARTED.code);
+    }
+
+    /**
+     * 滚球（目前只有让球盘）半场可投注状态
+     * @return
+     */
+    public static List<Integer> handicapHalfCanBetCodes() {
         return Lists.newArrayList(NOT_STARTED.code, FIRST_HALF.code);
     }
 
