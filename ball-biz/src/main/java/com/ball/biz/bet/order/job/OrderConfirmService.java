@@ -7,6 +7,7 @@ import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.processor.BetProcessorHolder;
+import com.ball.biz.bet.processor.cache.BetCache;
 import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.match.service.IOddsScoreService;
 import com.ball.biz.match.service.IOddsService;
@@ -103,6 +104,8 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
             // 取消订单
             orderInfoService.cancel(order.getOrderId(), reason.substring(0, Math.min(128, reason.length())));
             return false;
+        } finally {
+            BetCache.clear();
         }
         return true;
     }

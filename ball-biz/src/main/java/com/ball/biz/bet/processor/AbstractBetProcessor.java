@@ -15,12 +15,11 @@ import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.HandicapType;
-import com.ball.biz.bet.enums.MatchTimeType;
-import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.enums.Sport;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.BetBo;
 import com.ball.biz.bet.order.bo.OddsData;
+import com.ball.biz.bet.processor.assist.OddsAssist;
 import com.ball.biz.bet.processor.bo.BetInfo;
 import com.ball.biz.bet.processor.bo.OddsCheckInfo;
 import com.ball.biz.bet.processor.cache.BetCache;
@@ -141,12 +140,12 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     public void betCheck(BetBo bo, boolean checkUser) {
         log.info("start getOddsCheckInfo");
         OddsCheckInfo checkInfo = getOddsCheckInfo(bo);
-        log.info("start checkOdds");
-        // 位置不要挪动，校验投注信息，是否存在，关闭等，拿到matchId，后面用
-        checkOdds(checkInfo, bo);
         log.info("start checkSchedule");
         // 校验赛事
         checkSchedule(bo, checkInfo.getMatchId());
+        log.info("start checkOdds");
+        // 校验投注信息，是否存在，关闭等
+        checkOdds(checkInfo, bo);
         // 投注选项是否合理
         BizAssert.isTrue(bo.getHandicapType().getBetOptions().contains(bo.getBetOption()), BizErrCode.PARAM_ERROR_DESC, "betOption");
         log.info("start checkUser");
@@ -179,7 +178,12 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         // 未返回是否关闭，是否当未关闭处理？
         log.info("matchId {} close {}",checkInfo.getMatchId(), checkInfo.isClose());
         // 投注是否关闭
-        BizAssert.isTrue(!checkInfo.isClose(), BizErrCode.ODDS_CLOSE);
+        Schedules schedule = BetCache.getSchedule();
+        boolean isClose = checkInfo.isClose();
+        BizAssert.isTrue(!isClose, BizErrCode.ODDS_CLOSE);
+        // 重新根据比赛状态判定是否应该关闭
+        isClose = OddsAssist.rejudgmentClose(checkInfo.isClose(), schedule.getStatus(), bo.getHandicapType(), checkInfo.getOddsType());
+        BizAssert.isTrue(!isClose, BizErrCode.SCHEDULE_CANNT_BET);
         // 是否维护
         BizAssert.isTrue(!checkInfo.isMaintenance(), BizErrCode.ODDS_MAINTENANCE);
 
@@ -199,14 +203,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         BetCache.setSchedule(schedules);
         Integer status = schedules.getStatus();
         log.info("matchId {} status {}", schedules.getMatchId(), status);
-        // 全场，校验状态
-        if (handicapType.getMatchTimeType() == MatchTimeType.FULL) {
-            BizAssert.isTrue(ScheduleStatus.canBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
-        }
-        // 半场，校验状态
-        if (handicapType.getMatchTimeType() == MatchTimeType.HALF) {
-            BizAssert.isTrue(ScheduleStatus.halfCanBetCodes().contains(status), BizErrCode.SCHEDULE_CANNT_BET);
-        }
     }
 
     protected Long getAllowDelay() {
@@ -225,8 +221,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         UserInfo user = userInfoService.getByUid(bo.getUserNo());
         log.info("userId {} status {}", bo.getUserNo(), user.getStatus());
         BizAssert.isTrue(YesOrNo.YES.v == user.getStatus(), BizErrCode.USER_LOCKED);
-        // 全场最低投注校验
-        checkSystemBetMin(bo.getBetAmount(), bo.getUserNo());
 
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
@@ -253,19 +247,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 BizAssert.isTrue(matchBetAmount.add(bo.getBetAmount()).compareTo(tradeConfig.getMatchLimit()) <= 0, BizErrCode.MATCH_BET_AMOUNT_TOO_MAX);
             }
         }
-    }
-
-    protected void checkSystemBetMin(BigDecimal betAmount, Long userId) {
-//        UserAccount userAccount = userAccountService.query(userId);
-//        BizAssert.notNull(userAccount, BizErrCode.ACCOUNT_NOT_EXIST);
-//
-//        String currency = userAccount.getCurrency();
-//        BigDecimal rmbRate = currencyService.getRmbRate(currency);
-//        log.info("currency {} rmbRate {}", currency, rmbRate);
-//        BizAssert.isTrue(rmbRate != null && rmbRate.compareTo(BigDecimal.ZERO) > 0, BizErrCode.CURRENCY_RATE_CONFIG_ERROR);
-//        BigDecimal currencyBetMin = systemBetMin.divide(rmbRate, 0, BigDecimal.ROUND_UP);
-//        log.info("betAmount {} currency {} currencyBetMin {}", betAmount, currency, currencyBetMin);
-//        BizAssert.isTrue(betAmount.compareTo(currencyBetMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN, currencyBetMin.stripTrailingZeros().toPlainString(), currency);
     }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
