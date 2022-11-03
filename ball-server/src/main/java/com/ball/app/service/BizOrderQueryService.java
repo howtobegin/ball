@@ -71,8 +71,8 @@ public class BizOrderQueryService {
                 resp.setDate(o.getBetDate());
                 resp.setWeek(resp.getDate().getDayOfWeek().getValue());
             }
-            BigDecimal winAmount = calcWinAmount(OrderStatus.parse(o.getStatus()), o.getBetAmount(), o.getBetOdds(), o.getResultAmount(), o.getBackwaterAmount());
-            resp.setWinAmount(winAmount);
+            // 这个是外层统计，就是输赢和+退水
+            resp.setWinAmount(o.getResultAmount().add(o.getBackwaterAmount()));
 
             return resp;
         }).collect(Collectors.toList());
