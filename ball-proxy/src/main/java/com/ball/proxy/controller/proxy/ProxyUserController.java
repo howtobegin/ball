@@ -164,18 +164,6 @@ public class ProxyUserController {
         }
     }
 
-    @ApiOperation("添加代理退水限额配置")
-    @PostMapping("addRefundConfig")
-    public void addRefundConfig(@RequestBody @Valid ProxyRefundReq req) {
-        proxyUserOperationService.addRefundConfig(req, false);
-    }
-
-    @ApiOperation("添加代理一退水限额配置(临时接口)")
-    @PostMapping("addRefundConfigOne")
-    public void addRefundConfigOne(@RequestBody @Valid ProxyRefundReq req) {
-        proxyUserOperationService.addRefundConfig(req, true);
-    }
-
     @ApiOperation("修改密码")
     @PostMapping("changePassword")
     public void changePassword(@RequestBody @Valid ChangePasswordReq req) {

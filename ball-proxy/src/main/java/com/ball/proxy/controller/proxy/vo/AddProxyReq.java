@@ -4,10 +4,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author JimChery
@@ -39,6 +42,11 @@ public class AddProxyReq {
     @ApiModelProperty(value = "代理商分成比例", required = true)
     @NotNull(message = "proxyRate must be not null")
     private BigDecimal proxyRate;
+
+    @ApiModelProperty(value = "退水和限额", required = true)
+    @NotEmpty
+    @Valid
+    private List<ProxyRefundConfigReq> refund;
 
 //    @ApiModelProperty(value = "总代理分成比例", required = true)
 //    @NotNull(message = "proxyRate must be not null")

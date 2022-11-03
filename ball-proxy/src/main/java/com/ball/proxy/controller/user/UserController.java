@@ -13,7 +13,6 @@ import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.user.vo.AddUserReq;
 import com.ball.proxy.controller.user.vo.QueryUserReq;
 import com.ball.proxy.controller.user.vo.UserInfoResp;
-import com.ball.proxy.controller.user.vo.UserRefundReq;
 import com.ball.proxy.service.UserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,12 +49,6 @@ public class UserController {
     @PostMapping("add")
     public void add(@RequestBody @Valid AddUserReq req) {
         userOperationService.addUser(req);
-    }
-
-    @ApiOperation("添加退水和限额")
-    @PostMapping("addRefund")
-    public void addRefund(@RequestBody @Valid UserRefundReq req) {
-        userOperationService.addRefund(req);
     }
 
     @ApiOperation("查询会员列表")
