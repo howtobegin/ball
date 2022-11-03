@@ -40,8 +40,6 @@ public class OrderController {
         bizBetService.bet(bo);
     }
 
-
-
     @ApiOperation("交易状况")
     @PostMapping("bet/current")
     public List<OrderResp> betCurrent() {

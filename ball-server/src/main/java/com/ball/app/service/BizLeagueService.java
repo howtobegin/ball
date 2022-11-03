@@ -46,7 +46,11 @@ public class BizLeagueService {
     public List<CountryLeagueResp> groupByCount(List<Leagues> list) {
         List<CountryLeagueResp> ret = Lists.newArrayList();
         Map<String, List<LeagueResp>> map = list.stream()
-                .map(l -> BeanUtil.copy(l, LeagueResp.class))
+                .map(l -> {
+                    LeagueResp resp = BeanUtil.copy(l, LeagueResp.class);
+                    resp.setName(resp.getNameZh());
+                    return resp;
+                })
                 .collect(Collectors.groupingBy(LeagueResp::getCountryZh));
         map.forEach((k, v)->{
             ret.add(CountryLeagueResp.builder()

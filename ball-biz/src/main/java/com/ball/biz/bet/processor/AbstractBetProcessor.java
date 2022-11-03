@@ -256,16 +256,16 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     }
 
     protected void checkSystemBetMin(BigDecimal betAmount, Long userId) {
-        UserAccount userAccount = userAccountService.query(userId);
-        BizAssert.notNull(userAccount, BizErrCode.ACCOUNT_NOT_EXIST);
-
-        String currency = userAccount.getCurrency();
-        BigDecimal rmbRate = currencyService.getRmbRate(currency);
-        log.info("currency {} rmbRate {}", currency, rmbRate);
-        BizAssert.isTrue(rmbRate != null && rmbRate.compareTo(BigDecimal.ZERO) > 0, BizErrCode.CURRENCY_RATE_CONFIG_ERROR);
-        BigDecimal currencyBetMin = systemBetMin.divide(rmbRate, 0, BigDecimal.ROUND_UP);
-        log.info("betAmount {} currency {} currencyBetMin {}", betAmount, currency, currencyBetMin);
-        BizAssert.isTrue(betAmount.compareTo(currencyBetMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN, currencyBetMin.stripTrailingZeros().toPlainString(), currency);
+//        UserAccount userAccount = userAccountService.query(userId);
+//        BizAssert.notNull(userAccount, BizErrCode.ACCOUNT_NOT_EXIST);
+//
+//        String currency = userAccount.getCurrency();
+//        BigDecimal rmbRate = currencyService.getRmbRate(currency);
+//        log.info("currency {} rmbRate {}", currency, rmbRate);
+//        BizAssert.isTrue(rmbRate != null && rmbRate.compareTo(BigDecimal.ZERO) > 0, BizErrCode.CURRENCY_RATE_CONFIG_ERROR);
+//        BigDecimal currencyBetMin = systemBetMin.divide(rmbRate, 0, BigDecimal.ROUND_UP);
+//        log.info("betAmount {} currency {} currencyBetMin {}", betAmount, currency, currencyBetMin);
+//        BizAssert.isTrue(betAmount.compareTo(currencyBetMin) >= 0, BizErrCode.BET_AMOUNT_TOO_MIN, currencyBetMin.stripTrailingZeros().toPlainString(), currency);
     }
 
     protected OrderInfo buildOrder(BetBo bo, String orderNo) {
