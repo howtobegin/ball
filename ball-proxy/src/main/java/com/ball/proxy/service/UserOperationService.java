@@ -1,12 +1,10 @@
 package com.ball.proxy.service;
 
 import com.ball.base.context.UserContext;
-import com.ball.base.model.Const;
 import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.account.entity.TradeConfig;
-import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.enums.UserLevelEnum;
 import com.ball.biz.account.service.IBizAssetAdjustmentOrderService;
@@ -22,14 +20,12 @@ import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.user.vo.AddUserReq;
-import com.ball.proxy.controller.user.vo.UserRefundReq;
+import com.ball.proxy.controller.user.vo.UserRefundConfigReq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -90,37 +86,33 @@ public class UserOperationService {
             userAccountService.init(userInfo.getId(), req.getCurrency(), String.valueOf(UserTypeEnum.GENERAL.v), modeEnum);
             // 调账
             assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.myAmount(), req.getCurrency(), modeEnum, proxy);
+            UserLevelEnum userLevelEnum = UserLevelEnum.valueOf(req.getHandicapType());
+            // 添加退水和限额
+            addRefund(req.getRefund(), userInfo.getId(), userLevelEnum, req.getCurrency(), proxy);
             // 记录日志
             operationLogService.addLog(OperationBiz.ADD_USER, userInfo.getId().toString());
         });
     }
 
-    public void addRefund(@RequestBody @Valid UserRefundReq req) {
-        UserInfo userInfo = userInfoService.getByUid(req.getUserId());
-        UserExtend userExtend = userExtendService.getByUid(req.getUserId());
-        UserLevelEnum userLevelEnum = UserLevelEnum.valueOf(userExtend.getHandicapType());
-        // 获取自己的所有上级
-        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
-        BigDecimal minAmount = getMin(req.getUserId());
-        transactionSupport.execute(() -> {
-            req.getConfig().forEach(o -> {
-                TradeConfig config = BeanUtil.copy(o, TradeConfig.class);
-                switch (userLevelEnum) {
-                    case A: config.setA(o.getV());
-                        break;
-                    case B: config.setB(o.getV());
-                        break;
-                    case C: config.setC(o.getV());
-                        break;
-                    case D:
-                        default: config.setD(o.getV());
-                }
-                config.setMin(minAmount);
-                config.setUserNo(req.getUserId());
-                config.setUserLevel(userExtend.getHandicapType());
-                tradeConfigService.init(config, userInfo.getProxyUserId());
-            });
-            operationLogService.addLog(OperationBiz.ADD_REFUND_CONFIG, req.getUserId().toString());
+    public void addRefund(List<UserRefundConfigReq> refund, Long userId, UserLevelEnum userLevelEnum,
+                          String currency, Long proxyUid) {
+        BigDecimal minAmount = getMin(currency);
+        refund.forEach(o -> {
+            TradeConfig config = BeanUtil.copy(o, TradeConfig.class);
+            switch (userLevelEnum) {
+                case A: config.setA(o.getV());
+                    break;
+                case B: config.setB(o.getV());
+                    break;
+                case C: config.setC(o.getV());
+                    break;
+                case D:
+                    default: config.setD(o.getV());
+            }
+            config.setMin(minAmount);
+            config.setUserNo(userId);
+            config.setUserLevel(userLevelEnum.name());
+            tradeConfigService.init(config, proxyUid);
         });
     }
 
@@ -138,11 +130,9 @@ public class UserOperationService {
         });
     }
 
-    private BigDecimal getMin(Long userId) {
-        // 查询用户币种
-        UserAccount userAccount = userAccountService.query(userId);
+    public BigDecimal getMin(String currency) {
         // 汇率
-        BigDecimal rate = currencyService.getRmbRate(userAccount.getCurrency());
+        BigDecimal rate = currencyService.getRmbRate(currency);
         return orderMin.divide(rate, 0, RoundingMode.DOWN);
     }
 }

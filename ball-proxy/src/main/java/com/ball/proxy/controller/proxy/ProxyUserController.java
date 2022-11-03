@@ -16,9 +16,11 @@ import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.bo.ProxyStatistics;
 import com.ball.biz.user.bo.ProxyUserInfo;
+import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.mapper.ext.UserExtMapper;
 import com.ball.biz.user.proxy.ProxyUserService;
+import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.config.HttpSessionConfig;
 import com.ball.proxy.controller.proxy.vo.*;
@@ -64,6 +66,9 @@ public class ProxyUserController {
 
     @Autowired
     private ISettlementPeriodService settlementPeriodService;
+
+    @Autowired
+    private IUserExtendService userExtendService;
 
     @ApiOperation("登录")
     @PostMapping("login")
@@ -159,18 +164,6 @@ public class ProxyUserController {
         }
     }
 
-    @ApiOperation("添加代理退水限额配置")
-    @PostMapping("addRefundConfig")
-    public void addRefundConfig(@RequestBody @Valid ProxyRefundReq req) {
-        proxyUserOperationService.addRefundConfig(req, false);
-    }
-
-    @ApiOperation("添加代理一退水限额配置(临时接口)")
-    @PostMapping("addRefundConfigOne")
-    public void addRefundConfigOne(@RequestBody @Valid ProxyRefundReq req) {
-        proxyUserOperationService.addRefundConfig(req, true);
-    }
-
     @ApiOperation("修改密码")
     @PostMapping("changePassword")
     public void changePassword(@RequestBody @Valid ChangePasswordReq req) {
@@ -232,6 +225,25 @@ public class ProxyUserController {
             Integer count = userExtMapper.selectProxyStatistics(period.getStartDate(), period.getEndDate());
             resp.setPeriodUserCount(count);
         }
+        return resp;
+    }
+
+    @ApiOperation("查询代理分成信息")
+    @PostMapping("queryProxyRate")
+    public ProxyRateResp queryProxyRate(@RequestBody @Valid ProxyDetailReq req) {
+        Long proxyUid;
+        // 当前登陆用户必须是代理3自己或者自己的上级
+        if (UserTypeEnum.PROXY_THREE.isMe(UserContext.getUserType())) {
+            proxyUid = UserContext.getUserNo();
+        } else {
+            BizAssert.isTrue(req.hasProxyUid(), BizErrCode.PARAM_ERROR_DESC, "proxyUid");
+            proxyUid = req.getProxyUid();
+        }
+        UserExtend userExtend = userExtendService.getByUid(proxyUid);
+        ProxyRateResp resp = new ProxyRateResp();
+        resp.setProxyUid(proxyUid);
+        resp.setProxyRate(userExtend.getProxyRate());
+        resp.setTotalProxyRate(userExtend.getTotalProxyRate());
         return resp;
     }
 }
