@@ -4,10 +4,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author JimChery
@@ -42,6 +45,11 @@ public class AddUserReq {
     @ApiModelProperty(value = "币种", required = true)
     @NotBlank(message = "currency must be not null")
     private String currency;
+
+    @ApiModelProperty(value = "退水和限额", required = true)
+    @NotEmpty
+    @Valid
+    private List<UserRefundConfigReq> refund;
 
     public BigDecimal myAmount() {
         return new BigDecimal(amount);
