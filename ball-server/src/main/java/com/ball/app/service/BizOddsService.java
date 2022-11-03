@@ -6,9 +6,9 @@ import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.MatchTimeType;
-import com.ball.biz.bet.enums.OddsType;
 import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.order.OrderHelper;
+import com.ball.biz.bet.processor.assist.OddsAssist;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.match.entity.*;
 import com.ball.biz.match.service.*;
@@ -20,7 +20,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -128,7 +131,7 @@ public class BizOddsService {
                     oddsResp.setInstantHandicapDesc(oddsResp.getInstantHandicap());
                     if (HandicapType.fullTypes(MatchTimeType.FULL).contains(odd.getType())) {
                         addToMap(fullOdds, type, oddsResp);
-                    } else {
+                    } else if (showHalf(matchResp)){
                         // 半场没有返回close，通过比赛状态判定
                         judgeClose(matchResp, oddsResp);
                         addToMap(halfOdds, type, oddsResp);
@@ -161,28 +164,14 @@ public class BizOddsService {
         return ret;
     }
 
+    private boolean showHalf(MatchResp match) {
+        return ScheduleStatus.NOT_STARTED.isMe(match.getStatus())
+                || ScheduleStatus.FIRST_HALF.isMe(match.getStatus());
+    }
+
     private void judgeClose(MatchResp matchResp, OddsResp resp) {
         HandicapType type = HandicapType.parse(resp.getType());
-        boolean isHalf = type.getMatchTimeType() == MatchTimeType.HALF;
-        if (isHalf) {
-            Integer status = matchResp.getStatus();
-            boolean canBet = false;
-            switch (type) {
-                case HANDICAP_HALF:
-                    // 半场让球的滚球玩法，可以在比赛进行中，投注；否则不让投
-                    if (OddsType.IN_PLAY_ODDS.getCode().equals(resp.getOddsType())) {
-                        canBet = ScheduleStatus.handicapHalfCanBetCodes().contains(status);
-                    } else {
-                        canBet = ScheduleStatus.halfCanBetCodes().contains(status);
-                    }
-                    break;
-                case CORRECT_SCORE_HALL:
-                case OVER_UNDER_HALF:
-                    canBet = ScheduleStatus.halfCanBetCodes().contains(status);
-                    break;
-            }
-            resp.setIsClose(!canBet);
-        }
+        resp.setIsClose(OddsAssist.rejudgmentClose(resp.getIsClose(), matchResp.getStatus(), type, resp.getOddsType()));
     }
 
     private LeagueResp translate(Leagues league) {

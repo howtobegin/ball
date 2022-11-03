@@ -14,7 +14,7 @@ public enum BizErrCode implements IBizErrCode {
     ODDS_CLOSE("B00006","投注已关闭"),
     NOT_FOUND_BET_OPTION("B00007","未找到投注选项"),
     ANALYZE_HANDICAP_ERROR("B00008","分析即使盘口出错"),
-    SCHEDULE_CANNT_BET("B00009","赛事不能再投注"),
+    SCHEDULE_CANNT_BET("B00009","赛事已开始或已结束不能再投注"),
     // 最小投注金额是{0}{1}
     BET_AMOUNT_TOO_MIN("B00010","最小投注金额是{0}{1}"),
     BET_AMOUNT_TOO_MAX("B00011","最大投注金额是{0}{1}"),

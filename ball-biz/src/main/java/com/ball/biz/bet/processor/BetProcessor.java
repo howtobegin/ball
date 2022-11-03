@@ -12,7 +12,11 @@ public interface BetProcessor {
 
     HandicapType getHandicapType();
 
-
+    /**
+     * 在finally里面BetCache.clear()
+     * @param bo
+     * @param checkUser
+     */
     void betCheck(BetBo bo, boolean checkUser);
 
     /**

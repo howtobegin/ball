@@ -56,9 +56,11 @@ public class AccountController {
     @ApiOperation("获取用户账户信息")
     @RequestMapping(value = "getById",method = {RequestMethod.GET,RequestMethod.POST})
     public AccountResp getById(@RequestBody @Valid AccountGetReq req) {
-        UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
-        BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
-        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
+        if (!req.getUserNo().equals(UserContext.getUserNo())) {
+            UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
+            BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
+            BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
+        }
 
         UserAccount account = iUserAccountService.lambdaQuery().eq(UserAccount::getUserId, req.getUserNo()).one();
         BizAssert.notNull(account, BizErrCode.DATA_ERROR);
