@@ -9,7 +9,9 @@ import com.ball.biz.match.entity.Schedules;
 import com.ball.biz.match.service.ISchedulesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.eclipse.jetty.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -53,8 +55,10 @@ public class ScheduleController {
 
                     s.setList(c.getValue().stream().map(d-> {
                         ScheduleDetailResp detailResp = BeanUtil.copy(d, ScheduleDetailResp.class);
-                        detailResp.setAwayName(String.format("%s(%s)",detailResp.getAwayNameZh(),detailResp.getAwayName()));
-                        detailResp.setHomeName(String.format("%s(%s)",detailResp.getHomeNameZh(),detailResp.getHomeName()));
+                        if(StringUtil.isNotBlank(detailResp.getAwayNameZh()) && StringUtil.isNotBlank(detailResp.getHomeNameZh())) {
+                            detailResp.setAwayName(String.format("%s(%s)",detailResp.getAwayNameZh(),detailResp.getAwayName()));
+                            detailResp.setHomeName(String.format("%s(%s)",detailResp.getHomeNameZh(),detailResp.getHomeName()));
+                        }
                         return detailResp;
                     }).collect(Collectors.toList()));
                     s.setTime(s.getList().get(0).getMatchDate().withHour(0).withMinute(0).withSecond(0));
