@@ -164,10 +164,8 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
     private OrderFinishBo buildOrderFinishBo(String orderId, CalcResult calcResult, ProxyAmount proxyAmount) {
         // 赢或输.abs()
         BigDecimal validAmount = BigDecimal.ZERO;
-        if (calcResult.getResult() == BetResult.WIN || calcResult.getResult() == BetResult.WIN_HALF) {
-            validAmount = calcResult.getResultAmount();
-        } else if (calcResult.getResult() == BetResult.LOSE || calcResult.getResult() == BetResult.LOSE_HALF) {
-            validAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount()).abs();
+        if (calcResult.getResult() != BetResult.DRAW) {
+            validAmount = calcResult.getResultAmount().abs();
         }
 
         return OrderFinishBo.builder()

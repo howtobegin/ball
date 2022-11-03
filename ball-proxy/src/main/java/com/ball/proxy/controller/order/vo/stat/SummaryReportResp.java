@@ -18,9 +18,18 @@ public class SummaryReportResp {
     @ApiModelProperty("获利率")
     private BigDecimal profitRate;
 
+    @ApiModelProperty("获利率相比昨天减少或增加百分比")
+    private BigDecimal profitRateCompareYesterday;
+
     @ApiModelProperty("输/赢")
     private BigDecimal winAmount;
 
+    @ApiModelProperty("输/赢相比昨天减少或增加百分比")
+    private BigDecimal winAmountCompareYesterday;
+
     @ApiModelProperty("实货量")
     private BigDecimal validAmount;
+
+    @ApiModelProperty("实货量相比昨天减少或增加百分比")
+    private BigDecimal validAmountCompareYesterday;
 }
