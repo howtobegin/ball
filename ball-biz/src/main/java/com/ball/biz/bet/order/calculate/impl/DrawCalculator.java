@@ -21,12 +21,17 @@ public class DrawCalculator extends AbstractCalculator {
 
     @Override
     protected CalcResult doCalc(BigDecimal betAmount, BigDecimal odds) {
-        BigDecimal amount = betAmount;
+        BigDecimal amount = BigDecimal.ZERO;
         log.info("BetResult {} resultAmount {}", getBetResult(), amount);
         return CalcResult.builder()
                 .result(getBetResult())
                 .betAmount(betAmount)
                 .resultAmount(amount)
                 .build();
+    }
+
+    @Override
+    protected BigDecimal getBackwaterBaseAmount(CalcResult calcResult) {
+        return BigDecimal.ZERO;
     }
 }

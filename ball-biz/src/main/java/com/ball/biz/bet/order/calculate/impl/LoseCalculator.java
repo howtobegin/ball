@@ -21,7 +21,7 @@ public class LoseCalculator extends AbstractCalculator {
 
     @Override
     protected CalcResult doCalc(BigDecimal betAmount, BigDecimal odds) {
-        BigDecimal amount = BigDecimal.ZERO;
+        BigDecimal amount = BigDecimal.ZERO.subtract(betAmount);
         log.info("BetResult {} resultAmount {}", getBetResult(), amount);
         return CalcResult.builder()
                 .result(getBetResult())
@@ -29,5 +29,10 @@ public class LoseCalculator extends AbstractCalculator {
                 .odds(odds)
                 .resultAmount(amount)
                 .build();
+    }
+
+    @Override
+    protected BigDecimal getBackwaterBaseAmount(CalcResult calcResult) {
+        return calcResult.getBetAmount();
     }
 }

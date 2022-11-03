@@ -73,6 +73,9 @@ public class OrderResp {
     @ApiModelProperty("有效金额")
     private BigDecimal validAmount;
 
+    @ApiModelProperty("退水")
+    private BigDecimal backwaterAmount;
+
     /**
      * 页面显示赢金额
      */

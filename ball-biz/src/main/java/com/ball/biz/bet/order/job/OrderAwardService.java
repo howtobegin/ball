@@ -16,6 +16,7 @@ import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.OrderHelper;
 import com.ball.biz.bet.order.bo.ProxyAmount;
 import com.ball.biz.bet.order.calculate.CalculatorHolder;
+import com.ball.biz.bet.order.calculate.bo.CalcBo;
 import com.ball.biz.bet.order.calculate.bo.CalcResult;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.bo.OrderFinishBo;
@@ -68,17 +69,16 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
             log.warn("orderId {} betResult {}", data.getOrderId(), betResult);
             return false;
         }
-        CalcResult calcResult = CalculatorHolder.get(betResult).calc(data.getBetAmount(), getBetOdds(data));
+        CalcResult calcResult = CalculatorHolder.get(betResult).calc(buildCalcBo(data));
         String orderId = data.getOrderId();
         Long userId = data.getUserId();
         // 用户输赢
-        BigDecimal userWinAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount());
-        // 简单校验
-        userWinAmountCheck(betResult, userWinAmount);
+        BigDecimal userWinAmount = calcResult.getResultAmount();
         // 计算代理占成
-        ProxyAmount proxyAmount = calcProxyAmount(userId, userWinAmount);
+        ProxyAmount proxyAmount = calcResult.getProxyAmount();
         OrderFinishBo orderFinishBo = buildOrderFinishBo(orderId, calcResult, proxyAmount);
-        BigDecimal backwaterAmount = getBackwaterAmount(userId, data.getBetAmount(), data.getHandicapType(), data.getOddsType());
+        // 退水
+        BigDecimal backwaterAmount = calcResult.getBackwaterAmount();
         orderFinishBo.setBackwaterAmount(backwaterAmount);
 
         transactionSupport.execute(()->{
@@ -88,11 +88,6 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
 
         });
         return true;
-    }
-
-    private BigDecimal getBetOdds(OrderInfo order) {
-        // 默认香港盘，赔率+1
-        return order.getBetOdds().add(BigDecimal.ONE);
     }
 
     private void userWinAmountCheck(BetResult betResult, BigDecimal userWinAmount) {
@@ -138,7 +133,7 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
         }
         // 用户输
         else {
-            BigDecimal userLose = BigDecimal.ZERO.subtract(userWinAmount);
+            BigDecimal userLose = userWinAmount.abs();
             // 用户出
             userAccountService.payout(userId, userLose, orderId, AccountTransactionType.TRADE);
         }
@@ -169,10 +164,8 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
     private OrderFinishBo buildOrderFinishBo(String orderId, CalcResult calcResult, ProxyAmount proxyAmount) {
         // 赢或输.abs()
         BigDecimal validAmount = BigDecimal.ZERO;
-        if (calcResult.getResult() == BetResult.WIN || calcResult.getResult() == BetResult.WIN_HALF) {
-            validAmount = calcResult.getResultAmount();
-        } else if (calcResult.getResult() == BetResult.LOSE || calcResult.getResult() == BetResult.LOSE_HALF) {
-            validAmount = calcResult.getResultAmount().subtract(calcResult.getBetAmount()).abs();
+        if (calcResult.getResult() != BetResult.DRAW) {
+            validAmount = calcResult.getResultAmount().abs();
         }
 
         return OrderFinishBo.builder()
@@ -212,6 +205,16 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
                 .proxy1Amount(proxy1Amount)
                 .proxy2Amount(proxy2Amount)
                 .proxy3Amount(proxy3Amount)
+                .build();
+    }
+
+    protected CalcBo buildCalcBo(OrderInfo order) {
+        return CalcBo.builder()
+                .betAmount(order.getBetAmount())
+                .handicapType(order.getHandicapType())
+                .odds(order.getBetOdds())
+                .oddsType(order.getOddsType())
+                .userId(order.getUserId())
                 .build();
     }
 
