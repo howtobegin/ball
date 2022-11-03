@@ -1,7 +1,6 @@
 package com.ball.biz.bet.processor.assist;
 
 import com.ball.biz.bet.enums.HandicapType;
-import com.ball.biz.bet.enums.OddsType;
 import com.ball.biz.bet.enums.ScheduleStatus;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,33 +26,7 @@ public class OddsAssist {
         if (close != null && close) {
             return close;
         }
-        List<Integer> canBetCodes = ScheduleStatus.canBetCodes();
-        switch (type) {
-            case HANDICAP_HALF:
-                // 半场让球的滚球玩法，可以在比赛进行中，投注；否则不让投
-                if (OddsType.IN_PLAY_ODDS.getCode().equals(oddsType)) {
-                    canBetCodes = ScheduleStatus.handicapHalfCanBetCodes();
-                } else {
-                    canBetCodes = ScheduleStatus.halfCanBetCodes();
-                }
-                break;
-            case OVER_UNDER_HALF:
-            case CORRECT_SCORE_HALL:
-                canBetCodes = ScheduleStatus.halfCanBetCodes();
-                break;
-            case HANDICAP:
-                // 全场让球的滚球玩法，可以在比赛进行中，投注；否则不让投
-                if (OddsType.IN_PLAY_ODDS.getCode().equals(oddsType)) {
-                    canBetCodes = ScheduleStatus.handicapCanBetCodes();
-                } else {
-                    canBetCodes = ScheduleStatus.canBetCodes();
-                }
-                break;
-            case OVER_UNDER:
-            case CORRECT_SCORE:
-                canBetCodes = ScheduleStatus.canBetCodes();
-
-        }
+        List<Integer> canBetCodes = type.full() ? ScheduleStatus.canBetCodes() : ScheduleStatus.halfCanBetCodes();
         return !canBetCodes.contains(scheduleStatus);
     }
 }

@@ -76,10 +76,10 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
                 .eq(TradeConfig::getType, type.name()).one();
     }
 
-    final BigDecimal[] AVAILABLE_A = {new BigDecimal(2.5),new BigDecimal(2.25),new BigDecimal(2)};
-    final BigDecimal[] AVAILABLE_B = {new BigDecimal(1.75),new BigDecimal(1.5),new BigDecimal(1.25)};
-    final BigDecimal[] AVAILABLE_C = {new BigDecimal(1.25),new BigDecimal(1),new BigDecimal(0.75)};
-    final BigDecimal[] AVAILABLE_D = {new BigDecimal(0.5),new BigDecimal(0.25),BigDecimal.ZERO};
+    final BigDecimal[] AVAILABLE_A = {new BigDecimal("0.025"),new BigDecimal("0.0225"),new BigDecimal("0.02"), BigDecimal.ZERO};
+    final BigDecimal[] AVAILABLE_B = {new BigDecimal("0.0175"),new BigDecimal("0.015"),new BigDecimal("0.0125"), BigDecimal.ZERO};
+    final BigDecimal[] AVAILABLE_C = {new BigDecimal("0.0125"),new BigDecimal("0.01"),new BigDecimal("0.0075"), BigDecimal.ZERO};
+    final BigDecimal[] AVAILABLE_D = {new BigDecimal("0.005"),new BigDecimal("0.0025"),BigDecimal.ZERO};
     private boolean isBigdecimalIn(BigDecimal v, BigDecimal[] arr) {
         for (BigDecimal b: arr) {
             if (v.compareTo(b) == 0) {

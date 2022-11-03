@@ -76,14 +76,6 @@ public enum ScheduleStatus {
      * @return
      */
     public static List<Integer> halfCanBetCodes() {
-        return Lists.newArrayList(NOT_STARTED.code);
-    }
-
-    /**
-     * 滚球（目前只有让球盘）半场可投注状态
-     * @return
-     */
-    public static List<Integer> handicapHalfCanBetCodes() {
         return Lists.newArrayList(NOT_STARTED.code, FIRST_HALF.code);
     }
 
@@ -92,14 +84,6 @@ public enum ScheduleStatus {
      * @return
      */
     public static List<Integer> canBetCodes() {
-        return Lists.newArrayList(NOT_STARTED.code);
-    }
-
-    /**
-     * 让球的滚球玩法，全场可投注状态
-     * @return
-     */
-    public static List<Integer> handicapCanBetCodes() {
         return Lists.newArrayList(NOT_STARTED.code, FIRST_HALF.code, HALF_TIME_BREAK.code,SECOND_HALF.code);
     }
 }
