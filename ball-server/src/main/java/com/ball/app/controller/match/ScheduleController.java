@@ -61,6 +61,12 @@ public class ScheduleController {
                         }
                         return detailResp;
                     }).collect(Collectors.toList()));
+                    s.getList().sort(new Comparator<ScheduleDetailResp>() {
+                        @Override
+                        public int compare(ScheduleDetailResp o1, ScheduleDetailResp o2) {
+                            return  o1.getMatchDate().compareTo(o2.getMatchDate()) ;
+                        }
+                    });
                     s.setTime(s.getList().get(0).getMatchDate().withHour(0).withMinute(0).withSecond(0));
                     return s;
                 }).collect(Collectors.toList());
