@@ -48,7 +48,9 @@ public class TradeConfigController {
     @PostMapping(value = "/updateProxyConfig" )
     public void updateProxyConfig(@RequestBody @Valid List<AgentTradeConfigReq> reqList) {
         reqList.forEach(r->{
-            tradeConfigService.update(BeanUtil.copy(r, TradeConfig.class), UserContext.getUserNo());
+            UserInfo userInfo = iUserInfoService.getByUid(r.getUserNo());
+            BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
+            tradeConfigService.update(BeanUtil.copy(r, TradeConfig.class), userInfo.getProxyUserId());
         });
     }
 

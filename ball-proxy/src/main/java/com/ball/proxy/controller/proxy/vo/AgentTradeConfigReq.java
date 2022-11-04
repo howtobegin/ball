@@ -21,6 +21,10 @@ public class AgentTradeConfigReq {
     @NotNull
     private Long id;
 
+    @ApiModelProperty("用户id")
+    @NotNull
+    private Long userNo;
+
     /**
      * 类型
      */
