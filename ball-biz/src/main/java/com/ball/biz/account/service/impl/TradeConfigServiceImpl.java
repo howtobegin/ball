@@ -43,13 +43,15 @@ public class TradeConfigServiceImpl extends ServiceImpl<TradeConfigMapper, Trade
 
     @Override
     public boolean update(TradeConfig tradeConfig,Long parentUserNo) {
-        BizAssert.notNull(parentUserNo,BizErrCode.PARAM_ERROR_DESC,"parentUserNo");
-        TradeConfig parent = lambdaQuery().eq(TradeConfig::getUserNo, parentUserNo)
-                .eq(TradeConfig::getType,tradeConfig.getType())
-                .eq(TradeConfig::getSport, tradeConfig.getSport()).one();
-        BizAssert.notNull(parent,BizErrCode.TRADE_CONFIG_PARENT_NOT_FOUND);
         TradeConfig db = lambdaQuery().eq(TradeConfig::getId,tradeConfig.getId()).one();
         BizAssert.notNull(db,BizErrCode.TRADE_CONFIG_NOT_FOUND);
+
+        BizAssert.notNull(parentUserNo,BizErrCode.PARAM_ERROR_DESC,"parentUserNo");
+        TradeConfig parent = lambdaQuery().eq(TradeConfig::getUserNo, parentUserNo)
+                .eq(TradeConfig::getType,db.getType())
+                .eq(TradeConfig::getSport, db.getSport()).one();
+        BizAssert.notNull(parent,BizErrCode.TRADE_CONFIG_PARENT_NOT_FOUND);
+
         tradeConfig.setType(db.getType());
         tradeConfig.setUserNo(db.getUserNo());
         tradeConfig.setSport(db.getSport());

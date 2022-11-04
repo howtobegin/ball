@@ -12,6 +12,7 @@ import com.ball.proxy.controller.proxy.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  * @date 10/28/22
  **/
 
+@Validated
 @Api(tags = "退水限额配置管理接口")
 @RestController
 @RequestMapping("/proxy/tradeconfig")
