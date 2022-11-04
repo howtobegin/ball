@@ -1,5 +1,6 @@
 package com.ball.biz.user.mapper.ext;
 
+import com.ball.biz.user.bo.ProxyChildrenBalance;
 import com.ball.biz.user.bo.ProxyStatistics;
 import com.ball.biz.user.bo.ProxyUserInfo;
 import org.apache.ibatis.annotations.Mapper;
@@ -15,9 +16,11 @@ import java.util.List;
 public interface UserExtMapper {
     List<ProxyUserInfo> proxyUser(@Param("proxyUids") List<Long> proxyUids);
 
-    ProxyStatistics selectProxyStatistics(@Param("proxyUid") Long proxyUid);
+    List<ProxyStatistics> selectProxyStatistics(@Param("proxyUid") Long proxyUid);
 
     Integer selectProxyStatisticsPeriod(@Param("proxyUid") Long proxyUid,
                                   @Param("start") LocalDateTime start,
                                   @Param("end") LocalDateTime end);
+
+    List<ProxyChildrenBalance> selectProxyChildrenBalance(@Param("proxyUid") Long proxyUid);
 }

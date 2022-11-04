@@ -10,10 +10,12 @@ import com.ball.base.util.BizAssert;
 import com.ball.base.util.PasswordUtil;
 import com.ball.biz.account.entity.SettlementPeriod;
 import com.ball.biz.account.entity.UserAccount;
+import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.user.bo.ProxyChildrenBalance;
 import com.ball.biz.user.bo.ProxyStatistics;
 import com.ball.biz.user.bo.ProxyUserInfo;
 import com.ball.biz.user.entity.UserExtend;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -214,11 +217,6 @@ public class ProxyUserController {
         }
         ProxyDetailResp resp = BeanUtil.copy(userInfo, ProxyDetailResp.class);
         resp.setUserNo(userInfo.getId());
-        ProxyStatistics statistics = userExtMapper.selectProxyStatistics(userInfo.getId());
-        if (statistics != null) {
-            resp.setNormalUserCount(statistics.getNormalUserCount());
-            resp.setLockedUserCount(statistics.getLockedUserCount());
-        }
         // 查询周期内新增会员
         SettlementPeriod period = settlementPeriodService.currentPeriod();
         if (period != null) {
@@ -228,22 +226,79 @@ public class ProxyUserController {
         return resp;
     }
 
+    @ApiOperation("查询代理下级会员信息")
+    @PostMapping("queryProxyChildrenStatistics")
+    public List<ProxyChildrenResp> queryProxyChildrenStatistics(@RequestBody @Valid ProxyDetailReq req) {
+        UserInfo userInfo = getProxyUid(req.getProxyUid());
+        List<ProxyStatistics> proxyStatistics = userExtMapper.selectProxyStatistics(userInfo.getId());
+        if (CollectionUtils.isEmpty(proxyStatistics)) {
+            return getChildrenInfo(userInfo.getBalanceMode(), null, null);
+        }
+        List<ProxyChildrenBalance> balances = userExtMapper.selectProxyChildrenBalance(userInfo.getId());
+        return getChildrenInfo(userInfo.getBalanceMode(), proxyStatistics, balances);
+    }
+
     @ApiOperation("查询代理分成信息")
     @PostMapping("queryProxyRate")
     public ProxyRateResp queryProxyRate(@RequestBody @Valid ProxyDetailReq req) {
-        Long proxyUid;
-        // 当前登陆用户必须是代理3自己或者自己的上级
-        if (UserTypeEnum.PROXY_THREE.isMe(UserContext.getUserType())) {
-            proxyUid = UserContext.getUserNo();
-        } else {
-            BizAssert.isTrue(req.hasProxyUid(), BizErrCode.PARAM_ERROR_DESC, "proxyUid");
-            proxyUid = req.getProxyUid();
-        }
-        UserExtend userExtend = userExtendService.getByUid(proxyUid);
+        UserInfo userInfo = getProxyUid(req.getProxyUid());
+        UserExtend userExtend = userExtendService.getByUid(userInfo.getId());
         ProxyRateResp resp = new ProxyRateResp();
-        resp.setProxyUid(proxyUid);
+        resp.setProxyUid(userInfo.getId());
         resp.setProxyRate(userExtend.getProxyRate());
         resp.setTotalProxyRate(userExtend.getTotalProxyRate());
         return resp;
+    }
+
+    private UserInfo getProxyUid(Long proxyUid) {
+        UserInfo userInfo;
+        // 当前登陆用户必须是代理3自己或者自己的上级
+        if (UserTypeEnum.PROXY_THREE.isMe(UserContext.getUserType())) {
+            userInfo = new UserInfo().setId(UserContext.getUserNo())
+                    .setBalanceMode(UserContext.getBalanceMode());
+        } else {
+            BizAssert.notNull(proxyUid, BizErrCode.PARAM_ERROR_DESC, "proxyUid");
+            userInfo = proxyUserService.getByUid(proxyUid);
+            BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        }
+        return userInfo;
+    }
+
+    /**
+     * 构建不同状态下的统计
+     * 新增状态此处必须跟着新增，否则会出现空指针异常
+     * @param allowanceMode     - 额度模式
+     * @param statistics        - 会员数统计
+     * @param balances          - 信用额度统计
+     * @return -
+     */
+    private List<ProxyChildrenResp> getChildrenInfo(String allowanceMode,
+                                                    List<ProxyStatistics> statistics, List<ProxyChildrenBalance> balances) {
+        List<ProxyChildrenResp> resps = new ArrayList<>();
+        Map<Integer, ProxyChildrenResp> proxyChildrenRespMap = new HashMap<>();
+        ProxyChildrenResp yes = new ProxyChildrenResp().setBalance(BigDecimal.ZERO)
+                .setStatus(YesOrNo.YES.v).setUserCount(0);
+        resps.add(yes);
+        proxyChildrenRespMap.put(YesOrNo.YES.v, yes);
+        ProxyChildrenResp no = new ProxyChildrenResp().setBalance(BigDecimal.ZERO)
+                .setStatus(YesOrNo.NO.v).setUserCount(0);
+        resps.add(no);
+        proxyChildrenRespMap.put(YesOrNo.NO.v, no);
+        if (CollectionUtils.isEmpty(statistics)) {
+            return resps;
+        }
+        statistics.forEach(o -> proxyChildrenRespMap.get(o.getStatus()).setUserCount(o.getUserCount()));
+        if (CollectionUtils.isEmpty(balances)) {
+            return resps;
+        }
+        balances.forEach(o -> {
+            ProxyChildrenResp resp = proxyChildrenRespMap.get(o.getStatus());
+            if (AllowanceModeEnum.BALANCE.name().equals(allowanceMode)) {
+                resp.setBalance(o.getBalance());
+            } else {
+                resp.setBalance(o.getAllowance());
+            }
+        });
+        return resps;
     }
 }

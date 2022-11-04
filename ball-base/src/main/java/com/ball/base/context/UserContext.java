@@ -34,6 +34,10 @@ public class UserContext {
         return get().getProxyUid();
     }
 
+    public static String getBalanceMode() {
+        return get().getBalanceMode();
+    }
+
     public static void clear() {
         USER.remove();
     }

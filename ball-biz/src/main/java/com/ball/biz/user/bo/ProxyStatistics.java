@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ProxyStatistics {
-    private Integer normalUserCount;
+    private Integer status;
 
-    private Integer lockedUserCount;
+    private Integer userCount;
 
 }

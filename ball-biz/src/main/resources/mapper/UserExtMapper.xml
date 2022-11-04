@@ -13,9 +13,9 @@
     </select>
 
     <select id="selectProxyStatistics" resultType="com.ball.biz.user.bo.ProxyStatistics">
-        select sum(case status when 1 then 1 else 0 end) as normalUserCount,
-               sum(case status when 0 then 1 else 0 end) as lockedUserCount
+        select status, count(1) as userCount
         from user_info where proxy_user_id = #{proxyUid}
+        group by status
     </select>
 
     <select id="selectProxyStatisticsPeriod" resultType="java.lang.Integer">
@@ -27,5 +27,14 @@
         <if test="end != null">
             and create_time &lt;= #{end}
         </if>
+    </select>
+
+    <select id="selectProxyChildrenBalance" resultType="com.ball.biz.user.bo.ProxyChildrenBalance">
+        select t1.status, sum(t2.allowance) as allowance, sum(t2.balance) as balance,
+        sum(t2.freeze_amount) as freeze
+        from user_info t1 join user_account t2
+        on (t1.id = t2.user_id and t1.proxy_user_id = #{proxyUid})
+        group by t1.status
+
     </select>
 </mapper>

@@ -24,4 +24,6 @@ public class AppLoginUser {
     private String proxyInfo;
 
     private Long proxyUid;
+
+    private String balanceMode;
 }
