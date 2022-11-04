@@ -1,5 +1,6 @@
 package com.ball.biz.bet.order.job;
 
+import com.ball.base.util.TraceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,14 +29,19 @@ public abstract class BaseJobService<T> {
             }
             boolean allOrderError = true;
             for (T data : datas) {
-                long start = System.currentTimeMillis();
-                boolean doResult = executeOne(data);
-                log.info("bizNo {} doResult {} spendTime {}", getBizNo(data), doResult, (System.currentTimeMillis() - start));
-                if (doResult) {
-                    maxCallbackId = !midOrderError ? getId(data) : maxCallbackId;
-                    allOrderError = false;
-                } else {
-                    midOrderError = true;
+                try {
+                    TraceUtil.start();
+                    long start = System.currentTimeMillis();
+                    boolean doResult = executeOne(data);
+                    log.info("bizNo {} doResult {} spendTime {}", getBizNo(data), doResult, (System.currentTimeMillis() - start));
+                    if (doResult) {
+                        maxCallbackId = !midOrderError ? getId(data) : maxCallbackId;
+                        allOrderError = false;
+                    } else {
+                        midOrderError = true;
+                    }
+                } finally {
+                    TraceUtil.end();
                 }
             }
             if (allOrderError) {

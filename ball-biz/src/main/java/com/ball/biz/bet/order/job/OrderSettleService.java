@@ -1,6 +1,7 @@
 package com.ball.biz.bet.order.job;
 
 import com.ball.base.model.enums.YesOrNo;
+import com.ball.biz.bet.enums.BetResult;
 import com.ball.biz.bet.enums.HandicapType;
 import com.ball.biz.bet.enums.ScheduleStatus;
 import com.ball.biz.bet.order.settle.analyze.AnalyzerHolder;
@@ -45,7 +46,9 @@ public class OrderSettleService extends BaseJobService<OrderInfo> {
                 return false;
             }
             AnalyzeResult analyzeResult = AnalyzerHolder.get(handicapType).analyze(data);
-            orderInfoService.settled(data.getOrderId(), analyzeResult);
+            if (analyzeResult.getBetResult() != BetResult.UNSETTLED) {
+                orderInfoService.settled(data.getOrderId(), analyzeResult);
+            }
             return true;
         } catch (Exception e) {
             log.error("{}", e.getMessage());

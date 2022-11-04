@@ -7,6 +7,7 @@ import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.service.IUserAccountService;
+import com.ball.biz.bet.enums.BetResult;
 import com.ball.biz.bet.enums.OrderStatus;
 import com.ball.biz.bet.order.settle.analyze.bo.AnalyzeResult;
 import com.ball.biz.exception.BizErrCode;
@@ -100,7 +101,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     public void settled(String orderId, AnalyzeResult analyzeResult) {
         log.info("orderId {} analyzeResult {}", orderId, JSON.toJSONString(analyzeResult));
         OrderInfo order = queryByOrderId(orderId);
-        if (OrderStatus.SETTLED.isMe(order.getStatus())) {
+        if (OrderStatus.SETTLED.isMe(order.getStatus()) || analyzeResult.getBetResult() == BetResult.UNSETTLED) {
             return;
         }
         transactionSupport.execute(()->{

@@ -54,6 +54,8 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
         return lambdaQuery()
                 .eq(!StringUtils.isEmpty(matchId), Schedules::getMatchId, matchId)
                 .in(Schedules::getStatus, ScheduleStatus.inplayCodes())
+                .orderByAsc(Schedules::getLeagueName)
+                .orderByAsc(Schedules::getMatchTime)
                 .list();
     }
 
@@ -65,6 +67,8 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
                 .gt(Schedules::getMatchDate, LocalDate.now())
                 .lt(Schedules::getMatchDate, LocalDate.now().plusDays(1))
                 .eq(Schedules::getStatus, ScheduleStatus.NOT_STARTED.getCode())
+                .orderByAsc(Schedules::getLeagueName)
+                .orderByAsc(Schedules::getMatchTime)
                 .list();
     }
 
@@ -76,6 +80,8 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
                 .gt(Schedules::getMatchDate, LocalDate.now().plusDays(1))
                 .lt(Schedules::getMatchDate, LocalDate.now().plusDays(earlyDay + 1))
                 .eq(Schedules::getStatus, ScheduleStatus.NOT_STARTED.getCode())
+                .orderByAsc(Schedules::getLeagueName)
+                .orderByAsc(Schedules::getMatchTime)
                 .list();
     }
 }
