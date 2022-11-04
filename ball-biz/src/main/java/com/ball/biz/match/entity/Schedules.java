@@ -241,5 +241,15 @@ public class Schedules extends Paging {
      */
     private LocalDateTime updateTime;
 
+    /**
+     *  是否存在投注赔率 (0: 不存在, 1: 存在)
+     */
+    private Boolean hasOdds;
+
+    /**
+     * 是否存在波胆赔率 (0: 不存在, 1: 存在)
+     */
+    private Boolean hasOddsScore;
+
 
 }
