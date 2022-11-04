@@ -46,7 +46,9 @@ public class ScheduleController {
             endDate = startDate.plusDays(7);
         }
 
-        List<Schedules> schedules = iSchedulesService.lambdaQuery().between(Schedules::getMatchDate, startDate, endDate).ge(Schedules::getStatus, 0).list();
+        List<Schedules> schedules = iSchedulesService.lambdaQuery().between(Schedules::getMatchDate, startDate, endDate)
+                .and(i-> i.eq(Schedules::getHasOdds,true).or().eq(Schedules::getHasOddsScore,true))
+                .ge(Schedules::getStatus, 0).list();
 
         List<ScheduleResp> res = (schedules.stream().collect(Collectors.groupingBy(s-> DateUtil.formatWeek(s.getMatchDate()))))
                 .entrySet().stream().map(c-> {
