@@ -40,6 +40,11 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
     void cancel(String orderId, String reason);
 
     /**
+     * 投注失败
+     */
+    void betFail(String orderId, String reason);
+
+    /**
      * 统计，用户单场投注金额
      */
     BigDecimal statBetAmount(Long userId, String matchId);

@@ -23,13 +23,12 @@ public class WinHalfCalculator extends AbstractCalculator {
     protected CalcResult doCalc(BigDecimal betAmount, BigDecimal odds) {
         BigDecimal half = betAmount.multiply(HALF);
         BigDecimal win = handleScale(half.multiply(odds));
-        BigDecimal resultAmount = handleScale(half.add(win));
-        log.info("BetResult {} half {} win {} resultAmount {}", getBetResult(), half, win, resultAmount);
+        log.info("BetResult {} half {} win {} resultAmount {}", getBetResult(), half, win, win);
         return CalcResult.builder()
                 .result(getBetResult())
                 .betAmount(betAmount)
                 .odds(odds)
-                .resultAmount(resultAmount)
+                .resultAmount(win)
                 .build();
     }
 

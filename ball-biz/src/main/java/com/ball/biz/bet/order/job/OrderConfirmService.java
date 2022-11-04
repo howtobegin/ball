@@ -101,8 +101,8 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
         } catch (AssertException e) {
             log.error("{}", e.getMessage());
             String reason = "rebet Check error:"+e.getMessage();
-            // 取消订单
-            orderInfoService.cancel(order.getOrderId(), reason.substring(0, Math.min(128, reason.length())));
+            // 投注失败
+            betFail(order.getOrderId(), reason.substring(0, Math.min(128, reason.length())));
             return false;
         } finally {
             BetCache.clear();
@@ -130,11 +130,15 @@ public class OrderConfirmService extends BaseJobService<OrderInfo> {
         if (!homeCurrentScore.equals(homeScore) || !awayCurrentScore.equals(awayScore)) {
             log.info("orderId {} matchId {} homeCurrentScore {} awayCurrentScore {} homeScore {} awayScore {}",order.getOrderId(),order.getMatchId(),homeCurrentScore,awayCurrentScore,homeScore,awayScore);
             String reason = MessageFormat.format("score change:{0}:{1}->{2}:{3}",homeCurrentScore,awayCurrentScore,homeScore,awayScore);
-            // 取消订单
-            orderInfoService.cancel(order.getOrderId(), reason);
+            // 投注失败
+            betFail(order.getOrderId(), reason);
             return false;
         }
         return true;
+    }
+
+    private void betFail(String orderId, String reason) {
+        orderInfoService.betFail(orderId, reason);
     }
 
     @Override
