@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Api(tags = "币种管理接口")
 @RestController
-@RequestMapping("/boss/currency")
+@RequestMapping("/proxy/currency")
 public class CurrencyController {
 
     @Autowired
