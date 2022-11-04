@@ -81,6 +81,11 @@ public class OrderStat extends Paging {
     private BigDecimal proxy3Amount;
 
     /**
+     * 退水
+     */
+    private BigDecimal backwaterAmount;
+
+    /**
      * 投注人数
      */
     private Long betCount;

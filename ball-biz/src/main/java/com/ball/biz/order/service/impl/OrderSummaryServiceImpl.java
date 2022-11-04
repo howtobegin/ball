@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -27,6 +28,12 @@ public class OrderSummaryServiceImpl extends ServiceImpl<OrderSummaryMapper, Ord
         return lambdaQuery().eq(OrderSummary::getSummaryDate, date)
                 .eq(OrderSummary::getSport, sport)
                 .one();
+    }
+
+    @Override
+    public List<OrderSummary> queryByDate(LocalDate date) {
+        return lambdaQuery().eq(OrderSummary::getSummaryDate, date)
+                .list();
     }
 
     @Override

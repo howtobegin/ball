@@ -21,15 +21,15 @@ public class WinHalfCalculator extends AbstractCalculator {
 
     @Override
     protected CalcResult doCalc(BigDecimal betAmount, BigDecimal odds) {
-        //
-        BigDecimal half = handleScale(betAmount.multiply(HALF));
+        BigDecimal half = betAmount.multiply(HALF);
         BigDecimal win = handleScale(half.multiply(odds));
-        log.info("BetResult {} half {} win {}", getBetResult(), win);
+        BigDecimal resultAmount = handleScale(half.add(win));
+        log.info("BetResult {} half {} win {} resultAmount {}", getBetResult(), half, win, resultAmount);
         return CalcResult.builder()
                 .result(getBetResult())
                 .betAmount(betAmount)
                 .odds(odds)
-                .resultAmount(half.add(win))
+                .resultAmount(resultAmount)
                 .build();
     }
 

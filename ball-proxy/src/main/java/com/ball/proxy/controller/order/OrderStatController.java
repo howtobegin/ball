@@ -1,10 +1,11 @@
 package com.ball.proxy.controller.order;
 
 import com.ball.proxy.controller.order.vo.stat.*;
+import com.ball.proxy.service.order.BizOrderStatService;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +23,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/proxy/order/stat")
 public class OrderStatController {
+    @Autowired
+    private BizOrderStatService bizOrderStatService;
 
     @ApiOperation("赛事结果概要（key:YESTERDAY 昨天；TODAY 今天）")
     @PostMapping(value = "summary" )
     public Map<String, List<OrderSummaryResp>> summary(){
-        return Maps.newHashMap();
+        return bizOrderStatService.summary();
     }
 
     @ApiOperation("注单报表 - 登2")

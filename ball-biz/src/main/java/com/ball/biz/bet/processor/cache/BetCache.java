@@ -1,5 +1,6 @@
 package com.ball.biz.bet.processor.cache;
 
+import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.match.entity.Schedules;
 
 /**
@@ -9,6 +10,7 @@ import com.ball.biz.match.entity.Schedules;
  */
 public class BetCache {
     private static final ThreadLocal<Schedules> SCHEDULE = new ThreadLocal<>();
+    private static final ThreadLocal<UserAccount> USER_ACCOUNT = new ThreadLocal<>();
 
     public static void setSchedule(Schedules data) {
         SCHEDULE.set(data);
@@ -17,7 +19,15 @@ public class BetCache {
         return SCHEDULE.get();
     }
 
+    public static void setUserAccount(UserAccount data) {
+        USER_ACCOUNT.set(data);
+    }
+    public static UserAccount getUserAccount() {
+        return USER_ACCOUNT.get();
+    }
+
     public static void clear() {
         SCHEDULE.remove();
+        USER_ACCOUNT.remove();
     }
 }

@@ -60,7 +60,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
      * 比如文章相关的，就是打印request不打印response，比如针对一些返回私钥的接口也需要配置在这里，不打印私钥信息
      */
     private List<String> ignorePrintResponseUriList = Lists.newArrayList("/app/article/", "/app/file/download",
-            "/app/league/list", "/app/odds/list","/app/order/bet/current","/app/order/bet/history","/app/order/bet/history/date");
+            "/app/league/list", "/app/odds/list","/app/odds/match/one","/app/order/bet/current","/app/order/bet/history","/app/order/bet/history/date");
 
     /**
      * 需要脱敏的header头的key，在打印头的时候进行脱敏

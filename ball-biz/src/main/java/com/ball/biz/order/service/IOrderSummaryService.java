@@ -6,6 +6,7 @@ import com.ball.common.service.IBaseService;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -18,6 +19,8 @@ import java.time.LocalDate;
 public interface IOrderSummaryService extends IService<OrderSummary>, IBaseService {
 
     OrderSummary queryOne(LocalDate date, Integer sport);
+
+    List<OrderSummary> queryByDate(LocalDate date);
 
     void newOrderCreate(OrderInfo order);
 

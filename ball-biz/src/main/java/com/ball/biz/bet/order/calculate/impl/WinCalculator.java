@@ -21,7 +21,7 @@ public class WinCalculator extends AbstractCalculator {
 
     @Override
     protected CalcResult doCalc(BigDecimal betAmount, BigDecimal odds) {
-        BigDecimal amount = betAmount.multiply(odds).setScale(scale, BigDecimal.ROUND_DOWN);
+        BigDecimal amount = handleScale(betAmount.multiply(odds));
         log.info("BetResult {} resultAmount {}", getBetResult(), amount);
         return CalcResult.builder()
                 .result(getBetResult())

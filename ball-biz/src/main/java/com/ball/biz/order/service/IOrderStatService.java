@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.ball.common.service.IBaseService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -19,6 +20,8 @@ import java.time.LocalDate;
 public interface IOrderStatService extends IService<OrderStat>, IBaseService {
 
     OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3);
+
+    List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
 
     void addBetCount(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3);
 

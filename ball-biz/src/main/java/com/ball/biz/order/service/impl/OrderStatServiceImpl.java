@@ -6,10 +6,12 @@ import com.ball.biz.order.mapper.OrderStatMapper;
 import com.ball.biz.order.service.IOrderStatService;
 import com.ball.biz.util.InsertHelper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -33,6 +35,20 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .eq(proxy2 != null, OrderStat::getProxy2, proxy2)
                 .eq(proxy3 != null, OrderStat::getProxy3, proxy3)
                 .last("limit 1").one();
+    }
+
+    @Override
+    public List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3) {
+        if (start == null && end == null) {
+            return Lists.newArrayList();
+        }
+        return lambdaQuery()
+                .ge(start != null, OrderStat::getBetDate, start)
+                .ge(end != null, OrderStat::getBetDate, end)
+                .eq(proxy1 != null, OrderStat::getProxy1, proxy1)
+                .eq(proxy2 != null, OrderStat::getProxy2, proxy2)
+                .eq(proxy3 != null, OrderStat::getProxy3, proxy3)
+                .list();
     }
 
     @Override
@@ -104,12 +120,14 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         String proxy1AmountStr = order.getProxy1Amount().stripTrailingZeros().toPlainString();
         String proxy2AmountStr = order.getProxy2Amount().stripTrailingZeros().toPlainString();
         String proxy3AmountStr = order.getProxy3Amount().stripTrailingZeros().toPlainString();
+        String backwaterAmountStr = order.getBackwaterAmount().stripTrailingZeros().toPlainString();
         boolean update = lambdaUpdate()
                 .setSql("result_amount = result_amount + " + resultAmountStr)
                 .setSql("valid_amount = valid_amount + " + validAmountStr)
                 .setSql("proxy1_amount = proxy1_amount + " + proxy1AmountStr)
                 .setSql("proxy2_amount = proxy2_amount + " + proxy2AmountStr)
                 .setSql("proxy3_amount = proxy3_amount + " + proxy3AmountStr)
+                .setSql("backwater_amount = backwater_amount + " + backwaterAmountStr)
 
                 .eq(OrderStat::getId, exists.getId())
                 .update();
@@ -141,6 +159,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .setProxy1Amount(order.getProxy1Amount())
                 .setProxy2Amount(order.getProxy2Amount())
                 .setProxy3Amount(order.getProxy3Amount())
+                .setBackwaterAmount(order.getBackwaterAmount())
                 .setBetCount(1L);
     }
 }

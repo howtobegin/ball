@@ -101,6 +101,11 @@ public class OrderInfo extends Paging {
     private Integer oddsType;
 
     /**
+     * 投注币种
+     */
+    private String betCurrency;
+
+    /**
      * 投注金额
      */
     private BigDecimal betAmount;

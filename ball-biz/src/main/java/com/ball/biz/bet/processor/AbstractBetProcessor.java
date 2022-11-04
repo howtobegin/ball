@@ -225,6 +225,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         // 用户余额，总投注限额
         UserAccount account = userAccountService.query(bo.getUserNo());
         BizAssert.notNull(account, BizErrCode.ACCOUNT_NOT_EXIST);
+        BetCache.setUserAccount(account);
         log.info("userId {} betAmount {} balance {} freeze {}", bo.getUserNo(), bo.getBetAmount(), account.getBalance(), account.getFreezeAmount());
         BizAssert.isTrue(account.getBalance().subtract(account.getFreezeAmount()).compareTo(bo.getBetAmount()) >= 0, BizErrCode.ACCOUNT_BALANCE_INSUFFICIENT);
 
@@ -280,6 +281,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setOddsData(betInfo.getOddsData());
         order.setInstantHandicap(betInfo.getInstantHandicap());
         order.setBetDate(LocalDate.now());
+
+        order.setBetCurrency(BetCache.getUserAccount().getCurrency());
 
         log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;

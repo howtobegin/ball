@@ -27,6 +27,7 @@ CREATE TABLE `order_info`
     bet_odds        decimal(12,2) NOT NULL COMMENT '投注赔率',
     odds_type       tinyint       not null COMMENT '投注类型：1 早盘；2 赛前即时；3 滚盘；波胆：1 prematch;2 inplay',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
+    bet_currency    varchar(20)   NOT NULL COMMENT '投注币种',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
     valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
@@ -40,7 +41,7 @@ CREATE TABLE `order_info`
     schedule_status tinyint null comment '比赛状态 0: Not started 1: First half 2: Half-time break 3: Second half 4: Extra time 5: Penalty -1: Finished -10: Cancelled -11: TBD -12: Terminated -13: Interrupted -14: Postponed',
     settle_status   tinyint  default 0 COMMENT '结算状态:0 未结算；1 已结算',
     status          varchar(30)  default 'INIT' COMMENT '状态:INIT 初始化；CONFIRM；已结算 SETTLED； 确认；FINISH 完成；CANCEL/MATCH_CANCEL 取消',
-    cancel_reason   varchar(128) null COMMENT '取消原因',
+    reason   varchar(128) null COMMENT '取消原因',
     finish_time     datetime null COMMENT '结束时间',
 
     create_time     datetime     not null default current_timestamp comment '创建时间',
@@ -107,12 +108,14 @@ CREATE TABLE `order_stat`
     proxy2          bigint   NULL COMMENT '二级代理',
     proxy3          bigint   NULL COMMENT '三级代理',
 
+    bet_currency    varchar(20)   NOT NULL COMMENT '投注币种',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
     valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
     proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
+    backwater_amount   decimal(12,2) default 0 COMMENT '退水',
 
     bet_count       bigint   default 1 COMMENT '投注人数',
 

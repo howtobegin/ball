@@ -30,8 +30,8 @@ public class Proxy2ReportResp {
     @ApiModelProperty("有效金额")
     private BigDecimal validAmount;
 
-    @ApiModelProperty("会员 - 会员输赢分值")
-    private BigDecimal userResultAmount;
+    @ApiModelProperty("会员 - 会员输赢分值+退水")
+    private BigDecimal userWinAmount;
 
     @ApiModelProperty("代理商币值")
     private BigDecimal proxyCurrencyAmount;

@@ -39,7 +39,7 @@ public abstract class AbstractCalculator implements Calculator, InitializingBean
     @Autowired
     protected ITradeConfigService tradeConfigService;
 
-    @Value("${resultAmount.scale:2}")
+    @Value("${resultAmount.scale:1}")
     protected int scale;
 
     @Override
@@ -90,9 +90,10 @@ public abstract class AbstractCalculator implements Calculator, InitializingBean
                 .proxy1Percent(proxy1Percent)
                 .proxy2Percent(proxy2Percent)
                 .proxy3Percent(proxy3Percent)
-                .proxy1Amount(proxy1Amount)
-                .proxy2Amount(proxy2Amount)
-                .proxy3Amount(proxy3Amount)
+                // 处理小数
+                .proxy1Amount(handleScale(proxy1Amount))
+                .proxy2Amount(handleScale(proxy2Amount))
+                .proxy3Amount(handleScale(proxy3Amount))
                 .build());
         return calcResult;
     }
@@ -120,7 +121,7 @@ public abstract class AbstractCalculator implements Calculator, InitializingBean
         log.info("backwaterBaseAmont {} backwaterPercent {} hasConfig {}",backwaterBaseAmount, backwaterPercent, config != null);
         BizAssert.isTrue(backwaterPercent.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.TRADE_CONFIG_BACKWATER_PERCENT_MUST_BIGGER_ZERO);
         // 退水
-        BigDecimal backwaterAmount = backwaterBaseAmount.multiply(backwaterPercent);
+        BigDecimal backwaterAmount = backwaterBaseAmount.multiply(backwaterPercent).setScale(scale, BigDecimal.ROUND_DOWN);
         calcResult.setBackwaterAmount(backwaterAmount);
         return;
     }
