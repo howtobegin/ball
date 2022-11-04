@@ -25,7 +25,7 @@ import java.util.List;
 @Service
 public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat> implements IOrderStatService {
     @Override
-    public OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3) {
+    public OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3, String betCurrency) {
         if (betDate == null) {
             return null;
         }
@@ -34,11 +34,12 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .eq(proxy1 != null, OrderStat::getProxy1, proxy1)
                 .eq(proxy2 != null, OrderStat::getProxy2, proxy2)
                 .eq(proxy3 != null, OrderStat::getProxy3, proxy3)
+                .eq(betCurrency != null, OrderStat::getBetCurrency, betCurrency)
                 .last("limit 1").one();
     }
 
     @Override
-    public List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3) {
+    public List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, String betCurrency) {
         if (start == null && end == null) {
             return Lists.newArrayList();
         }
@@ -48,30 +49,8 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .eq(proxy1 != null, OrderStat::getProxy1, proxy1)
                 .eq(proxy2 != null, OrderStat::getProxy2, proxy2)
                 .eq(proxy3 != null, OrderStat::getProxy3, proxy3)
+                .eq(betCurrency != null, OrderStat::getBetCurrency, betCurrency)
                 .list();
-    }
-
-    @Override
-    public void addBetCount(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3) {
-        log.info("betDate {} proxy1 {} proxy2 {} proxy3 {}", betDate, proxy1,proxy2,proxy3);
-        OrderStat exists = queryOne(betDate, proxy1, proxy2, proxy3);
-        if (exists == null) {
-            OrderStat stat = new OrderStat()
-                    .setBetDate(betDate)
-                    .setProxy1(proxy1)
-                    .setProxy2(proxy2)
-                    .setProxy3(proxy3)
-                    .setBetCount(1L);
-            boolean idempotentInsert = InsertHelper.idempotentInsert(this, stat);
-            log.info("idempotentInsert {}", idempotentInsert);
-            if (!idempotentInsert) {
-                return;
-            }
-        }
-        boolean update = lambdaUpdate().setSql("bet_count = bet_count + 1")
-                .eq(OrderStat::getId, exists.getId())
-                .update();
-        log.info("update {}",update);
     }
 
     @Override
@@ -80,8 +59,9 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         Long proxy1 = order.getProxy1();
         Long proxy2 = order.getProxy2();
         Long proxy3 = order.getProxy3();
-        log.info("betDate {} proxy1 {} proxy2 {} proxy3 {} orderId {}", betDate, proxy1,proxy2,proxy3, order.getOrderId());
-        OrderStat exists = queryOne(betDate, proxy1, proxy2, proxy3);
+        String betCurrency = order.getBetCurrency();
+        log.info("betDate {} proxy1 {} proxy2 {} proxy3 {} betCurrency orderId {}", betDate, proxy1,proxy2,proxy3, betCurrency, order.getOrderId());
+        OrderStat exists = queryOne(betDate, proxy1, proxy2, proxy3, betCurrency);
         if (exists == null) {
             OrderStat stat = buildOrderStat(order);
             boolean idempotentInsert = InsertHelper.idempotentInsert(this, stat);
@@ -89,7 +69,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
             if (!idempotentInsert) {
                 return;
             }
-            exists = queryOne(betDate, proxy1, proxy2, proxy3);
+            exists = queryOne(betDate, proxy1, proxy2, proxy3, betCurrency);
         }
         String betAmountStr = order.getBetAmount().stripTrailingZeros().toPlainString();
 
@@ -108,8 +88,9 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         Long proxy1 = order.getProxy1();
         Long proxy2 = order.getProxy2();
         Long proxy3 = order.getProxy3();
-        log.info("betDate {} proxy1 {} proxy2 {} proxy3 {} orderId {}", betDate, proxy1,proxy2,proxy3, order.getOrderId());
-        OrderStat exists = queryOne(betDate, proxy1, proxy2, proxy3);
+        String betCurrency = order.getBetCurrency();
+        log.info("betDate {} proxy1 {} proxy2 {} proxy3 {} betCurrency {} orderId {}", betDate, proxy1,proxy2,proxy3, betCurrency, order.getOrderId());
+        OrderStat exists = queryOne(betDate, proxy1, proxy2, proxy3, betCurrency);
         if (exists == null) {
             if ((exists = idempotentInsert(order)) ==null) {
                 return;
@@ -138,13 +119,14 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         Long proxy1 = order.getProxy1();
         Long proxy2 = order.getProxy2();
         Long proxy3 = order.getProxy3();
+        String betCurrency = order.getBetCurrency();
         OrderStat stat = buildOrderStat(order);
         boolean idempotentInsert = InsertHelper.idempotentInsert(this, stat);
         log.info("idempotentInsert {}", idempotentInsert);
         if (!idempotentInsert) {
             return null;
         }
-        return queryOne(betDate, proxy1, proxy2, proxy3);
+        return queryOne(betDate, proxy1, proxy2, proxy3, betCurrency);
     }
 
     private OrderStat buildOrderStat(OrderInfo order) {
@@ -153,6 +135,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .setProxy1(order.getProxy1())
                 .setProxy2(order.getProxy2())
                 .setProxy3(order.getProxy3())
+                .setBetCurrency(order.getBetCurrency())
                 .setBetAmount(order.getBetAmount())
                 .setResultAmount(order.getResultAmount())
                 .setValidAmount(order.getValidAmount())

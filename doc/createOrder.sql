@@ -122,5 +122,5 @@ CREATE TABLE `order_stat`
     create_time     datetime     not null default current_timestamp comment '创建时间',
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
 
-    unique KEY uniq_bet_date_proxy (bet_date,proxy1,proxy2,proxy3)
+    unique KEY uniq_bet_date_proxy_currency (bet_date,proxy1,proxy2,proxy3,bet_currency)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单代理商统计表';

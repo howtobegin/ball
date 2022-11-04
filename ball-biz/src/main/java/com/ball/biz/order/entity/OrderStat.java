@@ -51,6 +51,11 @@ public class OrderStat extends Paging {
     private Long proxy3;
 
     /**
+     * 投注币种
+     */
+    private String betCurrency;
+
+    /**
      * 投注金额
      */
     private BigDecimal betAmount;

@@ -19,11 +19,9 @@ import java.util.List;
  */
 public interface IOrderStatService extends IService<OrderStat>, IBaseService {
 
-    OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3);
+    OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3, String betCurrency);
 
-    List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
-
-    void addBetCount(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3);
+    List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, String betCurrency);
 
     void newOrderCreate(OrderInfo order);
 
