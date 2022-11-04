@@ -25,6 +25,8 @@ public enum OrderStatus {
     FINISH("FINISH", true),
     // 取消
     CANCEL("CANCEL", true),
+    // 投注失败
+    BET_FAIL("BET_FAIL", true),
     // 因比赛中断取消
     MATCH_CANCEL("MATCH_CANCEL", true)
     ;

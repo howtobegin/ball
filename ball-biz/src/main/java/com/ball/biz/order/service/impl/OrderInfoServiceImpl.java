@@ -171,6 +171,21 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
+    public void betFail(String orderId, String reason) {
+        log.info("orderId {}", orderId);
+        OrderInfo order = queryByOrderId(orderId);
+        boolean betFail = OrderStatus.BET_FAIL.isMe(order.getStatus());
+        if (betFail) {
+            log.info("betFail {}", betFail);
+            return;
+        }
+        transactionSupport.execute(()->{
+            userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+            updateStatus(orderId, OrderStatus.INIT, OrderStatus.BET_FAIL, reason);
+        });
+    }
+
+    @Override
     public BigDecimal statBetAmount(Long userId, String matchId) {
         if (StringUtils.isEmpty(matchId) || userId == null) {
             return BigDecimal.ZERO;
