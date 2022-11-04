@@ -31,6 +31,9 @@ public class ProxyDetailResp {
     @ApiModelProperty("上级代理用户编号")
     private Long proxyUserId;
 
+    @ApiModelProperty("上级代理账号")
+    private String proxyAccount;
+
     @ApiModelProperty("额度模式 RECOVERY:自动恢复 BALANCE:余额浮动")
     private String balanceMode;
 
