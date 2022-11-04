@@ -48,12 +48,13 @@ public class OrderSettleService extends BaseJobService<OrderInfo> {
             AnalyzeResult analyzeResult = AnalyzerHolder.get(handicapType).analyze(data);
             if (analyzeResult.getBetResult() != BetResult.UNSETTLED) {
                 orderInfoService.settled(data.getOrderId(), analyzeResult);
+                return true;
             }
-            return true;
         } catch (Exception e) {
             log.error("{}", e.getMessage());
             return false;
         }
+        return false;
     }
 
     /**
