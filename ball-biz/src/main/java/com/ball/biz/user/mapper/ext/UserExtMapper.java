@@ -17,6 +17,7 @@ public interface UserExtMapper {
 
     ProxyStatistics selectProxyStatistics(@Param("proxyUid") Long proxyUid);
 
-    Integer selectProxyStatistics(@Param("start") LocalDateTime start,
+    Integer selectProxyStatisticsPeriod(@Param("proxyUid") Long proxyUid,
+                                  @Param("start") LocalDateTime start,
                                   @Param("end") LocalDateTime end);
 }

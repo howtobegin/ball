@@ -18,7 +18,7 @@
         from user_info where proxy_user_id = #{proxyUid}
     </select>
 
-    <select id="selectProxyStatistics" resultType="java.lang.Integer">
+    <select id="selectProxyStatisticsPeriod" resultType="java.lang.Integer">
         select count(1) from user_info
         where proxy_user_id = #{proxyUid}
         <if test="start != null">
