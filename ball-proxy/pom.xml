@@ -65,7 +65,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.ball</groupId>
-                                    <artifactId>ball-proxy</artifactId>
+                                    <artifactId>ball-ballProxy</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                     <destFileName>ball-proxy.jar</destFileName>
