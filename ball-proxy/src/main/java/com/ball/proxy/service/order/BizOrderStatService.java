@@ -66,7 +66,7 @@ public class BizOrderStatService {
         // 找到上级
         Long proxyOne = Optional.ofNullable(UserContext.getProxyInfo()).map(Long::valueOf).orElse(-1L);
 
-        List<OrderStat> orderStats = orderStatService.queryByDate(req.getStart(), req.getEnd(), proxyOne, proxyTwo, null);
+        List<OrderStat> orderStats = null;//orderStatService.queryByDate(req.getStart(), req.getEnd(), proxyOne, proxyTwo, null);
         return translateToProxy2Report(orderStats);
     }
 
