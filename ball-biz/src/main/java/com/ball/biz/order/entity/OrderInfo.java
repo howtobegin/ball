@@ -111,6 +111,11 @@ public class OrderInfo extends Paging {
     private BigDecimal betAmount;
 
     /**
+     * 投注金额RMB
+     */
+    private BigDecimal betRmbAmount;
+
+    /**
      * 投注结果:UNSETTLED 未结算；LOSE 输；WIN 赢；LOSE_HALF 输一半；WIN_HALF 赢一半；DRAW 平
      */
     private String betResult;

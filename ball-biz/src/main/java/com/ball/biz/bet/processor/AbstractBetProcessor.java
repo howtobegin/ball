@@ -11,6 +11,7 @@ import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.enums.PlayTypeEnum;
 import com.ball.biz.account.enums.SportEnum;
+import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.HandicapType;
@@ -78,6 +79,8 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     protected IOrderSummaryService orderSummaryService;
     @Autowired
     protected OddsAssist oddsAssist;
+    @Autowired
+    private ICurrencyService currencyService;
 
     /**
      * 赔率允许延迟的时间，默认-1，表示不限制
@@ -269,6 +272,12 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setHandicapType(bo.getHandicapType().getCode());
         order.setBetOption(bo.getBetOption().name());
         order.setBetAmount(bo.getBetAmount());
+
+        String currency = BetCache.getUserAccount().getCurrency();
+        BigDecimal rmbRate = currencyService.getRmbRate(currency);
+        order.setBetRmbAmount(bo.getBetAmount().multiply(rmbRate));
+        order.setBetCurrency(currency);
+
         order.setBetOdds(new BigDecimal(betInfo.getBetOddsStr()));
         order.setOddsType(betInfo.getOddsType());
 
@@ -281,7 +290,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setInstantHandicap(betInfo.getInstantHandicap());
         order.setBetDate(LocalDate.now());
 
-        order.setBetCurrency(BetCache.getUserAccount().getCurrency());
 
         log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;

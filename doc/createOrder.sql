@@ -27,6 +27,7 @@ CREATE TABLE `order_info`
     bet_odds        decimal(12,2) NOT NULL COMMENT '投注赔率',
     odds_type       tinyint       not null COMMENT '投注类型：1 早盘；2 赛前即时；3 滚盘；波胆：1 prematch;2 inplay',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
+    bet_rmb_amount  decimal(12,2) default 0 COMMENT '投注金额RMB',
     bet_currency    varchar(20)   NOT NULL COMMENT '投注币种',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（不包含本金）',
     valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
