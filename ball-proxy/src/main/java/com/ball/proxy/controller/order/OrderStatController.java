@@ -56,9 +56,9 @@ public class OrderStatController {
         return bizOrderStatService.summary(req);
     }
 
-    @ApiOperation("主页 - 四合一接口：占成收入(1)/投注人数(2)/实货量(3)/输赢(4)")
+    @ApiOperation("主页 - 四合一接口：占成收入(INCOME)/投注人数(BET_COUNT)/实货量(VALID_AMOUNT)/输赢(RESULT_AMOUNT)")
     @PostMapping(value = "four/report" )
-    public Map<Integer, List<FourOneReportResp>> fourReport(){
+    public Map<String, List<FourOneReportResp>> fourReport(){
         return bizOrderStatService.fourReport();
     }
 }

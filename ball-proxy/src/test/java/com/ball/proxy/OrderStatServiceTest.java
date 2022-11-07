@@ -63,7 +63,7 @@ public class OrderStatServiceTest {
 
     @Test
     public void testIncomeReport() {
-        Map<Integer, List<FourOneReportResp>> map = bizOrderStatService.fourReport();
+        Map<String, List<FourOneReportResp>> map = bizOrderStatService.fourReport();
         log.info("{}", JSON.toJSONString(map));
     }
 }
