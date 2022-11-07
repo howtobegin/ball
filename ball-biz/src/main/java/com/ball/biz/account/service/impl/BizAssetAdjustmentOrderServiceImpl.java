@@ -164,7 +164,7 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
                 .setFromUserNo(fromUserId).setFromUserAmount(fromUserAmount).setFromUserCurrency(fromUserCurrency)
                 .setOrderNo(orderNo)
                 .setOperatorId(operator.getId())
-                .setOperatorName(operator.getUserName());
+                .setOperatorName(operator.getAccount());
 
         save(order);
         return order;

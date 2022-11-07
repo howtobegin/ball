@@ -58,7 +58,7 @@ public class OrderStatController {
 
     @ApiOperation("主页 - 四合一接口：占成收入(1)/投注人数(2)/实货量(3)/输赢(4)")
     @PostMapping(value = "four/report" )
-    public Map<Integer, List> fourReport(){
+    public Map<Integer, List<FourOneReportResp>> fourReport(){
         return bizOrderStatService.fourReport();
     }
 }

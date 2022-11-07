@@ -8,6 +8,7 @@ import com.ball.base.util.BizAssert;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
+import com.ball.proxy.controller.order.vo.stat.FourOneReportResp;
 import com.ball.proxy.controller.order.vo.stat.SummaryReportReq;
 import com.ball.proxy.controller.order.vo.stat.SummaryReportResp;
 import com.ball.proxy.service.order.BizOrderStatService;
@@ -62,7 +63,7 @@ public class OrderStatServiceTest {
 
     @Test
     public void testIncomeReport() {
-        Map<Integer, List> map = bizOrderStatService.fourReport();
+        Map<Integer, List<FourOneReportResp>> map = bizOrderStatService.fourReport();
         log.info("{}", JSON.toJSONString(map));
     }
 }
