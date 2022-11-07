@@ -72,11 +72,13 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     @Autowired
     protected IOrderHistoryService orderHistoryService;
     @Autowired
-    private ITradeConfigService tradeConfigService;
+    protected ITradeConfigService tradeConfigService;
     @Autowired
-    private IOrderStatService orderStatService;
+    protected IOrderStatService orderStatService;
     @Autowired
-    private IOrderSummaryService orderSummaryService;
+    protected IOrderSummaryService orderSummaryService;
+    @Autowired
+    protected OddsAssist oddsAssist;
     @Autowired
     private ICurrencyService currencyService;
 
@@ -167,7 +169,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 .isMaintenance(odds.getMaintenance() == null ? Boolean.FALSE : odds.getMaintenance())
                 .isClose(odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose())
                 .latestChangeTime(odds.getChangeTime())
-                .latestUpdateTime(odds.getLastResTime() == null ? LocalDateTime.now() : odds.getLastResTime())
+                .latestUpdateTime(oddsAssist.getLastUpdateTime(bo.getHandicapType(), null))
                 .build();
     }
 
@@ -270,6 +272,12 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setHandicapType(bo.getHandicapType().getCode());
         order.setBetOption(bo.getBetOption().name());
         order.setBetAmount(bo.getBetAmount());
+
+        String currency = BetCache.getUserAccount().getCurrency();
+        BigDecimal rmbRate = currencyService.getRmbRate(currency);
+        order.setBetRmbAmount(bo.getBetAmount().multiply(rmbRate));
+        order.setBetCurrency(currency);
+
         order.setBetOdds(new BigDecimal(betInfo.getBetOddsStr()));
         order.setOddsType(betInfo.getOddsType());
 
@@ -282,7 +290,6 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         order.setInstantHandicap(betInfo.getInstantHandicap());
         order.setBetDate(LocalDate.now());
 
-        order.setBetCurrency(BetCache.getUserAccount().getCurrency());
 
         log.info("end spend time {}",(System.currentTimeMillis() - start));
         return order;

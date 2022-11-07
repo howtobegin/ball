@@ -51,6 +51,7 @@ public class MybatisPlusGenerator {
                 .setColumnNaming(NamingStrategy.underline_to_camel)
                 .setEntityLombokModel(true)
                 .setInclude(tableNames)
+                .setTablePrefix("ds")
                 .setControllerMappingHyphenStyle(true);
 
         //5. 整合配置

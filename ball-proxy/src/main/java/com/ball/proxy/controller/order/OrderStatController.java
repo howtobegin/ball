@@ -56,27 +56,9 @@ public class OrderStatController {
         return bizOrderStatService.summary(req);
     }
 
-    @ApiOperation("主页 - 占成收入")
-    @PostMapping(value = "income/report" )
-    public List<IncomeReportResp> incomeReport(){
-        return bizOrderStatService.incomeReport();
-    }
-
-    @ApiOperation("主页 - 投注人数")
-    @PostMapping(value = "betCount/report" )
-    public List<BetCountReportResp> betCountReport(){
-        return Lists.newArrayList();
-    }
-
-    @ApiOperation("主页 - 实货量")
-    @PostMapping(value = "validAmount/report" )
-    public List<ValidAmountReportResp> validAmountReport(){
-        return Lists.newArrayList();
-    }
-
-    @ApiOperation("主页 - 输赢")
-    @PostMapping(value = "win/report" )
-    public List<WinReportResp> winReport(){
-        return Lists.newArrayList();
+    @ApiOperation("主页 - 四合一接口：占成收入(1)/投注人数(2)/实货量(3)/输赢(4)")
+    @PostMapping(value = "four/report" )
+    public Map<Integer, List> fourReport(){
+        return bizOrderStatService.fourReport();
     }
 }

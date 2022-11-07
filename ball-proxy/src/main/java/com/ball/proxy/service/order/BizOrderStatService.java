@@ -147,37 +147,74 @@ public class BizOrderStatService {
     }
 
     /**
-     * 主页 - 占成收入
+     * 主页 - 四合一接口：占成收入(1)/投注人数(2)/实货量(3)/输赢(4)
      */
-    public List<IncomeReportResp> incomeReport() {
+    public Map<Integer, List> fourReport() {
         // 代理
         List<Long> proxy = proxy(UserContext.getUserNo());
         // 本期
         SettlementPeriod sp = settlementPeriodService.currentPeriod();
         if (sp == null) {
-            return Lists.newArrayList();
+            return Maps.newHashMap();
         }
         LocalDate start = sp.getStartDate().toLocalDate();
         LocalDate end = sp.getEndDate().toLocalDate();
         List<OrderStat> list = orderStatService.sumRmbGroupByDate(start, end, proxy.get(0), proxy.get(1), proxy.get(2));
         log.info("list'size {}",list.size());
         Integer userType = UserContext.getUserType();
-        List<IncomeReportResp> ret = list.stream().map(stat -> {
-            IncomeReportResp resp = IncomeReportResp.builder()
-                    .date(stat.getBetDate())
-                    .build();
-            if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
-                resp.setAmount(stat.getProxy1RmbAmount());
-            } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
-                resp.setAmount(stat.getProxy2RmbAmount());
-            } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
-                resp.setAmount(stat.getProxy3RmbAmount());
-            } else {
-                resp.setAmount(BigDecimal.ZERO);
-            }
-            return resp;
-        }).collect(Collectors.toList());
-        return ret;
+        List<IncomeReportResp> incomeList = Lists.newArrayList();
+        List<BetCountReportResp> betCountList = Lists.newArrayList();
+        List<ValidAmountReportResp> validAmountList = Lists.newArrayList();
+        List<WinReportResp> winReportList = Lists.newArrayList();
+        for (OrderStat stat : list) {
+            incomeList.add(translate2IncomeReport(stat, userType));
+            betCountList.add(translate2BetCountReport(stat));
+            validAmountList.add(translate2ValidAmountReport(stat));
+            winReportList.add(translate2WinReport(stat));
+        }
+        Map<Integer, List> map = Maps.newHashMap();
+        map.put(1, incomeList);
+        map.put(2, betCountList);
+        map.put(3, validAmountList);
+        map.put(4, winReportList);
+        return map;
+    }
+
+    private IncomeReportResp translate2IncomeReport(OrderStat stat, Integer userType) {
+        IncomeReportResp resp = IncomeReportResp.builder()
+                .date(stat.getBetDate())
+                .build();
+        if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+            resp.setAmount(stat.getProxy1RmbAmount());
+        } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
+            resp.setAmount(stat.getProxy2RmbAmount());
+        } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
+            resp.setAmount(stat.getProxy3RmbAmount());
+        } else {
+            resp.setAmount(BigDecimal.ZERO);
+        }
+        return resp;
+    }
+
+    private BetCountReportResp translate2BetCountReport(OrderStat stat) {
+        return BetCountReportResp.builder()
+                .date(stat.getBetDate())
+                .betCount(stat.getBetCount())
+                .build();
+    }
+
+    private ValidAmountReportResp translate2ValidAmountReport(OrderStat stat) {
+        return ValidAmountReportResp.builder()
+                .date(stat.getBetDate())
+                .amount(stat.getValidRmbAmount())
+                .build();
+    }
+
+    private WinReportResp translate2WinReport(OrderStat stat) {
+        return WinReportResp.builder()
+                .date(stat.getBetDate())
+                .amount(stat.getResultRmbAmount())
+                .build();
     }
 
     private List<Proxy2ReportResp> translateToProxy2Report(List<OrderStat> list) {
@@ -272,7 +309,7 @@ public class BizOrderStatService {
     private List<Long> proxy(Long proxyUserId) {
         Long loginProxyUserId = UserContext.getUserNo();
         String proxyInfo = UserContext.getProxyInfo();
-        if (proxyUserId != null) {
+        if (proxyUserId != null && !loginProxyUserId.equals(proxyUserId)) {
             UserInfo proxy = userInfoService.getByUid(proxyUserId);
             BizAssert.notNull(proxy, BizErrCode.USER_NOT_EXISTS);
             proxyInfo = proxy.getProxyInfo();

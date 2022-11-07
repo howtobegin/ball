@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lhl
@@ -34,7 +35,7 @@ public class OrderStatServiceTest {
     @Autowired
     private IUserInfoService userInfoService;
 
-    private static final Long USER_NO= 9012448L;
+    private static final Long USER_NO= 9012457L;
 
     @Before
     public void init() {
@@ -57,5 +58,11 @@ public class OrderStatServiceTest {
         req.setDateType(2);
         SummaryReportResp summary = bizOrderStatService.summary(req);
         log.info("summary {}", JSON.toJSONString(summary));
+    }
+
+    @Test
+    public void testIncomeReport() {
+        Map<Integer, List> map = bizOrderStatService.fourReport();
+        log.info("{}", JSON.toJSONString(map));
     }
 }
