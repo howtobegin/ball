@@ -192,7 +192,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
     @Override
     public List<OrderStat> sumRmbGroupByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3) {
         QueryWrapper<OrderStat> query = new QueryWrapper<>();
-        query.select(sumRmbSelect())
+        query.select("bet_date," + sumRmbSelect())
                 .eq(proxy1 != null, "proxy1", proxy1)
                 .eq(proxy2 != null, "proxy2", proxy2)
                 .eq(proxy3 != null, "proxy3", proxy3)

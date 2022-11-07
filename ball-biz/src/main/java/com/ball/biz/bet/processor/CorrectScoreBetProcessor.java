@@ -52,7 +52,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
                 .isClose(oddsScore.getIsClose() == null ? Boolean.FALSE : oddsScore.getIsClose())
                 .isMaintenance(false)
                 .latestChangeTime(oddsScore.getChangeTime())
-                .latestUpdateTime(oddsScore.getLastResTime() == null ? LocalDateTime.now() : oddsScore.getLastResTime())
+                .latestUpdateTime(oddsAssist.getLastUpdateTime(bo.getHandicapType(), oddsScore.getStatus()))
                 .build();
     }
 

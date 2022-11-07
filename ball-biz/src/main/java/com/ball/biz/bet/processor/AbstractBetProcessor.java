@@ -11,7 +11,6 @@ import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
 import com.ball.biz.account.enums.PlayTypeEnum;
 import com.ball.biz.account.enums.SportEnum;
-import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.HandicapType;
@@ -72,13 +71,13 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
     @Autowired
     protected IOrderHistoryService orderHistoryService;
     @Autowired
-    private ITradeConfigService tradeConfigService;
+    protected ITradeConfigService tradeConfigService;
     @Autowired
-    private IOrderStatService orderStatService;
+    protected IOrderStatService orderStatService;
     @Autowired
-    private IOrderSummaryService orderSummaryService;
+    protected IOrderSummaryService orderSummaryService;
     @Autowired
-    private ICurrencyService currencyService;
+    protected OddsAssist oddsAssist;
 
     /**
      * 赔率允许延迟的时间，默认-1，表示不限制
@@ -167,7 +166,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
                 .isMaintenance(odds.getMaintenance() == null ? Boolean.FALSE : odds.getMaintenance())
                 .isClose(odds.getIsClose() == null ? Boolean.FALSE : odds.getIsClose())
                 .latestChangeTime(odds.getChangeTime())
-                .latestUpdateTime(odds.getLastResTime() == null ? LocalDateTime.now() : odds.getLastResTime())
+                .latestUpdateTime(oddsAssist.getLastUpdateTime(bo.getHandicapType(), null))
                 .build();
     }
 
