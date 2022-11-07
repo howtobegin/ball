@@ -35,7 +35,7 @@ public class OrderStatController {
     @ApiOperation("注单报表 - 登2")
     @PostMapping(value = "proxy2/report" )
     public List<Proxy2ReportResp> proxy2Report(@RequestBody @Valid BaseReportReq req){
-        return Lists.newArrayList();
+        return bizOrderStatService.proxy2Report(req);
     }
 
     @ApiOperation("注单报表 - 登3")
@@ -52,8 +52,8 @@ public class OrderStatController {
 
     @ApiOperation("主页 - 绩效概况")
     @PostMapping(value = "summary/report" )
-    public List<SummaryReportResp> summary(@RequestBody @Valid SummaryReportReq req){
-        return Lists.newArrayList();
+    public SummaryReportResp summary(@RequestBody @Valid SummaryReportReq req){
+        return bizOrderStatService.summary(req);
     }
 
     @ApiOperation("主页 - 占成收入")

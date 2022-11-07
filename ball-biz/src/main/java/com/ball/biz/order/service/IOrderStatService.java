@@ -1,5 +1,6 @@
 package com.ball.biz.order.service;
 
+import com.ball.biz.order.bo.OrderStatUniqBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.entity.OrderStat;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -19,11 +20,18 @@ import java.util.List;
  */
 public interface IOrderStatService extends IService<OrderStat>, IBaseService {
 
-    OrderStat queryOne(LocalDate betDate, Long proxy1, Long proxy2, Long proxy3, String betCurrency);
+    OrderStat queryOne(OrderStatUniqBo uniqBo);
 
-    List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, String betCurrency);
+    OrderStatUniqBo buildUniqWhere(OrderInfo order);
+
+    List<OrderStat> queryByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
 
     void newOrderCreate(OrderInfo order);
 
     void newOrderFinish(OrderInfo order);
+
+    /**
+     * 根据日期，代理分组求和
+     */
+    OrderStat sumByDateAndProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
 }

@@ -2,6 +2,7 @@ package com.ball.proxy.controller.order.vo.stat;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
+@Builder
 @ApiModel("主页 - 绩效概况返回信息")
 public class SummaryReportResp {
     @ApiModelProperty("获利率")

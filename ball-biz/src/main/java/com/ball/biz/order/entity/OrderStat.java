@@ -31,11 +31,6 @@ public class OrderStat extends Paging {
     private Long id;
 
     /**
-     * 投注日期
-     */
-    private LocalDate betDate;
-
-    /**
      * 一级代理
      */
     private Long proxy1;
@@ -51,6 +46,16 @@ public class OrderStat extends Paging {
     private Long proxy3;
 
     /**
+     * 投注日期
+     */
+    private LocalDate betDate;
+
+    /**
+     * 用户
+     */
+    private Long userId;
+
+    /**
      * 投注币种
      */
     private String betCurrency;
@@ -61,7 +66,7 @@ public class OrderStat extends Paging {
     private BigDecimal betAmount;
 
     /**
-     * 投注结果金额（包含本金）
+     * 投注结果金额（不包含本金）
      */
     private BigDecimal resultAmount;
 

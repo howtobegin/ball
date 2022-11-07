@@ -28,7 +28,7 @@ CREATE TABLE `order_info`
     odds_type       tinyint       not null COMMENT '投注类型：1 早盘；2 赛前即时；3 滚盘；波胆：1 prematch;2 inplay',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
     bet_currency    varchar(20)   NOT NULL COMMENT '投注币种',
-    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
+    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（不包含本金）',
     valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
@@ -103,14 +103,15 @@ DROP TABLE IF EXISTS `order_stat`;
 CREATE TABLE `order_stat`
 (
     id              bigint unsigned primary key auto_increment comment '自增编号',
-    bet_date        date     NOT NULL COMMENT '投注/结算日期',
     proxy1          bigint   NULL COMMENT '一级代理',
     proxy2          bigint   NULL COMMENT '二级代理',
     proxy3          bigint   NULL COMMENT '三级代理',
+    bet_date        date     NOT NULL COMMENT '投注/结算日期',
+    user_id         bigint   NOT NULL COMMENT '用户编号',
 
     bet_currency    varchar(20)   NOT NULL COMMENT '投注币种',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
-    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（包含本金）',
+    result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（不包含本金）',
     valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
@@ -122,5 +123,5 @@ CREATE TABLE `order_stat`
     create_time     datetime     not null default current_timestamp comment '创建时间',
     update_time     datetime     not null default current_timestamp on update current_timestamp comment '更新时间',
 
-    unique KEY uniq_bet_date_proxy_currency (bet_date,proxy1,proxy2,proxy3,bet_currency)
+    unique KEY uniq_proxy_date_user_currency (proxy1,proxy2,proxy3,bet_date,user_id,bet_currency)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单代理商统计表';

@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ApiModel("注单报表请求信息")
 public class SummaryReportReq {
-    @ApiModelProperty("日期类型：1 昨天；2 本周；3 本期")
+    @ApiModelProperty("日期类型：1 昨天；2 上周；3 本期")
     @NotNull
     private Integer dateType;
 }
