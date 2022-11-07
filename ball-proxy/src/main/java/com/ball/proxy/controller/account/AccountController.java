@@ -138,8 +138,9 @@ public class AccountController {
             Integer userCount = userExtMapper.selectProxyStatisticsPeriod(UserContext.getUserNo(),
                     period.getStartDate(), period.getEndDate());
             resp.setPeriodUserCount(userCount);
-            resp.getPeriod().setPeriod(DateUtil.formatDate(period.getStartDate())+" ~ " + DateUtil.formatDate(period.getEndDate()));
             resp.setPeriod(BeanUtil.copy(period,SettlementPeriodResp.class));
+            resp.getPeriod().setPeriod(DateUtil.formatDate(period.getStartDate())+" ~ " + DateUtil.formatDate(period.getEndDate()));
+
         }
         UserInfo userInfo = iUserInfoService.getByUid(UserContext.getUserNo());
         resp.setLastLoginTime(userInfo.getLastLogin());
