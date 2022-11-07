@@ -1,6 +1,7 @@
 package com.ball.proxy.service;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
 import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
@@ -19,6 +20,7 @@ import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
+import com.ball.proxy.controller.common.vo.UpdateProxyInfo;
 import com.ball.proxy.controller.user.vo.AddUserReq;
 import com.ball.proxy.controller.user.vo.UserRefundConfigReq;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +119,8 @@ public class UserOperationService {
     }
 
     public void lock(Long userId) {
+        UserInfo userInfo = userInfoService.getByUid(userId);
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
         transactionSupport.execute(() -> {
             userInfoService.lock(userId, UserContext.getUserNo());
             operationLogService.addLog(OperationBiz.LOCK_USER, userId.toString());
@@ -124,13 +128,53 @@ public class UserOperationService {
     }
 
     public void unlock(Long userId) {
+        UserInfo userInfo = userInfoService.getByUid(userId);
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
         transactionSupport.execute(() -> {
             userInfoService.unlock(userId, UserContext.getUserNo());
             operationLogService.addLog(OperationBiz.UNLOCK_USER, userId.toString());
         });
     }
 
-    public BigDecimal getMin(String currency) {
+    public void updatePassword(Long userNo, String password) {
+        UserInfo userInfo = userInfoService.getByUid(userNo);
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        transactionSupport.execute(() -> {
+            userInfoService.forceChangePassword(userNo, password);
+            OperationBiz biz = UserTypeEnum.GENERAL.isMe(userInfo.getUserType())
+                    ? OperationBiz.USER_CHANGE_PASSWORD : OperationBiz.PROXY_CHANGE_PASSWORD;
+
+            operationLogService.addLog(biz, userNo.toString());
+        });
+    }
+
+    public void updateUserInfo(UpdateProxyInfo req) {
+        UserInfo userInfo = userInfoService.getByUid(req.getUserNo());
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        transactionSupport.execute(() -> {
+            // 如果有额度，首先修改额度
+            if (req.hasBalance()) {
+                assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.getBalance(), userInfo.getProxyUserId());
+            }
+            // 如果有用户名或状态
+            if (req.hasUserName() || req.hasStatus()) {
+                userInfoService.lambdaUpdate().set(req.hasUserName(), UserInfo::getUserName, req.getUserName())
+                        .set(req.hasStatus(), UserInfo::getStatus, req.getStatus())
+                        .eq(UserInfo::getId, req.getUserNo())
+                        .update();
+            }
+            // 如果有代理分成
+            if (req.hasProxyRate()) {
+                UserExtend userExtend = userExtendService.getByUid(userInfo.getProxyUserId());
+                BizAssert.isTrue(req.getProxyRate().compareTo(userExtend.getProxyRate()) <= 0, BizErrCode.DATA_ERROR);
+                userExtendService.lambdaUpdate().set(UserExtend::getProxyRate, req.getProxyRate())
+                        .eq(UserExtend::getId, req.getUserNo())
+                        .update();
+            }
+        });
+    }
+
+    private BigDecimal getMin(String currency) {
         // 汇率
         BigDecimal rate = currencyService.getRmbRate(currency);
         return orderMin.divide(rate, 0, RoundingMode.DOWN);

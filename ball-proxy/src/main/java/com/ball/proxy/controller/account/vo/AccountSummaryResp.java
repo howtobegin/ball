@@ -48,4 +48,13 @@ public class AccountSummaryResp {
 
     @ApiModelProperty("本期剩余天数")
     private Long periodLeftDays;
+
+    @ApiModelProperty("本期会员数")
+    private Integer periodUserCount;
+
+    @ApiModelProperty("最后更改密码时间")
+    private Long changePasswordTime;
+
+    @ApiModelProperty("最后登录时间")
+    private Long lastLoginTime;
 }

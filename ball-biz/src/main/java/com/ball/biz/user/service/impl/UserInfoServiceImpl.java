@@ -109,10 +109,16 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     public void changePassword(Long userId, String oldPassword, String newPassword) {
         UserInfo userInfo = getByUid(userId);
         BizAssert.isTrue(PasswordUtil.checkPass(oldPassword, userInfo.getPassword()), BizErrCode.USER_PASSWORD_ERROR);
-        userInfo.setChangePasswordFlag(YesOrNo.YES.v)
-                .setPassword(PasswordUtil.get(newPassword))
-                .setChangePasswordTime(System.currentTimeMillis())
-                .setUpdateTime(null);
+        forceChangePassword(userId, newPassword);
+    }
+
+    @Override
+    public void forceChangePassword(Long userId, String password) {
+        lambdaUpdate().eq(UserInfo::getId, userId)
+                .set(UserInfo::getPassword, PasswordUtil.get(password))
+                .set(UserInfo::getChangePasswordFlag, YesOrNo.YES.v)
+                .set(UserInfo::getChangePasswordTime, System.currentTimeMillis())
+                .update();
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
+import com.ball.biz.user.mapper.ext.UserExtMapper;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.account.vo.*;
 import io.swagger.annotations.Api;
@@ -48,6 +49,9 @@ public class AccountController {
 
     @Autowired
     ISettlementPeriodService iSettlementPeriodService;
+
+    @Autowired
+    private UserExtMapper userExtMapper;
 
 
     @ApiOperation("获取用户账户信息")
@@ -126,7 +130,15 @@ public class AccountController {
             resp.setPeriodLeftDays(Math.max(0,Duration.between(now,period.getEndDate()).toDays()));
             resp.setPeriodFinishedDays(Math.min(Duration.between(period.getStartDate(),now).toDays(),
                     Duration.between(period.getStartDate(),period.getEndDate()).toDays()));
+            // 统计会员数
+            Integer userCount = userExtMapper.selectProxyStatisticsPeriod(UserContext.getUserNo(),
+                    period.getStartDate(), period.getEndDate());
+            resp.setPeriodUserCount(userCount);
         }
+        UserInfo userInfo = iUserInfoService.getByUid(UserContext.getUserNo());
+        resp.setLastLoginTime(userInfo.getLastLogin());
+        resp.setChangePasswordTime(userInfo.getChangePasswordTime());
+
         return resp;
     }
 
