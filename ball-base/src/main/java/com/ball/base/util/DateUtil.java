@@ -24,6 +24,7 @@ public class DateUtil {
 
     private static final DateTimeFormatter DATE_FORMAT_NO_SPLIT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter DATE_FORMAT_HAS_SPLIT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT_HAS_SLASH = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     private static final DateTimeFormatter DATE_FORMAT_WEEK = DateTimeFormatter.ofPattern("EEEE dd/MM").withLocale(Locale.CHINA);
     private static final DateTimeFormatter DATE_FORMAT_YEAR = DateTimeFormatter.ofPattern("yyyy");
 
@@ -61,6 +62,10 @@ public class DateUtil {
 
     public static String formatDate(LocalDateTime localDateTime) {
         return localDateTime.format(DATE_FORMAT_NO_SPLIT);
+    }
+
+    public static String formatDateHasSlash(LocalDateTime localDateTime) {
+        return localDateTime.format(DATE_FORMAT_HAS_SLASH);
     }
 
     public static boolean isYesterday(LocalDate localDate) {

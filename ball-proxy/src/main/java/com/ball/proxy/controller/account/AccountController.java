@@ -5,9 +5,12 @@ import com.ball.base.model.Const;
 import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
+import com.ball.base.util.DateUtil;
 import com.ball.biz.account.entity.BizAssetAdjustmentOrder;
+import com.ball.biz.account.entity.SettlementPeriod;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.service.IBizAssetAdjustmentOrderService;
+import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
@@ -41,6 +44,9 @@ public class AccountController {
 
     @Autowired
     IBizAssetAdjustmentOrderService iBizAssetAdjustmentOrderService;
+
+    @Autowired
+    ISettlementPeriodService iSettlementPeriodService;
 
 
     @ApiOperation("获取用户账户信息")
@@ -104,5 +110,17 @@ public class AccountController {
 
             return resp;
         }).collect(Collectors.toList()), result.getTotalNum(), result.getPageIndex(),result.getPageSize());
+    }
+
+    @ApiOperation("账户概况")
+    @PostMapping(value = "summary")
+    public AccountSummaryResp summary() {
+        UserAccount account = iUserAccountService.lambdaQuery().eq(UserAccount::getUserId, UserContext.getUserNo()).one();
+        BizAssert.notNull(account, BizErrCode.DATA_ERROR);
+        AccountSummaryResp resp = BeanUtil.copy(account, AccountSummaryResp.class);
+        SettlementPeriod period = iSettlementPeriodService.currentPeriod();
+        resp.setCurrentPeriod(String.format("%s - %s", DateUtil.formatDateHasSlash(period.getStartDate()), DateUtil.formatDateHasSlash(period.getEndDate())));
+
+        return resp;
     }
 }
