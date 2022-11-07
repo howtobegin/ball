@@ -55,6 +55,13 @@ public class BizOrderStatService {
     private static final String KEY_TODAY = "TODAY";
     private static final String KEY_YESTERDAY = "YESTERDAY";
 
+
+    private static final String KEY_FOUR_ONE_INCOME = "INCOME";
+    private static final String KEY_FOUR_ONE_BET_COUNT = "BET_COUNT";
+    private static final String KEY_FOUR_ONE_VALID_AMOUNT = "VALID_AMOUNT";
+    private static final String KEY_FOUR_ONE_RESULT_AMOUNT = "RESULT_AMOUNT";
+
+
     public Map<String, List<OrderSummaryResp>> summary() {
         LocalDate today = LocalDate.now();
 
@@ -158,7 +165,7 @@ public class BizOrderStatService {
     /**
      * 主页 - 四合一接口：占成收入(1)/投注人数(2)/实货量(3)/输赢(4)
      */
-    public Map<Integer, List<FourOneReportResp>> fourReport() {
+    public Map<String, List<FourOneReportResp>> fourReport() {
         // 代理
         List<Long> proxy = proxy(UserContext.getUserNo());
         // 本期
@@ -184,25 +191,36 @@ public class BizOrderStatService {
             validAmountList.add(translate2ValidAmountReport(stat));
             winReportList.add(translate2WinReport(stat));
         }
-        Map<Integer, List<FourOneReportResp>> map = Maps.newHashMap();
-        map.put(1, incomeList);
-        map.put(2, betCountList);
-        map.put(3, validAmountList);
-        map.put(4, winReportList);
+        Map<String, List<FourOneReportResp>> map = Maps.newHashMap();
+        map.put(KEY_FOUR_ONE_INCOME, fill(incomeList, start, end, "0.0"));
+        map.put(KEY_FOUR_ONE_BET_COUNT, fill(betCountList, start, end, "0"));
+        map.put(KEY_FOUR_ONE_VALID_AMOUNT, fill(validAmountList, start, end, "0.0"));
+        map.put(KEY_FOUR_ONE_RESULT_AMOUNT, fill(winReportList, start, end, "0.0"));
         return map;
     }
 
-    private void fill(List<FourOneReportResp> list, LocalDate start) {
-        LocalDate yesterday = LocalDate.now().plusDays(-1);
+    private List<FourOneReportResp> fill(List<FourOneReportResp> list, LocalDate start, LocalDate end, String defaultString) {
         List<FourOneReportResp> newList = Lists.newArrayList();
-        for (FourOneReportResp resp : list) {
+        int index = 0;
+        for (; index < list.size();) {
+            FourOneReportResp resp = list.get(index);
             if (resp.getDate().isEqual(start)) {
                 newList.add(resp);
-            } else {
 
+                index ++;
+            } else {
+                newList.add(FourOneReportResp.builder()
+                        .date(start)
+                        .amount(defaultString)
+                        .build());
             }
             start = start.plusDays(1);
         }
+        while (start.isBefore(end)) {
+            newList.add(FourOneReportResp.builder().date(start).amount(defaultString).build());
+            start = start.plusDays(1);
+        }
+        return newList;
     }
 
     private FourOneReportResp translate2IncomeReport(OrderStat stat, Integer userType) {
