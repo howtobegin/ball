@@ -33,4 +33,9 @@ public class AccountModifyResp {
     @ApiModelProperty("时间")
     private LocalDateTime createTime;
 
+    @ApiModelProperty("操作者id")
+    private Long operatorId;
+
+    @ApiModelProperty("操作者名称")
+    private String operatorName;
 }
