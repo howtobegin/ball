@@ -50,6 +50,9 @@ public class UserInfoResp {
     @ApiModelProperty("货币")
     private String currency;
 
+    @ApiModelProperty("密码修改时间")
+    private Long changePasswordTime;
+
     public void setId(Long id) {
         userNo = id;
     }

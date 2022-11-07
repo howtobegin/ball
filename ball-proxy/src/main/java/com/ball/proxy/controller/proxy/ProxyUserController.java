@@ -259,7 +259,8 @@ public class ProxyUserController {
         } else {
             BizAssert.notNull(proxyUid, BizErrCode.PARAM_ERROR_DESC, "proxyUid");
             userInfo = proxyUserService.getByUid(proxyUid);
-            BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+            BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo())
+                    || UserContext.getUserNo().equals(proxyUid), BizErrCode.DATA_ERROR);
         }
         return userInfo;
     }

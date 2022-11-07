@@ -1,8 +1,10 @@
 package com.ball.proxy.controller.user;
 
 import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
 import com.ball.base.model.DecimalHandler;
 import com.ball.base.model.PageResult;
+import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.service.IUserAccountService;
@@ -10,6 +12,7 @@ import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
+import com.ball.proxy.controller.common.vo.UserNoReq;
 import com.ball.proxy.controller.user.vo.AddUserReq;
 import com.ball.proxy.controller.user.vo.QueryUserReq;
 import com.ball.proxy.controller.user.vo.UserInfoResp;
@@ -79,6 +82,18 @@ public class UserController {
                 handler.clear();
             });
         }
+        return resp;
+    }
+
+    @ApiOperation("查询会员列表")
+    @PostMapping("queryList")
+    public UserInfoResp queryInfo(@RequestBody @Valid UserNoReq req) {
+        UserInfo userInfo = userInfoService.getByUid(req.getUserNo());
+        BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
+        UserAccount account = userAccountService.query(req.getUserNo());
+        UserInfoResp resp = BeanUtil.copy(userInfo, UserInfoResp.class);
+        resp.setCurrency(account.getCurrency());
+        resp.setBalance(account.getBalance().subtract(account.getFreezeAmount()));
         return resp;
     }
 }
