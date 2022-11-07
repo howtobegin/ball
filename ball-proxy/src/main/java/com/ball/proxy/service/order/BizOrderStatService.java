@@ -125,6 +125,15 @@ public class BizOrderStatService {
             resp.setWinAmountCompareYesterday(resp.getWinAmount().subtract(beforeDay.getWinAmount()));
             resp.setValidAmountCompareYesterday(resp.getValidAmount().subtract(beforeDay.getValidAmount()));
         }
+        // 如果是上周，需要和前一周做比较
+        else if (req.getDateType() == 2) {
+            start = start.plusWeeks(-1);
+            end = end.plusWeeks(-1);
+            SummaryReportResp beforeWeek = summaryByDate(start, end, req.getProxyUserId());
+            resp.setProfitRateCompareYesterday(resp.getProfitRate().subtract(beforeWeek.getProfitRate()));
+            resp.setWinAmountCompareYesterday(resp.getWinAmount().subtract(beforeWeek.getWinAmount()));
+            resp.setValidAmountCompareYesterday(resp.getValidAmount().subtract(beforeWeek.getValidAmount()));
+        }
 
         return resp;
     }
@@ -149,7 +158,7 @@ public class BizOrderStatService {
     /**
      * 主页 - 四合一接口：占成收入(1)/投注人数(2)/实货量(3)/输赢(4)
      */
-    public Map<Integer, List> fourReport() {
+    public Map<Integer, List<FourOneReportResp>> fourReport() {
         // 代理
         List<Long> proxy = proxy(UserContext.getUserNo());
         // 本期
@@ -159,20 +168,23 @@ public class BizOrderStatService {
         }
         LocalDate start = sp.getStartDate().toLocalDate();
         LocalDate end = sp.getEndDate().toLocalDate();
+        LocalDate yesterday = LocalDate.now().plusDays(-1);
+        end = end.isBefore(yesterday) ? end : yesterday;
+
         List<OrderStat> list = orderStatService.sumRmbGroupByDate(start, end, proxy.get(0), proxy.get(1), proxy.get(2));
         log.info("list'size {}",list.size());
         Integer userType = UserContext.getUserType();
-        List<IncomeReportResp> incomeList = Lists.newArrayList();
-        List<BetCountReportResp> betCountList = Lists.newArrayList();
-        List<ValidAmountReportResp> validAmountList = Lists.newArrayList();
-        List<WinReportResp> winReportList = Lists.newArrayList();
+        List<FourOneReportResp> incomeList = Lists.newArrayList();
+        List<FourOneReportResp> betCountList = Lists.newArrayList();
+        List<FourOneReportResp> validAmountList = Lists.newArrayList();
+        List<FourOneReportResp> winReportList = Lists.newArrayList();
         for (OrderStat stat : list) {
             incomeList.add(translate2IncomeReport(stat, userType));
             betCountList.add(translate2BetCountReport(stat));
             validAmountList.add(translate2ValidAmountReport(stat));
             winReportList.add(translate2WinReport(stat));
         }
-        Map<Integer, List> map = Maps.newHashMap();
+        Map<Integer, List<FourOneReportResp>> map = Maps.newHashMap();
         map.put(1, incomeList);
         map.put(2, betCountList);
         map.put(3, validAmountList);
@@ -180,40 +192,54 @@ public class BizOrderStatService {
         return map;
     }
 
-    private IncomeReportResp translate2IncomeReport(OrderStat stat, Integer userType) {
-        IncomeReportResp resp = IncomeReportResp.builder()
+    private void fill(List<FourOneReportResp> list, LocalDate start) {
+        LocalDate yesterday = LocalDate.now().plusDays(-1);
+        List<FourOneReportResp> newList = Lists.newArrayList();
+        for (FourOneReportResp resp : list) {
+            if (resp.getDate().isEqual(start)) {
+                newList.add(resp);
+            } else {
+
+            }
+            start = start.plusDays(1);
+        }
+    }
+
+    private FourOneReportResp translate2IncomeReport(OrderStat stat, Integer userType) {
+        FourOneReportResp resp = FourOneReportResp.builder()
                 .date(stat.getBetDate())
                 .build();
+        String defaultString = "0.0";
         if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
-            resp.setAmount(stat.getProxy1RmbAmount());
+            resp.setAmount(toPlainString(stat.getProxy1RmbAmount(), defaultString));
         } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
-            resp.setAmount(stat.getProxy2RmbAmount());
+            resp.setAmount(toPlainString(stat.getProxy2RmbAmount(), defaultString));
         } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
-            resp.setAmount(stat.getProxy3RmbAmount());
+            resp.setAmount(toPlainString(stat.getProxy3RmbAmount(), defaultString));
         } else {
-            resp.setAmount(BigDecimal.ZERO);
+            resp.setAmount(toPlainString(BigDecimal.ZERO, defaultString));
         }
         return resp;
     }
 
-    private BetCountReportResp translate2BetCountReport(OrderStat stat) {
-        return BetCountReportResp.builder()
+    private FourOneReportResp translate2BetCountReport(OrderStat stat) {
+        return FourOneReportResp.builder()
                 .date(stat.getBetDate())
-                .betCount(stat.getBetCount())
+                .amount(stat.getBetCount().toString())
                 .build();
     }
 
-    private ValidAmountReportResp translate2ValidAmountReport(OrderStat stat) {
-        return ValidAmountReportResp.builder()
+    private FourOneReportResp translate2ValidAmountReport(OrderStat stat) {
+        return FourOneReportResp.builder()
                 .date(stat.getBetDate())
-                .amount(stat.getValidRmbAmount())
+                .amount(toPlainString(stat.getValidRmbAmount(), "0.0"))
                 .build();
     }
 
-    private WinReportResp translate2WinReport(OrderStat stat) {
-        return WinReportResp.builder()
+    private FourOneReportResp translate2WinReport(OrderStat stat) {
+        return FourOneReportResp.builder()
                 .date(stat.getBetDate())
-                .amount(stat.getResultRmbAmount())
+                .amount(toPlainString(stat.getResultRmbAmount(), "0.0"))
                 .build();
     }
 
@@ -330,5 +356,9 @@ public class BizOrderStatService {
             proxy.add(null);
         }
         return proxy;
+    }
+
+    private String toPlainString(BigDecimal value, String defaultString) {
+        return Optional.ofNullable(value).map(BigDecimal::stripTrailingZeros).map(BigDecimal::toPlainString).orElse(defaultString);
     }
 }
