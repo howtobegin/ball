@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Setter
 @ApiModel("即时注单 - 总览返回信息")
 public class OverviewDetailResp {
-    @ApiModelProperty("运动类型：1 足球")
+    @ApiModelProperty("运动类型：0 总计, 1 足球")
     private Integer sport;
 
     @ApiModelProperty("滚球：投注笔数")

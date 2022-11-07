@@ -126,6 +126,7 @@ public class AccountController {
         UserAccount account = iUserAccountService.lambdaQuery().eq(UserAccount::getUserId, UserContext.getUserNo()).one();
         BizAssert.notNull(account, BizErrCode.DATA_ERROR);
         AccountSummaryResp resp = BeanUtil.copy(account, AccountSummaryResp.class);
+        resp.setAvailableAmount(resp.getBalance().subtract(resp.getFreezeAmount()));
         SettlementPeriod period = iSettlementPeriodService.currentPeriod();
         if (period != null) {
             resp.setCurrentPeriod(String.format("%s - %s", DateUtil.formatDateHasSlash(period.getStartDate()), DateUtil.formatDateHasSlash(period.getEndDate())));
@@ -137,6 +138,7 @@ public class AccountController {
             Integer userCount = userExtMapper.selectProxyStatisticsPeriod(UserContext.getUserNo(),
                     period.getStartDate(), period.getEndDate());
             resp.setPeriodUserCount(userCount);
+            resp.getPeriod().setPeriod(DateUtil.formatDate(period.getStartDate())+" ~ " + DateUtil.formatDate(period.getEndDate()));
             resp.setPeriod(BeanUtil.copy(period,SettlementPeriodResp.class));
         }
         UserInfo userInfo = iUserInfoService.getByUid(UserContext.getUserNo());
