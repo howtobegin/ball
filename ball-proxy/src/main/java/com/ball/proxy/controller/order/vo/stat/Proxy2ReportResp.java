@@ -24,13 +24,13 @@ public class Proxy2ReportResp {
     @ApiModelProperty("笔数")
     private Long betCount;
 
-    @ApiModelProperty("下注金额")
+    @ApiModelProperty("下注金额RMB")
     private BigDecimal betAmount;
 
-    @ApiModelProperty("有效金额")
+    @ApiModelProperty("有效金额RMB")
     private BigDecimal validAmount;
 
-    @ApiModelProperty("会员 - 会员输赢分值+退水")
+    @ApiModelProperty("会员 - 会员输赢分值+退水 RMB")
     private BigDecimal userWinAmount;
 
     @ApiModelProperty("代理商币值")
