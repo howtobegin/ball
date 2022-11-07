@@ -12,6 +12,7 @@ import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.user.entity.UserInfo;
 import com.ball.common.service.Snowflake;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +54,10 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
      * @param allowance 授权额度
      * @param mode      授权额度模式
      * @param fromUserId      额度来源代理id
+     * @param operator      操作者
      */
     @Override
-    public void updateAllowance(Long userId, BigDecimal allowance, String currency1,AllowanceModeEnum mode, Long fromUserId) {
+    public void updateAllowance(Long userId, BigDecimal allowance, String currency1,AllowanceModeEnum mode, Long fromUserId,UserInfo operator) {
         BizAssert.isTrue(allowance.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.DATA_ERROR);
         transactionSupport.execute(()->{
             UserAccount userAccount = iUserAccountService.query(userId);
@@ -85,7 +87,7 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
                     } else {
                         fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.FLOOR);
                     }
-                    bizAssetAdjustmentOrder = createOrder(userId, adjustAmount,currency,userAccount.getBalance(),allowance,fromUserId,fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
+                    bizAssetAdjustmentOrder = createOrder(userId, adjustAmount,currency,userAccount.getBalance(),allowance,fromUserId,fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo,operator);
                     if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
                         iUserAccountService.incomeWithCheck(userId,adjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN, userAccount.getBalance());
                     } else {
@@ -102,7 +104,7 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
                     } else {
                         fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.FLOOR);
                     }
-                    bizAssetAdjustmentOrder = createOrder(userId, adjustAmount, currency, userAccount.getBalance(),userAccount.getBalance().add(adjustAmount) ,fromUserId, fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo);
+                    bizAssetAdjustmentOrder = createOrder(userId, adjustAmount, currency, userAccount.getBalance(),userAccount.getBalance().add(adjustAmount) ,fromUserId, fromUserAdjustAmount, CurrencyEnum.RMB.name(),orderNo,operator);
                     if (adjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
                         iUserAccountService.income(userId,adjustAmount,orderNo, AccountTransactionType.USER_ADJUSTMENT_IN);
                     } else {
@@ -138,10 +140,11 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
      * @param userId     用户id
      * @param allowance  授权额度
      * @param fromUserId 额度来源代理id
+     * @param operator      操作者
      */
     @Override
-    public void updateAllowance(Long userId, BigDecimal allowance, Long fromUserId) {
-        updateAllowance(userId, allowance,  null, null, fromUserId);
+    public void updateAllowance(Long userId, BigDecimal allowance, Long fromUserId,UserInfo operator) {
+        updateAllowance(userId, allowance,  null, null, fromUserId,operator);
     }
 
     /**
@@ -155,10 +158,13 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
      * @param orderNo
      * @return
      */
-    private BizAssetAdjustmentOrder createOrder(Long userId, BigDecimal amount, String currency,BigDecimal oldBalance,BigDecimal newBalance,Long fromUserId, BigDecimal fromUserAmount,String fromUserCurrency,String orderNo) {
+    private BizAssetAdjustmentOrder createOrder(Long userId, BigDecimal amount, String currency, BigDecimal oldBalance, BigDecimal newBalance, Long fromUserId, BigDecimal fromUserAmount, String fromUserCurrency, String orderNo, UserInfo operator) {
         BizAssetAdjustmentOrder order = new BizAssetAdjustmentOrder().setAmount(amount).setUserNo(userId).setCurrency(currency)
                 .setOldBalance(oldBalance).setNewBalance(newBalance)
-                .setFromUserNo(fromUserId).setFromUserAmount(fromUserAmount).setFromUserCurrency(fromUserCurrency).setOrderNo(orderNo);
+                .setFromUserNo(fromUserId).setFromUserAmount(fromUserAmount).setFromUserCurrency(fromUserCurrency)
+                .setOrderNo(orderNo)
+                .setOperatorId(operator.getId())
+                .setOperatorName(operator.getUserName());
 
         save(order);
         return order;

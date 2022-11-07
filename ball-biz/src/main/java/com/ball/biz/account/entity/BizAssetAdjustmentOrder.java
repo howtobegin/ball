@@ -69,5 +69,8 @@ public class BizAssetAdjustmentOrder extends Paging {
 
     private BigDecimal newBalance;
 
+    private Long operatorId;
+
+    private String operatorName;
 
 }

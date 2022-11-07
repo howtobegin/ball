@@ -16,9 +16,9 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 public class AccountModifyReq extends Paging {
-    @ApiModelProperty("筛选最近天数")
+    @ApiModelProperty("时期, 0 这个月， 1 上个月")
     @NotNull
     @Min(0)
-    @Max(30)
-    private Integer days;
+    @Max(1)
+    private Integer months;
 }
