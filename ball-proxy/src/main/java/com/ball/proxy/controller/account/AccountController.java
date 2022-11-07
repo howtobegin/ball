@@ -26,6 +26,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,16 +88,18 @@ public class AccountController {
         UserInfo userInfo = iUserInfoService.getByUid(req.getUserNo());
         BizAssert.notNull(userInfo, BizErrCode.USER_NOT_EXISTS);
         BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(),UserContext.getUserNo()),BizErrCode.USER_ACCOUNT_RULE_ERROR );
-        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),userInfo.getProxyUserId());
+        UserInfo operator = iUserInfoService.getByUid(UserContext.getUserNo());
+        iBizAssetAdjustmentOrderService.updateAllowance(req.getUserNo(),req.getAllowance(),userInfo.getProxyUserId(),operator);
     }
 
     @ApiOperation("查询额度修改记录")
     @RequestMapping(value = "modifyRecord",method = {RequestMethod.GET,RequestMethod.POST})
     public PageResult<AccountModifyResp> modifyRecord(@RequestBody @Valid AccountModifyReq req) {
-        LocalDateTime time = LocalDateTime.now().minusDays(req.getDays());
+        LocalDateTime timeStart = LocalDateTime.now().truncatedTo(ChronoUnit.MONTHS).minusMonths(req.getMonths());;
+        LocalDateTime timeEnd = timeStart.plusMonths(1);
         PageResult<BizAssetAdjustmentOrder> result = iBizAssetAdjustmentOrderService.pageQuery(
                 iBizAssetAdjustmentOrderService.lambdaQuery().eq(BizAssetAdjustmentOrder::getUserNo,UserContext.getUserNo())
-                        .ge(BizAssetAdjustmentOrder::getCreateTime, time),req);
+                        .between(BizAssetAdjustmentOrder::getCreateTime, timeStart, timeEnd),req);
 
 
         return new PageResult<AccountModifyResp>(result.getRows().stream().map(po->{
@@ -134,6 +137,7 @@ public class AccountController {
             Integer userCount = userExtMapper.selectProxyStatisticsPeriod(UserContext.getUserNo(),
                     period.getStartDate(), period.getEndDate());
             resp.setPeriodUserCount(userCount);
+            resp.setPeriod(BeanUtil.copy(period,SettlementPeriodResp.class));
         }
         UserInfo userInfo = iUserInfoService.getByUid(UserContext.getUserNo());
         resp.setLastLoginTime(userInfo.getLastLogin());

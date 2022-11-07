@@ -1,9 +1,12 @@
 package com.ball.proxy.controller.order;
 
+import com.ball.biz.order.entity.OrderInfo;
+import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.proxy.controller.order.vo.instant.*;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +24,14 @@ import java.util.List;
 @RequestMapping("/proxy/order/instant/stat")
 public class OrderInstantStatController {
 
+    @Autowired
+    IOrderInfoService orderInfoService;
+
     @ApiOperation("总览")
     @PostMapping(value = "overview" )
-    public List<OverviewResp> overview(){
+    public List<OverviewResp> overview(@RequestBody @Valid OverviewReq req){
+        orderInfoService.lambdaQuery();
+        OrderInfo orderInfo;
         return Lists.newArrayList();
     }
 
