@@ -59,7 +59,7 @@ public class OrderStatController {
     @ApiOperation("主页 - 占成收入")
     @PostMapping(value = "income/report" )
     public List<IncomeReportResp> incomeReport(){
-        return Lists.newArrayList();
+        return bizOrderStatService.incomeReport();
     }
 
     @ApiOperation("主页 - 投注人数")

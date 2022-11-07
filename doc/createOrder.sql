@@ -111,12 +111,19 @@ CREATE TABLE `order_stat`
 
     bet_currency    varchar(20)   NOT NULL COMMENT '投注币种',
     bet_amount      decimal(12,2) NOT NULL COMMENT '投注金额',
+    bet_rmb_amount      decimal(12,2) NOT NULL COMMENT '投注金额RMB',
     result_amount   decimal(12,2) default 0 COMMENT '投注结果金额（不包含本金）',
+    result_rmb_amount   decimal(12,2) default 0 COMMENT '投注结果金额（不包含本金）RMB',
     valid_amount    decimal(12,2) default 0 COMMENT '有效金额',
+    valid_rmb_amount    decimal(12,2) default 0 COMMENT '有效金额',
     proxy1_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
+    proxy1_rmb_amount   decimal(12,2) default 0 COMMENT '代理1收入或支出金额',
     proxy2_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
+    proxy2_rmb_amount   decimal(12,2) default 0 COMMENT '代理2收入或支出金额',
     proxy3_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
+    proxy3_rmb_amount   decimal(12,2) default 0 COMMENT '代理3收入或支出金额',
     backwater_amount   decimal(12,2) default 0 COMMENT '退水',
+    backwater_rmb_amount   decimal(12,2) default 0 COMMENT '退水',
 
     bet_count       bigint   default 1 COMMENT '投注人数',
 

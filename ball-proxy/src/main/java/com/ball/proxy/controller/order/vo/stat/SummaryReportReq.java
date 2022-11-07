@@ -18,4 +18,7 @@ public class SummaryReportReq {
     @ApiModelProperty("日期类型：1 昨天；2 上周；3 本期")
     @NotNull
     private Integer dateType;
+
+    @ApiModelProperty("代理账号ID，如果为空，则为当前登录账号数据")
+    private Long proxyUserId;
 }

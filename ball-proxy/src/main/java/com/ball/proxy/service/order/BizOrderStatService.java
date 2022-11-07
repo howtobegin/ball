@@ -3,10 +3,12 @@ package com.ball.proxy.service.order;
 import com.ball.base.context.UserContext;
 import com.ball.base.model.Const;
 import com.ball.base.util.BeanUtil;
+import com.ball.base.util.BizAssert;
 import com.ball.biz.account.entity.SettlementPeriod;
 import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.enums.UserTypeEnum;
+import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.entity.OrderStat;
 import com.ball.biz.order.entity.OrderSummary;
 import com.ball.biz.order.service.IOrderStatService;
@@ -87,17 +89,6 @@ public class BizOrderStatService {
         return translateToProxy2Report(orderStats);
     }
 
-    public static void main(String[] args) {
-        LocalDate today = LocalDate.now();
-        LocalDate lastWeek = today.minusWeeks(1);
-
-        LocalDate start = lastWeek.with(DayOfWeek.MONDAY);
-        LocalDate end = lastWeek.with(DayOfWeek.SUNDAY);
-
-        System.out.println(start);
-        System.out.println(end);
-    }
-
     /**
      * 主页 - 绩效概况
      */
@@ -118,15 +109,18 @@ public class BizOrderStatService {
         // 本期
         else {
             SettlementPeriod sp = settlementPeriodService.currentPeriod();
+            if (sp == null) {
+                return SummaryReportResp.builder().build();
+            }
             start = sp.getStartDate().toLocalDate();
             end = sp.getEndDate().toLocalDate();
         }
-        SummaryReportResp resp = summaryByDate(start, end);
+        SummaryReportResp resp = summaryByDate(start, end, req.getProxyUserId());
         // 如果是昨天，需要和前一天做比较
         if (req.getDateType() == 1) {
             start = start.plusDays(-1);
             end = start.plusDays(-1);
-            SummaryReportResp beforeDay = summaryByDate(start, end);
+            SummaryReportResp beforeDay = summaryByDate(start, end, req.getProxyUserId());
             resp.setProfitRateCompareYesterday(resp.getProfitRate().subtract(beforeDay.getProfitRate()));
             resp.setWinAmountCompareYesterday(resp.getWinAmount().subtract(beforeDay.getWinAmount()));
             resp.setValidAmountCompareYesterday(resp.getValidAmount().subtract(beforeDay.getValidAmount()));
@@ -135,11 +129,11 @@ public class BizOrderStatService {
         return resp;
     }
 
-    private SummaryReportResp summaryByDate(LocalDate start, LocalDate end) {
-        List<Long> proxy = proxy();
+    private SummaryReportResp summaryByDate(LocalDate start, LocalDate end, Long proxyUserId) {
+        List<Long> proxy = proxy(proxyUserId);
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
-        OrderStat stat = orderStatService.sumByDateAndProxy(start, end, proxyOne, proxyTwo, proxyThree);
-        BigDecimal resultAmount = Optional.ofNullable(stat).map(OrderStat::getResultAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
+        OrderStat stat = orderStatService.sumRmbByDateAndProxy(start, end, proxyOne, proxyTwo, proxyThree);
+        BigDecimal resultAmount =Optional.ofNullable(stat).map(OrderStat::getResultAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
         BigDecimal validAmount = Optional.ofNullable(stat).map(OrderStat::getValidAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
         BigDecimal profitRate = BigDecimal.ZERO.setScale(2);
         if (validAmount.compareTo(BigDecimal.ZERO) != 0) {
@@ -152,6 +146,39 @@ public class BizOrderStatService {
                 .build();
     }
 
+    /**
+     * 主页 - 占成收入
+     */
+    public List<IncomeReportResp> incomeReport() {
+        // 代理
+        List<Long> proxy = proxy(UserContext.getUserNo());
+        // 本期
+        SettlementPeriod sp = settlementPeriodService.currentPeriod();
+        if (sp == null) {
+            return Lists.newArrayList();
+        }
+        LocalDate start = sp.getStartDate().toLocalDate();
+        LocalDate end = sp.getEndDate().toLocalDate();
+        List<OrderStat> list = orderStatService.sumRmbGroupByDate(start, end, proxy.get(0), proxy.get(1), proxy.get(2));
+        log.info("list'size {}",list.size());
+        Integer userType = UserContext.getUserType();
+        List<IncomeReportResp> ret = list.stream().map(stat -> {
+            IncomeReportResp resp = IncomeReportResp.builder()
+                    .date(stat.getBetDate())
+                    .build();
+            if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+                resp.setAmount(stat.getProxy1RmbAmount());
+            } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
+                resp.setAmount(stat.getProxy2RmbAmount());
+            } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
+                resp.setAmount(stat.getProxy3RmbAmount());
+            } else {
+                resp.setAmount(BigDecimal.ZERO);
+            }
+            return resp;
+        }).collect(Collectors.toList());
+        return ret;
+    }
 
     private List<Proxy2ReportResp> translateToProxy2Report(List<OrderStat> list) {
         List<Long> proxy3UserIds = list.stream().map(OrderStat::getProxy3).distinct().collect(Collectors.toList());
@@ -242,10 +269,18 @@ public class BizOrderStatService {
         return amount.multiply(rmbRate);
     }
 
-    private List<Long> proxy() {
+    private List<Long> proxy(Long proxyUserId) {
+        Long loginProxyUserId = UserContext.getUserNo();
         String proxyInfo = UserContext.getProxyInfo();
+        if (proxyUserId != null) {
+            UserInfo proxy = userInfoService.getByUid(proxyUserId);
+            BizAssert.notNull(proxy, BizErrCode.USER_NOT_EXISTS);
+            proxyInfo = proxy.getProxyInfo();
+            loginProxyUserId = proxyUserId;
+        }
+
         if (StringUtils.isEmpty(proxyInfo)) {
-            ArrayList<Long> proxy = Lists.newArrayList(UserContext.getUserNo());
+            ArrayList<Long> proxy = Lists.newArrayList(loginProxyUserId);
             proxy.add(null);
             proxy.add(null);
             return proxy;
@@ -253,7 +288,7 @@ public class BizOrderStatService {
         String[] split = proxyInfo.split(Const.RELATION_SPLIT);
         List<Long> proxy = Lists.newArrayList();
         proxy.addAll(Stream.of(split).map(Long::parseLong).collect(Collectors.toList()));
-        proxy.add(UserContext.getUserNo());
+        proxy.add(loginProxyUserId);
         while (proxy.size() < 3) {
             proxy.add(null);
         }

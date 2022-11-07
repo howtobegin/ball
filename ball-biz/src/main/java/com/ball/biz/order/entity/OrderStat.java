@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author lhl
- * @since 2022-11-01
+ * @since 2022-11-07
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -46,12 +46,12 @@ public class OrderStat extends Paging {
     private Long proxy3;
 
     /**
-     * 投注日期
+     * 投注/结算日期
      */
     private LocalDate betDate;
 
     /**
-     * 用户
+     * 用户编号
      */
     private Long userId;
 
@@ -66,9 +66,19 @@ public class OrderStat extends Paging {
     private BigDecimal betAmount;
 
     /**
+     * 投注金额RMB
+     */
+    private BigDecimal betRmbAmount;
+
+    /**
      * 投注结果金额（不包含本金）
      */
     private BigDecimal resultAmount;
+
+    /**
+     * 投注结果金额（不包含本金）RMB
+     */
+    private BigDecimal resultRmbAmount;
 
     /**
      * 有效金额
@@ -76,9 +86,19 @@ public class OrderStat extends Paging {
     private BigDecimal validAmount;
 
     /**
+     * 有效金额
+     */
+    private BigDecimal validRmbAmount;
+
+    /**
      * 代理1收入或支出金额
      */
     private BigDecimal proxy1Amount;
+
+    /**
+     * 代理1收入或支出金额
+     */
+    private BigDecimal proxy1RmbAmount;
 
     /**
      * 代理2收入或支出金额
@@ -86,14 +106,29 @@ public class OrderStat extends Paging {
     private BigDecimal proxy2Amount;
 
     /**
+     * 代理2收入或支出金额
+     */
+    private BigDecimal proxy2RmbAmount;
+
+    /**
      * 代理3收入或支出金额
      */
     private BigDecimal proxy3Amount;
 
     /**
+     * 代理3收入或支出金额
+     */
+    private BigDecimal proxy3RmbAmount;
+
+    /**
      * 退水
      */
     private BigDecimal backwaterAmount;
+
+    /**
+     * 退水
+     */
+    private BigDecimal backwaterRmbAmount;
 
     /**
      * 投注人数
