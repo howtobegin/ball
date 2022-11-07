@@ -36,6 +36,8 @@ public class Const {
 
     public static final LocalDate START_DATE = LocalDate.of(2000,1,1);
 
+    public static final String SQL_LIKE = "%";
+
     public static boolean hasRelation(String relation, Long parent) {
         if (StringUtils.isEmpty(relation) || parent == null) {
             return false;

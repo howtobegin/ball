@@ -37,4 +37,12 @@
         group by t1.status
 
     </select>
+
+    <select id="selectStatusByType" resultType="com.ball.biz.user.bo.UserStatusBO">
+        select ifnull(sum(case status when 1 then 1 else 0 end), 0) as normalCount,
+               ifnull(sum(case status when 0 then 1 else 0 end), 0) as lockCount
+        from user_info
+        where user_type = #{userType}
+        and  proxy_info like #{proxyInfo}
+    </select>
 </mapper>

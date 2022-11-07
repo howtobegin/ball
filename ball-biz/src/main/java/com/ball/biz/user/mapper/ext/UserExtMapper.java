@@ -3,6 +3,7 @@ package com.ball.biz.user.mapper.ext;
 import com.ball.biz.user.bo.ProxyChildrenBalance;
 import com.ball.biz.user.bo.ProxyStatistics;
 import com.ball.biz.user.bo.ProxyUserInfo;
+import com.ball.biz.user.bo.UserStatusBO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -23,4 +24,7 @@ public interface UserExtMapper {
                                   @Param("end") LocalDateTime end);
 
     List<ProxyChildrenBalance> selectProxyChildrenBalance(@Param("proxyUid") Long proxyUid);
+
+    UserStatusBO selectStatusByType(@Param("userType") Integer userType,
+                                    @Param("proxyInfo") String proxyInfo);
 }

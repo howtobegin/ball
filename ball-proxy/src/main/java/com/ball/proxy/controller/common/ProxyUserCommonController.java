@@ -1,9 +1,10 @@
 package com.ball.proxy.controller.common;
 
-import com.ball.proxy.controller.common.vo.UpdatePasswordReq;
-import com.ball.proxy.controller.common.vo.UpdateProxyInfo;
-import com.ball.proxy.controller.common.vo.UpdateUserInfo;
-import com.ball.proxy.controller.common.vo.UserNoReq;
+import com.ball.base.context.UserContext;
+import com.ball.base.model.Const;
+import com.ball.biz.user.bo.UserStatusBO;
+import com.ball.biz.user.mapper.ext.UserExtMapper;
+import com.ball.proxy.controller.common.vo.*;
 import com.ball.proxy.service.UserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +27,9 @@ public class ProxyUserCommonController {
 
     @Autowired
     private UserOperationService userOperationService;
+
+    @Autowired
+    private UserExtMapper userExtMapper;
 
     @ApiOperation("停用会员或代理")
     @PostMapping("lock")
@@ -54,5 +58,31 @@ public class ProxyUserCommonController {
         userOperationService.updateUserInfo(req);
     }
 
+    @ApiOperation("查询下线状态")
+    @PostMapping("queryByType")
+    public UserStatusResp queryByType(@RequestBody @Valid UserTypeReq req) {
+        // 得到前缀
+        String proxyInfo = getLike(UserContext.getProxyInfo(), UserContext.getUserNo().toString());
+        UserStatusBO bo = userExtMapper.selectStatusByType(req.getUserType(), proxyInfo);
+        if (bo == null) {
+            return new UserStatusResp();
+        } else {
+            return new UserStatusResp()
+                    .setLockCount(bo.getLockCount())
+                    .setNormalCount(bo.getNormalCount());
+        }
+    }
 
+    private String getLike(String proxyInfo, String current) {
+        String[] info = proxyInfo.split(Const.RELATION_SPLIT);
+        StringBuilder sb = new StringBuilder();
+        for (String s : info) {
+            sb.append(s);
+            if (s.equals(current)) {
+                break;
+            }
+        }
+        sb.append(Const.SQL_LIKE);
+        return sb.toString();
+    }
 }
