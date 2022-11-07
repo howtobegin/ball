@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -119,8 +120,14 @@ public class AccountController {
         BizAssert.notNull(account, BizErrCode.DATA_ERROR);
         AccountSummaryResp resp = BeanUtil.copy(account, AccountSummaryResp.class);
         SettlementPeriod period = iSettlementPeriodService.currentPeriod();
-        resp.setCurrentPeriod(String.format("%s - %s", DateUtil.formatDateHasSlash(period.getStartDate()), DateUtil.formatDateHasSlash(period.getEndDate())));
-
+        if (period != null) {
+            resp.setCurrentPeriod(String.format("%s - %s", DateUtil.formatDateHasSlash(period.getStartDate()), DateUtil.formatDateHasSlash(period.getEndDate())));
+            LocalDateTime now = LocalDateTime.now();
+            resp.setPeriodLeftDays(Math.max(0,Duration.between(now,period.getEndDate()).toDays()));
+            resp.setPeriodFinishedDays(Math.min(Duration.between(period.getStartDate(),now).toDays(),
+                    Duration.between(period.getStartDate(),period.getEndDate()).toDays()));
+        }
         return resp;
     }
+
 }

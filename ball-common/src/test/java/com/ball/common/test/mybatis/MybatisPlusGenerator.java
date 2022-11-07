@@ -71,9 +71,9 @@ public class MybatisPlusGenerator {
         //包名
         String pkgName = "com.ball.biz";
         // 子包名(按模块分包)
-        String packageName = "account";
+        String packageName = "match";
         //表
-        String[] tablesName = {"biz_asset_adjustment_order"};
+        String[] tablesName = {"match"};
         run(parentModule, dbName, pkgName, tablesName, packageName);
     }
 }

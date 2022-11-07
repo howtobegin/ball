@@ -43,4 +43,9 @@ public class AccountSummaryResp {
     @ApiModelProperty("当前账期")
     private String currentPeriod;
 
+    @ApiModelProperty("本期完成天数")
+    private Long periodFinishedDays;
+
+    @ApiModelProperty("本期剩余天数")
+    private Long periodLeftDays;
 }
