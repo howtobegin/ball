@@ -1,5 +1,8 @@
 package com.ball.proxy.controller.common;
 
+import com.ball.proxy.controller.common.vo.UpdatePasswordReq;
+import com.ball.proxy.controller.common.vo.UpdateProxyInfo;
+import com.ball.proxy.controller.common.vo.UpdateUserInfo;
 import com.ball.proxy.controller.common.vo.UserNoReq;
 import com.ball.proxy.service.UserOperationService;
 import io.swagger.annotations.Api;
@@ -35,4 +38,21 @@ public class ProxyUserCommonController {
     public void unlock(@RequestBody @Valid UserNoReq req) {
         userOperationService.unlock(req.getUserNo());
     }
+
+    @ApiOperation("修改密码")
+    @PostMapping("updatePassword")
+    public void updatePassword(@RequestBody @Valid UpdatePasswordReq req) {
+        userOperationService.updatePassword(req.getUserNo(), req.getPassword());
+    }
+
+    @ApiOperation("修改用户信息")
+    @PostMapping("updateUserInfo")
+    public void updateUserInfo(@RequestBody @Valid UpdateProxyInfo req) {
+        if (req.invalid()) {
+            return;
+        }
+        userOperationService.updateUserInfo(req);
+    }
+
+
 }
