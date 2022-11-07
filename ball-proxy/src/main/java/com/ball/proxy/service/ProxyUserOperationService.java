@@ -15,6 +15,7 @@ import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.log.enums.OperationBiz;
 import com.ball.biz.log.service.IOperationLogService;
 import com.ball.biz.user.entity.UserExtend;
+import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
@@ -83,7 +84,8 @@ public class ProxyUserOperationService {
             // 初始化代理账户
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(typeEnum.next), allowanceModeEnum);
             // 调整账务
-            assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum, UserContext.getUserNo());
+            assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum,
+                    UserContext.getUserNo(), getLogin());
             // 添加退水和限额
             addRefundConfig(req.getRefund(), userId);
             // 记录操作日志
@@ -108,7 +110,8 @@ public class ProxyUserOperationService {
             userAccountService.init(userId, CurrencyEnum.RMB.name(), String.valueOf(UserTypeEnum.PROXY_ONE.v),
                     allowanceModeEnum);
             // 调整账务
-            assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum, null);
+            assetAdjustmentOrderService.updateAllowance(userId, balance, CurrencyEnum.RMB.name(), allowanceModeEnum,
+                    null, getLogin());
             // 添加退水和限额
             addRefundConfig(req.getRefund(), userId);
             // 记录操作日志
@@ -139,5 +142,11 @@ public class ProxyUserOperationService {
             userInfoService.firstChangePassword(userNo, password);
             operationLogService.addLog(OperationBiz.PROXY_CHANGE_PASSWORD, userNo.toString());
         });
+    }
+
+    private UserInfo getLogin() {
+        return new UserInfo().setId(UserContext.getUserNo())
+                .setAccount(UserContext.getAccount())
+                .setProxyUserId(UserContext.getProxyUid());
     }
 }

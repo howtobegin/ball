@@ -87,7 +87,8 @@ public class UserOperationService {
             // 添加账户
             userAccountService.init(userInfo.getId(), req.getCurrency(), String.valueOf(UserTypeEnum.GENERAL.v), modeEnum);
             // 调账
-            assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.myAmount(), req.getCurrency(), modeEnum, proxy);
+            assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.myAmount(), req.getCurrency(), modeEnum
+                    , proxy, getLogin());
             UserLevelEnum userLevelEnum = UserLevelEnum.valueOf(req.getHandicapType());
             // 添加退水和限额
             addRefund(req.getRefund(), userInfo.getId(), userLevelEnum, req.getCurrency(), proxy);
@@ -154,7 +155,8 @@ public class UserOperationService {
         transactionSupport.execute(() -> {
             // 如果有额度，首先修改额度
             if (req.hasBalance()) {
-                assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.getBalance(), userInfo.getProxyUserId());
+                assetAdjustmentOrderService.updateAllowance(userInfo.getId(), req.getBalance(),
+                        userInfo.getProxyUserId(), getLogin());
             }
             // 如果有用户名或状态
             if (req.hasUserName() || req.hasStatus()) {
@@ -178,5 +180,11 @@ public class UserOperationService {
         // 汇率
         BigDecimal rate = currencyService.getRmbRate(currency);
         return orderMin.divide(rate, 0, RoundingMode.DOWN);
+    }
+
+    private UserInfo getLogin() {
+        return new UserInfo().setId(UserContext.getUserNo())
+                .setAccount(UserContext.getAccount())
+                .setProxyUserId(UserContext.getProxyUid());
     }
 }
