@@ -86,7 +86,7 @@ public class UserController {
     }
 
     @ApiOperation("查询会员列表")
-    @PostMapping("queryList")
+    @PostMapping("queryInfo")
     public UserInfoResp queryInfo(@RequestBody @Valid UserNoReq req) {
         UserInfo userInfo = userInfoService.getByUid(req.getUserNo());
         BizAssert.isTrue(Const.hasRelation(userInfo.getProxyInfo(), UserContext.getUserNo()), BizErrCode.DATA_ERROR);
