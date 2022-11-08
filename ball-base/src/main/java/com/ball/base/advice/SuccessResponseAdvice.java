@@ -51,7 +51,7 @@ public class SuccessResponseAdvice implements ResponseBodyAdvice<Object> {
         if (body instanceof CommonResp) {
             return body;
         } else if (selectedConverterType == StringHttpMessageConverter.class) {
-            response.getHeaders().add("content-dataType", MediaType.APPLICATION_JSON_VALUE);
+            response.getHeaders().add("content-type", MediaType.APPLICATION_JSON_VALUE);
             return JSONObject.toJSONString(CommonResp.success(body));
         }
         return CommonResp.success(body);

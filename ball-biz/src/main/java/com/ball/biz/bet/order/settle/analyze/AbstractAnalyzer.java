@@ -29,7 +29,7 @@ public abstract class AbstractAnalyzer implements Analyzer, InitializingBean {
      * @param order
      * @return
      */
-    @Value("${analyzer.check.status.dataType:1}")
+    @Value("${analyzer.check.status.type:1}")
     private int checkStatusType;
 
     @Override
