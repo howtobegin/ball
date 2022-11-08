@@ -15,6 +15,10 @@ import java.util.List;
 @Setter
 @ApiModel("即时注单 - 滚球/今日明细返回信息")
 public class LeagueMatchResp {
+
+    @ApiModelProperty("id")
+    private String id;
+
     @ApiModelProperty("联赛信息")
     private LeagueResp league;
 
