@@ -293,6 +293,9 @@ public class OrderInstantStatController {
     }
 
     private void _fillLeagueAndMatchInfo(Set<String> leagueIds, Set<String> matchIds, List<LeagueMatchResp> result) {
+        if (leagueIds.size()==0 || matchIds.size() == 0) {
+            return;
+        }
         List<Leagues> leaguesList = iLeaguesService.query(new ArrayList<>(leagueIds));
         Map<String,Leagues> leagueMap = leaguesList.stream().collect(Collectors.toMap(Leagues::getLeagueId,Leagues->Leagues));
         List<Schedules> matchList = iSchedulesService.lambdaQuery().in(Schedules::getMatchId, new ArrayList<>(matchIds)).list();
