@@ -32,6 +32,12 @@ public class BaseReportReq {
     @NotNull
     private Integer sport;
 
-    @ApiModelProperty("账号ID（点击账号进入下一级报表时，必传）")
-    private String userId;
+    @ApiModelProperty("登2（点击账号进入下一级报表时，必传）")
+    private Long proxy2Id;
+
+    @ApiModelProperty("登3（点击账号进入下一级报表时，必传）")
+    private Long proxy3Id;
+
+    @ApiModelProperty("用户（点击账号进入下一级报表时，必传）")
+    private Long userId;
 }

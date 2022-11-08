@@ -3,34 +3,33 @@ package com.ball.proxy.service.order;
 import com.ball.base.context.UserContext;
 import com.ball.base.model.Const;
 import com.ball.base.util.BeanUtil;
-import com.ball.base.util.BizAssert;
 import com.ball.biz.account.entity.SettlementPeriod;
 import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.enums.UserTypeEnum;
-import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.entity.OrderStat;
 import com.ball.biz.order.entity.OrderSummary;
 import com.ball.biz.order.service.IOrderStatService;
 import com.ball.biz.order.service.IOrderSummaryService;
-import com.ball.biz.user.entity.UserInfo;
+import com.ball.biz.user.proxy.ProxyUserService;
+import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
-import com.ball.proxy.controller.order.vo.stat.*;
+import com.ball.proxy.controller.order.vo.stat.FourOneReportResp;
+import com.ball.proxy.controller.order.vo.stat.OrderSummaryResp;
+import com.ball.proxy.controller.order.vo.stat.SummaryReportReq;
+import com.ball.proxy.controller.order.vo.stat.SummaryReportResp;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,6 +50,10 @@ public class BizOrderStatService {
     private ICurrencyService currencyService;
     @Autowired
     private ISettlementPeriodService settlementPeriodService;
+    @Autowired
+    private ProxyUserService proxyUserService;
+    @Autowired
+    private IUserExtendService userExtendService;
 
     private static final String KEY_TODAY = "TODAY";
     private static final String KEY_YESTERDAY = "YESTERDAY";
@@ -73,27 +76,6 @@ public class BizOrderStatService {
         map.put(KEY_YESTERDAY, yesterDaySummery.stream().map(o -> BeanUtil.copy(o, OrderSummaryResp.class)).collect(Collectors.toList()));
 
         return map;
-    }
-
-    /**
-     * where prox2=xxx and date > start and date < end group by p2,currency
-     *
-     * @param req
-     * @return
-     */
-    public List<Proxy2ReportResp> proxy2Report(BaseReportReq req) {
-        // 当前代理用户
-        Long proxyTwo = UserContext.getUserNo();
-        Integer userType = UserContext.getUserType();
-        if (!UserTypeEnum.PROXY_TWO.isMe(userType)) {
-            log.warn("userId {} userType {} is not PROXY_TWO", proxyTwo, userType);
-            return Lists.newArrayList();
-        }
-        // 找到上级
-        Long proxyOne = Optional.ofNullable(UserContext.getProxyInfo()).map(Long::valueOf).orElse(-1L);
-
-        List<OrderStat> orderStats = orderStatService.queryByDate(req.getStart(), req.getEnd(), proxyOne, proxyTwo, null);
-        return translateToProxy2Report(orderStats);
     }
 
     /**
@@ -146,7 +128,18 @@ public class BizOrderStatService {
     }
 
     private SummaryReportResp summaryByDate(LocalDate start, LocalDate end, Long proxyUserId) {
-        List<Long> proxy = proxy(proxyUserId);
+        List<Long> proxy = null;
+        // 如果是登1，proxyUserId代表登2
+        Integer userType = UserContext.getUserType();
+        if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+            proxy = proxy(proxyUserId, null);
+        }
+        // 如果是登2，proxyUserId代表登3
+        else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
+            proxy = proxy(null, proxyUserId);
+        } else {
+            return SummaryReportResp.builder().build();
+        }
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
         OrderStat stat = orderStatService.sumRmbByDateAndProxy(start, end, proxyOne, proxyTwo, proxyThree);
         BigDecimal resultAmount =Optional.ofNullable(stat).map(OrderStat::getResultAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
@@ -167,7 +160,7 @@ public class BizOrderStatService {
      */
     public Map<String, List<FourOneReportResp>> fourReport() {
         // 代理
-        List<Long> proxy = proxy(UserContext.getUserNo());
+        List<Long> proxy = proxy(null,null);
         // 本期
         SettlementPeriod sp = settlementPeriodService.currentPeriod();
         if (sp == null) {
@@ -261,119 +254,27 @@ public class BizOrderStatService {
                 .build();
     }
 
-    private List<Proxy2ReportResp> translateToProxy2Report(List<OrderStat> list) {
-        List<Long> proxy3UserIds = list.stream().map(OrderStat::getProxy3).distinct().collect(Collectors.toList());
-        List<UserInfo> proxy3Users = userInfoService.lambdaQuery().in(UserInfo::getId, proxy3UserIds).list();
-        Map<Long, UserInfo> userIdToUser = proxy3Users.stream().collect(Collectors.toMap(UserInfo::getId, Function.identity()));
-
-        List<Proxy2ReportResp> translateList =list.stream().map(stat -> translateToProxy2ReportOne(stat, userIdToUser)).collect(Collectors.toList());
-
-        List<Proxy2ReportResp> ret = Lists.newArrayList();
-        // 根据代理3，分组求和
-        translateList.stream().collect(Collectors.groupingBy(Proxy2ReportResp::getProxyAccount))
-                .entrySet().stream().map(e -> {
-            List<Proxy2ReportResp> values = e.getValue();
-            Proxy2ReportResp resp = new Proxy2ReportResp();
-
-            resp.setProxyAccount(values.get(0).getProxyAccount());
-            resp.setProxyName(values.get(0).getProxyName());
-
-            Long betCount = 0L;
-            BigDecimal betAmount = BigDecimal.ZERO;
-            BigDecimal validAmount = BigDecimal.ZERO;
-            BigDecimal userWinAmount = BigDecimal.ZERO;
-            BigDecimal proxyCurrencyAmount = BigDecimal.ZERO;
-            BigDecimal proxyResultAmount = BigDecimal.ZERO;
-            BigDecimal proxyAmount = BigDecimal.ZERO;
-            BigDecimal proxyResultAmount2 = BigDecimal.ZERO;
-            BigDecimal proxyValidAmount = BigDecimal.ZERO;
-            for (Proxy2ReportResp v : values) {
-                betCount += v.getBetCount();
-                betAmount = betAmount.add(v.getBetAmount());
-                validAmount = validAmount.add(v.getValidAmount());
-                userWinAmount = userWinAmount.add(v.getUserWinAmount());
-                proxyCurrencyAmount = proxyCurrencyAmount.add(v.getProxyCurrencyAmount());
-                proxyResultAmount = proxyResultAmount.add(v.getProxyResultAmount());
-                proxyAmount = proxyAmount.add(v.getProxyAmount());
-                proxyResultAmount2 = proxyResultAmount.add(v.getProxyResultAmount2());
-                proxyValidAmount = proxyValidAmount.add(v.getProxyValidAmount());
-            }
-            resp.setBetCount(betCount);
-            resp.setBetAmount(betAmount);
-            resp.setValidAmount(validAmount);
-            resp.setUserWinAmount(userWinAmount);
-            resp.setProxyCurrencyAmount(proxyCurrencyAmount);
-            resp.setProxyResultAmount(proxyResultAmount);
-            resp.setProxyAmount(proxyAmount);
-            resp.setProxyResultAmount2(proxyResultAmount2);
-            resp.setProxyValidAmount(proxyValidAmount);
-
-            return resp;
-        }).collect(Collectors.toList());
-
-        return ret;
-    }
-
-    private Proxy2ReportResp translateToProxy2ReportOne(OrderStat stat, Map<Long, UserInfo> userIdToUser) {
-        Proxy2ReportResp resp = BeanUtil.copy(stat, Proxy2ReportResp.class);
-        UserInfo user = userIdToUser.get(stat.getProxy2());
-        if (user != null) {
-            resp.setProxyAccount(user.getAccount());
-            resp.setProxyName(user.getUserName());
-        }
-        resp.setBetCount(stat.getBetCount());
-        String currency = stat.getBetCurrency();
-        // 下注金额，RMB
-        resp.setBetAmount(calcRmb(stat.getBetAmount(), currency));
-        resp.setValidAmount(calcRmb(stat.getValidAmount(), currency));
-        // 会员(RMB) = 输赢 + 退水
-        BigDecimal userWinAmount = stat.getResultAmount().add(stat.getBackwaterAmount());
-        resp.setUserWinAmount(calcRmb(userWinAmount, currency));
-        // 代理商币值，原币种
-        resp.setProxyCurrencyAmount(stat.getResultAmount());
-        // 代理商，RMB
-        resp.setProxyResultAmount(calcRmb(stat.getResultAmount(), currency));
-        // 代理商占成
-        resp.setProxyAmount(stat.getProxy2Amount());
-        // 代理商结果 = 代理商
-        resp.setProxyResultAmount2(resp.getProxyResultAmount());
-        // 代理商实货量
-        resp.setProxyValidAmount(resp.getValidAmount());
-        // 总代理占成
-
-        // 总代理结果
-        return resp;
-    }
-
     private BigDecimal calcRmb(BigDecimal amount, String currency) {
         BigDecimal rmbRate = currencyService.getRmbRate(currency);
         return amount.multiply(rmbRate);
     }
 
-    private List<Long> proxy(Long proxyUserId) {
+    public List<Long> proxy(Long proxy2Id, Long proxy3Id) {
         Long loginProxyUserId = UserContext.getUserNo();
-        String proxyInfo = UserContext.getProxyInfo();
-        if (proxyUserId != null && !loginProxyUserId.equals(proxyUserId)) {
-            UserInfo proxy = userInfoService.getByUid(proxyUserId);
-            BizAssert.notNull(proxy, BizErrCode.USER_NOT_EXISTS);
-            proxyInfo = proxy.getProxyInfo();
-            loginProxyUserId = proxyUserId;
-        }
-
-        if (StringUtils.isEmpty(proxyInfo)) {
-            ArrayList<Long> proxy = Lists.newArrayList(loginProxyUserId);
-            proxy.add(null);
-            proxy.add(null);
+        Integer userType = UserContext.getUserType();
+        if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+            return Lists.newArrayList(loginProxyUserId, proxy2Id, proxy3Id);
+        } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
+            Lists.newArrayList(UserContext.getProxyUid(), loginProxyUserId, proxy3Id);
+        } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
+            String[] split = UserContext.getProxyInfo().split(Const.RELATION_SPLIT);
+            List<Long> proxy = Lists.newArrayList();
+            proxy.addAll(Stream.of(split).map(Long::parseLong).collect(Collectors.toList()));
+            proxy.add(loginProxyUserId);
             return proxy;
         }
-        String[] split = proxyInfo.split(Const.RELATION_SPLIT);
-        List<Long> proxy = Lists.newArrayList();
-        proxy.addAll(Stream.of(split).map(Long::parseLong).collect(Collectors.toList()));
-        proxy.add(loginProxyUserId);
-        while (proxy.size() < 3) {
-            proxy.add(null);
-        }
-        return proxy;
+
+        return null;
     }
 
     private String toPlainString(BigDecimal value, String defaultString) {

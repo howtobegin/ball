@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 @Setter
 @ApiModel("注单报表-用户返回信息")
 public class UserReportResp {
+    @ApiModelProperty("会员ID")
+    private Long userId;
+
     @ApiModelProperty("佣金结果")
     private LocalDateTime betTime;
 

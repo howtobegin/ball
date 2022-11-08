@@ -1,7 +1,9 @@
 package com.ball.biz.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ball.base.util.BizAssert;
 import com.ball.biz.account.service.ICurrencyService;
+import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.bo.OrderStatUniqBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.entity.OrderStat;
@@ -202,8 +204,43 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         return lambdaQuery().getBaseMapper().selectList(query);
     }
 
+    @Override
+    public List<OrderStat> sumRmbGroupByProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3) {
+        String groupBy = "proxy1";
+        if (proxy2 != null) {
+            groupBy += ",proxy2";
+        }
+        if (proxy3 != null) {
+            groupBy += ",proxy3";
+        }
+        return sumRmbGroupBy(start, end, proxy1, proxy2, proxy3, groupBy);
+    }
+
+    @Override
+    public List<OrderStat> sumRmbGroupByUser(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3) {
+        BizAssert.notNull(start, BizErrCode.PARAM_ERROR_DESC,"start");
+        BizAssert.notNull(end, BizErrCode.PARAM_ERROR_DESC,"end");
+        BizAssert.notNull(proxy1, BizErrCode.PARAM_ERROR_DESC,"proxy1");
+        BizAssert.notNull(proxy2, BizErrCode.PARAM_ERROR_DESC,"proxy2");
+        BizAssert.notNull(proxy3, BizErrCode.PARAM_ERROR_DESC,"proxy3");
+
+        return sumRmbGroupBy(start, end, proxy1, proxy2, proxy3, "userId");
+    }
+
+    private List<OrderStat> sumRmbGroupBy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, String groupBy) {
+        QueryWrapper<OrderStat> query = new QueryWrapper<>();
+        query.select(groupBy + "," + sumRmbSelect())
+                .eq(proxy1 != null, "proxy1", proxy1)
+                .eq(proxy2 != null, "proxy2", proxy2)
+                .eq(proxy3 != null, "proxy3", proxy3)
+                .ge("bet_date", start)
+                .le("bet_date", end)
+                .groupBy(groupBy);
+        return lambdaQuery().getBaseMapper().selectList(query);
+    }
+
     private String sumRmbSelect() {
-        return "sum(result_rmb_amount) result_rmb_amount, sum(valid_rmb_amount) valid_rmb_amount, " +
+        return "sum(bet_rmb_amount) bet_rmb_amount, sum(result_rmb_amount) result_rmb_amount, sum(valid_rmb_amount) valid_rmb_amount, " +
                 "sum(proxy1_rmb_amount) proxy1_rmb_amount, sum(proxy2_rmb_amount) proxy2_rmb_amount, " +
                 "sum(proxy3_rmb_amount) proxy3_rmb_amount, sum(backwater_rmb_amount) backwater_rmb_amount, " +
                 "sum(bet_count) bet_count";

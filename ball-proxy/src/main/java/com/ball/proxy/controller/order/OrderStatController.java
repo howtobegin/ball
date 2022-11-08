@@ -2,6 +2,7 @@ package com.ball.proxy.controller.order;
 
 import com.ball.proxy.controller.order.vo.stat.*;
 import com.ball.proxy.service.order.BizOrderStatService;
+import com.ball.proxy.service.order.ProxyReportService;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +26,8 @@ import java.util.Map;
 public class OrderStatController {
     @Autowired
     private BizOrderStatService bizOrderStatService;
+    @Autowired
+    private ProxyReportService proxyReportService;
 
     @ApiOperation("赛事结果概要（key:YESTERDAY 昨天；TODAY 今天）")
     @PostMapping(value = "summary" )
@@ -32,16 +35,22 @@ public class OrderStatController {
         return bizOrderStatService.summary();
     }
 
-    @ApiOperation("注单报表 - 登2")
+    @ApiOperation("注单报表 - 登1或登2，第一级")
     @PostMapping(value = "proxy2/report" )
     public List<Proxy2ReportResp> proxy2Report(@RequestBody @Valid BaseReportReq req){
-        return bizOrderStatService.proxy2Report(req);
+        return proxyReportService.proxyReportLevel1(req);
     }
 
-    @ApiOperation("注单报表 - 登3")
+    @ApiOperation("注单报表 - 第二级，内容是登3的统计信息")
     @PostMapping(value = "proxy3/report" )
     public List<Proxy3ReportResp> proxy3Report(@RequestBody @Valid BaseReportReq req){
-        return Lists.newArrayList();
+        return proxyReportService.proxyReportLevel2(req);
+    }
+
+    @ApiOperation("注单报表 - 第三级，内容是登3的统计信息")
+    @PostMapping(value = "proxy3/user/report" )
+    public List<Proxy3UserReportResp> proxy3UserReport(@RequestBody @Valid BaseReportReq req){
+        return proxyReportService.proxyReportLevel3(req);
     }
 
     @ApiOperation("注单报表 - 会员")

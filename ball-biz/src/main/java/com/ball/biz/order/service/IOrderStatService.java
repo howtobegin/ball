@@ -36,4 +36,27 @@ public interface IOrderStatService extends IService<OrderStat>, IBaseService {
     OrderStat sumRmbByDateAndProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
 
     List<OrderStat> sumRmbGroupByDate(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
+
+    /**
+     * 按代理分组求和
+     *
+     * @param start
+     * @param end
+     * @param proxy1    不能为空
+     * @param proxy2
+     * @param proxy3
+     * @return
+     */
+    List<OrderStat> sumRmbGroupByProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
+
+    /**
+     * 参数都不能为空
+     * @param start
+     * @param end
+     * @param proxy1
+     * @param proxy2
+     * @param proxy3
+     * @return
+     */
+    List<OrderStat> sumRmbGroupByUser(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
 }
