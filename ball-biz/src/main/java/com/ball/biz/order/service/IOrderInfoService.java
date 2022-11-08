@@ -50,4 +50,9 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
     BigDecimal statBetAmount(Long userId, String matchId);
 
     PageResult<OrderInfo> queryByStatusAndDate(List<String> statusList, LocalDate start, LocalDate end, Integer pageIndex, Integer pageSize);
+
+    /**
+     * 查询用户已完成订单，参数都必传
+     */
+    List<OrderInfo> queryUserFinish(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, Long userId);
 }

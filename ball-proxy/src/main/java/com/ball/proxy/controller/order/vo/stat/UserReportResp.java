@@ -2,6 +2,7 @@ package com.ball.proxy.controller.order.vo.stat;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,12 +15,13 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@Builder
 @ApiModel("注单报表-用户返回信息")
 public class UserReportResp {
     @ApiModelProperty("会员ID")
     private Long userId;
 
-    @ApiModelProperty("佣金结果")
+    @ApiModelProperty("日期时间")
     private LocalDateTime betTime;
 
     @ApiModelProperty("注单号")
@@ -43,6 +45,9 @@ public class UserReportResp {
     @ApiModelProperty("内容 - 赔率类型，HANDICAP[让球全场],HANDICAP_HALF[让球半场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场],OVER_UNDER_HALF[大小球半场]，CORRECT_SCORE[波胆],CORRECT_SCORE_HALF[半场波胆]")
     private String handicapType;
 
+    @ApiModelProperty("内容 - 即时赔率，例如：0/0.5")
+    private String instantHandicap;
+
     @ApiModelProperty("下注金额")
     private BigDecimal betAmount;
 
@@ -56,14 +61,14 @@ public class UserReportResp {
     private String betResult;
 
     @ApiModelProperty("赛果 - 主队比分(已根据投注类型判定取全场还是半场比分)")
-    private String homeScore;
+    private Integer homeScore;
 
     @ApiModelProperty("赛果 - 客队比分(已根据投注类型判定取全场还是半场比分)")
-    private String awayScore;
+    private Integer awayScore;
 
     @ApiModelProperty("代理商占成")
     private BigDecimal proxy3Amount;
 
     @ApiModelProperty("总代理占成")
-    private BigDecimal proxy1Amount;
+    private BigDecimal proxy2Amount;
 }

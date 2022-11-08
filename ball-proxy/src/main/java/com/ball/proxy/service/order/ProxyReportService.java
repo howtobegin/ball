@@ -1,11 +1,18 @@
 package com.ball.proxy.service.order;
 
+import com.alibaba.fastjson.JSON;
 import com.ball.base.context.UserContext;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
+import com.ball.biz.account.service.ICurrencyService;
+import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.match.entity.Schedules;
+import com.ball.biz.match.service.ISchedulesService;
+import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.entity.OrderStat;
+import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.order.service.IOrderStatService;
 import com.ball.biz.user.bo.ProxyRateInfo;
 import com.ball.biz.user.entity.UserExtend;
@@ -13,10 +20,7 @@ import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.proxy.ProxyUserService;
 import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
-import com.ball.proxy.controller.order.vo.stat.BaseReportReq;
-import com.ball.proxy.controller.order.vo.stat.Proxy2ReportResp;
-import com.ball.proxy.controller.order.vo.stat.Proxy3ReportResp;
-import com.ball.proxy.controller.order.vo.stat.Proxy3UserReportResp;
+import com.ball.proxy.controller.order.vo.stat.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +52,12 @@ public class ProxyReportService {
     private BizOrderStatService bizOrderStatService;
     @Autowired
     private ProxyUserService proxyUserService;
+    @Autowired
+    private IOrderInfoService orderInfoService;
+    @Autowired
+    private ISchedulesService schedulesService;
+    @Autowired
+    private ICurrencyService currencyService;
 
     /**
      * 代理1和代理2显示一样的数据项
@@ -96,6 +106,26 @@ public class ProxyReportService {
 
         List<OrderStat> list = orderStatService.sumRmbGroupByUser(req.getStart(), req.getEnd(), proxyOne, proxyTwo, proxyThree);
         return translateToProxy3UserReport(list);
+    }
+
+    /**
+     * 第四级，某个会员的详细投注
+     * @param req
+     * @return
+     */
+    public List<UserReportResp> userReport(BaseReportReq req) {
+        log.info("req {}",JSON.toJSONString(req));
+        BizAssert.notNull(req.getUserId(), BizErrCode.PARAM_ERROR_DESC,"userId");
+        List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
+        log.info("userType {} proxy {}", UserContext.getUserType(), proxy);
+
+        List<OrderInfo> orders = orderInfoService.queryUserFinish(req.getStart(), req.getEnd(), proxy.get(0), proxy.get(3), proxy.get(2), req.getUserId());
+        if (orders.isEmpty()) {
+            return Lists.newArrayList();
+        }
+        List<String> matchIds = orders.stream().map(OrderInfo::getMatchId).distinct().collect(Collectors.toList());
+        Map<String, Schedules> matchIdToSchedules = schedulesService.batchQuery(matchIds).stream().collect(Collectors.toMap(Schedules::getMatchId, Function.identity()));
+        return translateToUserReportResp(orders, matchIdToSchedules);
     }
 
     private List<OrderStat> proxyReportData(BaseReportReq req) {
@@ -247,5 +277,49 @@ public class ProxyReportService {
                     .build());
         }
         return translateList;
+    }
+
+    private List<UserReportResp> translateToUserReportResp(List<OrderInfo> orders, Map<String, Schedules> matchIdToSchedules) {
+        if (orders.isEmpty()) {
+            return Lists.newArrayList();
+        }
+        List<UserReportResp> ret = Lists.newArrayList();
+        for (OrderInfo order : orders) {
+            Schedules s = matchIdToSchedules.get(order.getMatchId());
+            String currency = order.getBetCurrency();
+            ret.add(UserReportResp.builder()
+                    .userId(order.getUserId())
+                    .betTime(order.getCreateTime())
+                    .orderId(order.getOrderId())
+                    .sport(order.getSport())
+                    .leagueName(Optional.ofNullable(s).map(Schedules::getLeagueNameZh).orElse(null))
+                    .homeName(Optional.ofNullable(s).map(Schedules::getHomeNameZh).orElse(null))
+                    .awayName(Optional.ofNullable(s).map(Schedules::getAwayNameZh).orElse(null))
+                    .betOption(order.getBetOption())
+                    .handicapType(order.getHandicapType())
+                    .instantHandicap(order.getInstantHandicap())
+                    // 以下金额，都换成RMB
+                    .betAmount(order.getBetRmbAmount())
+                    .validAmount(calcRmb(order.getValidAmount(), currency))
+                    .resultAmount(calcRmb(order.getResultAmount(), currency))
+                    .betResult(order.getBetResult())
+                    .homeScore(order.getHomeLastScore())
+                    .awayScore(order.getAwayLastScore())
+                    .proxy3Amount(calcRmb(order.getProxy3Amount(), currency))
+                    .proxy2Amount(calcRmb(order.getProxy2Amount(), currency))
+                    .build());
+        }
+        return ret;
+    }
+
+    private BigDecimal calcRmb(BigDecimal amount, String currency) {
+        if (amount == null) {
+            return BigDecimal.ZERO;
+        }
+        if (CurrencyEnum.RMB.name().equalsIgnoreCase(currency)) {
+            return amount.setScale(1, BigDecimal.ROUND_DOWN);
+        }
+        BigDecimal rmbRate = currencyService.getRmbRate(currency);
+        return amount.multiply(rmbRate).setScale(1, BigDecimal.ROUND_DOWN);
     }
 }

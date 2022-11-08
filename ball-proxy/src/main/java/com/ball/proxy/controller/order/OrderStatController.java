@@ -3,7 +3,6 @@ package com.ball.proxy.controller.order;
 import com.ball.proxy.controller.order.vo.stat.*;
 import com.ball.proxy.service.order.BizOrderStatService;
 import com.ball.proxy.service.order.ProxyReportService;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class OrderStatController {
     @ApiOperation("注单报表 - 会员")
     @PostMapping(value = "user/report" )
     public List<UserReportResp> userReport(@RequestBody @Valid BaseReportReq req){
-        return Lists.newArrayList();
+        return proxyReportService.userReport(req);
     }
 
     @ApiOperation("主页 - 绩效概况")

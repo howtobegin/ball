@@ -210,4 +210,18 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         List<OrderInfo> records = page.getRecords();
         return new PageResult<>(records, page.getTotal(), pageIndex, pageSize);
     }
+
+    @Override
+    public List<OrderInfo> queryUserFinish(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, Long userId) {
+        return lambdaQuery()
+                .eq(OrderInfo::getProxy1, proxy1)
+                .eq(OrderInfo::getProxy2, proxy2)
+                .eq(OrderInfo::getProxy3, proxy3)
+                .eq(OrderInfo::getUserId, userId)
+                .ge(OrderInfo::getBetDate, start)
+                .le(OrderInfo::getBetDate, end)
+                .eq(OrderInfo::getStatus, OrderStatus.FINISH.getCode())
+                .list()
+                ;
+    }
 }

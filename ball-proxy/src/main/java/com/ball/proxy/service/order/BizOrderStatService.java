@@ -1,19 +1,16 @@
 package com.ball.proxy.service.order;
 
+import com.alibaba.fastjson.JSON;
 import com.ball.base.context.UserContext;
 import com.ball.base.model.Const;
 import com.ball.base.util.BeanUtil;
 import com.ball.biz.account.entity.SettlementPeriod;
-import com.ball.biz.account.service.ICurrencyService;
 import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.order.entity.OrderStat;
 import com.ball.biz.order.entity.OrderSummary;
 import com.ball.biz.order.service.IOrderStatService;
 import com.ball.biz.order.service.IOrderSummaryService;
-import com.ball.biz.user.proxy.ProxyUserService;
-import com.ball.biz.user.service.IUserExtendService;
-import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.order.vo.stat.FourOneReportResp;
 import com.ball.proxy.controller.order.vo.stat.OrderSummaryResp;
 import com.ball.proxy.controller.order.vo.stat.SummaryReportReq;
@@ -45,15 +42,7 @@ public class BizOrderStatService {
     @Autowired
     private IOrderStatService orderStatService;
     @Autowired
-    private IUserInfoService userInfoService;
-    @Autowired
-    private ICurrencyService currencyService;
-    @Autowired
     private ISettlementPeriodService settlementPeriodService;
-    @Autowired
-    private ProxyUserService proxyUserService;
-    @Autowired
-    private IUserExtendService userExtendService;
 
     private static final String KEY_TODAY = "TODAY";
     private static final String KEY_YESTERDAY = "YESTERDAY";
@@ -104,13 +93,16 @@ public class BizOrderStatService {
             start = sp.getStartDate().toLocalDate();
             end = sp.getEndDate().toLocalDate();
         }
+        log.info("dateType {} start {} end {}", req.getDateType(), start, end);
         SummaryReportResp resp = summaryByDate(start, end, req.getProxyUserId());
         // 如果是昨天，需要和前一天做比较
         if (req.getDateType() == 1) {
             start = start.plusDays(-1);
             end = start.plusDays(-1);
             SummaryReportResp beforeDay = summaryByDate(start, end, req.getProxyUserId());
-            resp.setProfitRateCompareYesterday(resp.getProfitRate().subtract(beforeDay.getProfitRate()));
+            log.info("beforeDay {}", JSON.toJSONString(beforeDay));
+            BigDecimal beforeProfitRate = Optional.ofNullable(resp.getProfitRate()).orElse(BigDecimal.ZERO);
+            resp.setProfitRateCompareYesterday(beforeProfitRate.subtract(beforeDay.getProfitRate()));
             resp.setWinAmountCompareYesterday(resp.getWinAmount().subtract(beforeDay.getWinAmount()));
             resp.setValidAmountCompareYesterday(resp.getValidAmount().subtract(beforeDay.getValidAmount()));
         }
@@ -252,11 +244,6 @@ public class BizOrderStatService {
                 .date(stat.getBetDate())
                 .amount(toPlainString(stat.getResultRmbAmount(), "0.0"))
                 .build();
-    }
-
-    private BigDecimal calcRmb(BigDecimal amount, String currency) {
-        BigDecimal rmbRate = currencyService.getRmbRate(currency);
-        return amount.multiply(rmbRate);
     }
 
     public List<Long> proxy(Long proxy2Id, Long proxy3Id) {
