@@ -39,7 +39,7 @@ public class AnalyzerTest {
         OrderInfo order = orderInfoService.queryByOrderId(orderId);
         HandicapType type = HandicapType.parse(order.getHandicapType());
         AnalyzeResult betResult = AnalyzerHolder.get(type).analyze(order);
-        log.info("orderId {} type {} betResult {}", orderId, type, betResult);
+        log.info("orderId {} dataType {} betResult {}", orderId, type, betResult);
     }
 
     @Test

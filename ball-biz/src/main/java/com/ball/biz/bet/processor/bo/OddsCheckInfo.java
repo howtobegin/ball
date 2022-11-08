@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class OddsCheckInfo {
     private String matchId;
     /**
-     * type(HANDICAP[让球全场],HANDICAP_HALF[让球半场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场],OVER_UNDER_HALF[大小球半场])
+     * dataType(HANDICAP[让球全场],HANDICAP_HALF[让球半场],EUROPE_ODDS[独赢], OVER_UNDER[大小球全场],OVER_UNDER_HALF[大小球半场])
      */
     private HandicapType type;
 

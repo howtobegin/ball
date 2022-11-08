@@ -24,7 +24,7 @@ public class ServiceControl {
 
     private static HttpEntity buildEntity(Integer operation) {
         HttpHeaders headers = new HttpHeaders();
-        // 设置content-type
+        // 设置content-dataType
         headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, Object> param = new HashMap<>();
         String time = "" + System.currentTimeMillis();

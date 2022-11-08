@@ -30,7 +30,7 @@ public class UserTradeConfigReq {
 //    @ApiModelProperty("类型 HOE 让球, 大 / 小, 单 / 双; HOE_INPAY 滚球让球, 滚球大 / 小, 滚球单 / 双;" +
 //            " WINNER_AND_WINNER_INPAY 独赢, 滚球独赢; OTHER 其他玩法; OTHER_INPAY 滚球其他")
 //    @NotBlank
-//    private String type;
+//    private String dataType;
 
     /**
      * d类用户退水比例

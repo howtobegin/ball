@@ -59,7 +59,7 @@ public enum BizErrCode implements IBizErrCode {
 
     BNB_BALANCE_NOT_ENOUGH("49010", "bnb balance not enough"),
 
-    ADDRESS_TYPE_ILLEGAL("49011", "address type is illegal"),
+    ADDRESS_TYPE_ILLEGAL("49011", "address dataType is illegal"),
 
     INCOME_ADDRESS_NOT_HEX("49012", "income address not bsc's hex address"),
 

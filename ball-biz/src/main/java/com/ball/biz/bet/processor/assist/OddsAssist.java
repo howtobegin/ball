@@ -46,10 +46,10 @@ public class OddsAssist {
      * 赔率最新更新时间
      * fetch_odds_change_job  => ds_odds
      *
-     * fetch_odds_score_half_prematch_job => ds_odds_score(type=2, status=1)
-     * fetch_odds_score_half_inplay_job => ds_odds_score(type=2, status=2);
-     * fetch_odds_score_prematch_job => ds_odds_score(type=1, status=1);
-     * fetch_odds_score_inplay_job => ds_odds_score(type=1, status=2);
+     * fetch_odds_score_half_prematch_job => ds_odds_score(dataType=2, status=1)
+     * fetch_odds_score_half_inplay_job => ds_odds_score(dataType=2, status=2);
+     * fetch_odds_score_prematch_job => ds_odds_score(dataType=1, status=1);
+     * fetch_odds_score_inplay_job => ds_odds_score(dataType=1, status=2);
      * @return
      */
     public LocalDateTime getLastUpdateTime(HandicapType handicapType, Integer scoreStatus) {

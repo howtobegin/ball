@@ -68,7 +68,7 @@ public class SmsClyService {
 
     private static HttpEntity buildEntity(Map<String, String> param) {
         HttpHeaders headers = new HttpHeaders();
-        // 设置content-type
+        // 设置content-dataType
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(param, headers);
     }

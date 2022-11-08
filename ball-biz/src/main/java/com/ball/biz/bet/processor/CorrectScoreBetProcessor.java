@@ -62,7 +62,7 @@ public class CorrectScoreBetProcessor extends AbstractBetProcessor {
         String matchId = oddsScore.getMatchId();
         String companyId = oddsScore.getCompanyId();
         String betOddsStr = BetOption.SCORE == bo.getBetOption() ? oddsScore.getOdds() : oddsScore.getOtherOdds();
-        log.info("type {} betOption {} betOdds {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr);
+        log.info("dataType {} betOption {} betOdds {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr);
 
         /**
          * 波胆投注需把其他投注选项保存下来

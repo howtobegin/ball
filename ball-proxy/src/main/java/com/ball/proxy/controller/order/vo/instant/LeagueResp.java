@@ -15,15 +15,14 @@ import java.math.BigDecimal;
 @Setter
 @ApiModel("联盟返回信息")
 public class LeagueResp {
+
+    @ApiModelProperty("联赛id")
+    private String leagueId;
+
     @ApiModelProperty("联赛名称")
-    private String leagueName;
+    private String name;
 
     @ApiModelProperty("联赛中文名称")
-    private String leagueNameZh;
+    private String nameZh;
 
-    @ApiModelProperty("投注笔数")
-    private Long betCount;
-
-    @ApiModelProperty("下注金额")
-    private BigDecimal betAmount;
 }

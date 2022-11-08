@@ -16,10 +16,14 @@ import java.util.List;
 @ApiModel("投注信息")
 public class BetResp {
 
-    @ApiModelProperty("主要玩法投注信息")
-    private List<BetOddsResp> oddsRespList;
+    @ApiModelProperty("联赛信息")
+    private LeagueResp league;
 
-    @ApiModelProperty("波胆投注信息")
-    private List<BetOddsResp> oddsScoreRespList;
+    @ApiModelProperty("比赛信息")
+    private MatchResp match;
+
+
+    @ApiModelProperty("投注信息")
+    private List<BetOddsResp> list;
 
 }

@@ -127,7 +127,7 @@ public abstract class BaseTask implements Runnable, InitializingBean {
 
     public String toString() {
         return this.getClass().getSimpleName() + "(id:" + id + ",expression:" + getExpression()
-                + ",type:" + taskType + ",interval:" + interval()
+                + ",dataType:" + taskType + ",interval:" + interval()
                 + ", delay:" + delay() + ")";
     }
 }

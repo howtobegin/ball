@@ -24,7 +24,7 @@ public class EarlyReq {
     @NotNull
     private Integer dateType;
 
-    @ApiModelProperty("日期，type=4时，必传")
+    @ApiModelProperty("日期，dataType=4时，必传")
     @NotNull
     private LocalDate date;
 

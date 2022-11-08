@@ -40,7 +40,7 @@ public class CorrectScoreAnalyzer extends AbstractAnalyzer {
             boolean other = true;
             // 如果投注的是其他比分，需要判定比赛比分是否有对应投注项
             for (OddsScoreData.OddsScoreItem item : oddsScoreData.getOtherItems()) {
-                log.info("allScore type {} homeScore {} awayScore {}", item.getType(), item.getHomeScore(), item.getAwayScore());
+                log.info("allScore dataType {} homeScore {} awayScore {}", item.getType(), item.getHomeScore(), item.getAwayScore());
                 // 下单的时候已过滤整场或半场，这里再过滤一次，确保万无一失
                 if (!getMatchTimeType().isMe(item.getType())) {
                     continue;

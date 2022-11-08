@@ -32,7 +32,7 @@ public enum UserTypeEnum {
             case 7 :
             case 3 :
                 return PROXY_THREE;
-                default:throw new IllegalArgumentException("proxy type value " + v + " error");
+                default:throw new IllegalArgumentException("proxy dataType value " + v + " error");
         }
     }
 

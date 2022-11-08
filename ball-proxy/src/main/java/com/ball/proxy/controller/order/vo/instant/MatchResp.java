@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 @Setter
 @ApiModel("比赛返回信息")
 public class MatchResp {
+
+    @ApiModelProperty("比赛id")
+    private String matchId;
+
     @ApiModelProperty("主队名称")
     private String homeName;
 

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class OverviewReq {
     @ApiModelProperty("观看类型：1 所有；2 我的占成, 3 代理商占成，4 总代理+ 代理商占成")
     @NotNull
-    private Integer type;
+    private Integer dataType;
 
     @ApiModelProperty("开始时间")
     @NotNull

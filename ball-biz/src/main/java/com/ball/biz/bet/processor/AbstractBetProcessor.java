@@ -175,7 +175,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
 
     protected void checkOdds(OddsCheckInfo checkInfo, BetBo bo) {
         HandicapType handicapType = bo.getHandicapType();
-        log.info("odds type {} bo.type {}", checkInfo.getType(), handicapType);
+        log.info("odds dataType {} bo.dataType {}", checkInfo.getType(), handicapType);
         BizAssert.isTrue(handicapType == checkInfo.getType(), BizErrCode.PARAM_ERROR_DESC, "handicapType");
         // 未返回是否关闭，是否当未关闭处理？
         log.info("matchId {} close {}",checkInfo.getMatchId(), checkInfo.isClose());
@@ -326,7 +326,7 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
 
         String betOddsStr = getBetOdds(odds, bo);
         String handicapStr = OrderHelper.translate(odds.getInstantHandicap());
-        log.info("type {} betOption {} betOdds {} instantHandicap {} handicapStr {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr, odds.getInstantHandicap(), handicapStr);
+        log.info("dataType {} betOption {} betOdds {} instantHandicap {} handicapStr {}", bo.getHandicapType(), bo.getBetOption(), betOddsStr, odds.getInstantHandicap(), handicapStr);
         return BetInfo.builder()
                 .oddsData(oddsData)
                 .leagueId(getLeagueId(matchId))

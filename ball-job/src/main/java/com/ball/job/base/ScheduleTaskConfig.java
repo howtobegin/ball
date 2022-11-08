@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
 public class ScheduleTaskConfig implements SchedulingConfigurer {
     private Logger log = LoggerFactory.getLogger(ScheduleTaskConfig.class);
     public final static String TASK_NOT_EXISTS = "not exists";
-    public final static String TASK_TYPE_ERROR = "change task type must be trigger";
+    public final static String TASK_TYPE_ERROR = "change task dataType must be trigger";
     public final static String EXPRESSION_ERROR = "expression error";
     private final static String TASK_EXISTS = "exists";
     private final static String FAILURE = "failure";
