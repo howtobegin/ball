@@ -132,6 +132,9 @@ public class BizOrderStatService {
         } else {
             return SummaryReportResp.builder().build();
         }
+        if (proxy == null) {
+            return SummaryReportResp.builder().build();
+        }
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
         OrderStat stat = orderStatService.sumRmbByDateAndProxy(start, end, proxyOne, proxyTwo, proxyThree);
         BigDecimal resultAmount =Optional.ofNullable(stat).map(OrderStat::getResultAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
@@ -153,6 +156,9 @@ public class BizOrderStatService {
     public Map<String, List<FourOneReportResp>> fourReport() {
         // 代理
         List<Long> proxy = proxy(null,null);
+        if (proxy == null) {
+            return Maps.newHashMap();
+        }
         // 本期
         SettlementPeriod sp = settlementPeriodService.currentPeriod();
         if (sp == null) {
@@ -252,7 +258,7 @@ public class BizOrderStatService {
         if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
             return Lists.newArrayList(loginProxyUserId, proxy2Id, proxy3Id);
         } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
-            Lists.newArrayList(UserContext.getProxyUid(), loginProxyUserId, proxy3Id);
+            return Lists.newArrayList(UserContext.getProxyUid(), loginProxyUserId, proxy3Id);
         } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
             String[] split = UserContext.getProxyInfo().split(Const.RELATION_SPLIT);
             List<Long> proxy = Lists.newArrayList();

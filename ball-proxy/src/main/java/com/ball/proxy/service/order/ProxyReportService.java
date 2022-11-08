@@ -102,6 +102,10 @@ public class ProxyReportService {
         }
         // 当前代理用户
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
+        log.info("userId {} proxy {}", UserContext.getUserNo(), proxy);
+        if (proxy == null) {
+            return Lists.newArrayList();
+        }
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
 
         List<OrderStat> list = orderStatService.sumRmbGroupByUser(req.getStart(), req.getEnd(), proxyOne, proxyTwo, proxyThree);
@@ -118,6 +122,9 @@ public class ProxyReportService {
         BizAssert.notNull(req.getUserId(), BizErrCode.PARAM_ERROR_DESC,"userId");
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
         log.info("userType {} proxy {}", UserContext.getUserType(), proxy);
+        if (proxy == null) {
+            return Lists.newArrayList();
+        }
 
         List<OrderInfo> orders = orderInfoService.queryUserFinish(req.getStart(), req.getEnd(), proxy.get(0), proxy.get(3), proxy.get(2), req.getUserId());
         if (orders.isEmpty()) {
@@ -137,6 +144,10 @@ public class ProxyReportService {
             return Lists.newArrayList();
         }
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
+        log.info("proxy {}", proxy);
+        if (proxy == null) {
+            return Lists.newArrayList();
+        }
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
 
         return orderStatService.sumRmbGroupByProxy(req.getStart(), req.getEnd(), proxyOne, proxyTwo, proxyThree);
