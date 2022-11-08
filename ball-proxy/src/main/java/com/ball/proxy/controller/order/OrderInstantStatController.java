@@ -2,6 +2,7 @@ package com.ball.proxy.controller.order;
 
 import com.ball.base.context.UserContext;
 import com.ball.biz.bet.enums.OddsType;
+import com.ball.biz.bet.enums.Sport;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
@@ -19,6 +20,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +50,8 @@ public class OrderInstantStatController {
         }
 
         OverviewResp resp = new OverviewResp();
-        List<OverviewDetailResp> detailRespList = all.stream().collect(Collectors.groupingBy(OrderInfo::getSport)).entrySet().stream().map(e->{
+
+        Map<Integer,OverviewDetailResp> map = all.stream().collect(Collectors.groupingBy(OrderInfo::getSport)).entrySet().stream().map(e->{
             OverviewDetailResp detail = new OverviewDetailResp();
             detail.setSport(e.getKey());
             //@ApiModelProperty("滚球：投注笔数")
@@ -97,7 +100,7 @@ public class OrderInstantStatController {
             detail.setTodayBetCount(todayBetCount);
             detail.setTodayBetAmount(todayBetAmount);
             return detail;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toMap(OverviewDetailResp::getSport, OverviewDetailResp->OverviewDetailResp));
         OverviewDetailResp total = new OverviewDetailResp();
         total.setSport(0);
         total.setInplayBetCount(0L);
@@ -106,23 +109,59 @@ public class OrderInstantStatController {
         total.setTodayBetAmount(BigDecimal.ZERO);
         total.setEarlyBetCount(0L);
         total.setEarlyBetAmount(BigDecimal.ZERO);
-        detailRespList.forEach(d->{
-            total.setInplayBetCount(total.getInplayBetCount()+d.getInplayBetCount());
-            total.setInplayBetAmount(total.getInplayBetAmount().add(d.getInplayBetAmount()));
-            total.setTodayBetCount(total.getTodayBetCount()+d.getTodayBetCount());
-            total.setTodayBetAmount(total.getTodayBetAmount().add(d.getTodayBetAmount()));
-            total.setEarlyBetCount(total.getEarlyBetCount()+d.getEarlyBetCount());
-            total.setEarlyBetAmount(total.getEarlyBetAmount().add(d.getEarlyBetAmount()));
+//        detailRespList.forEach(d->{
+//            total.setInplayBetCount(total.getInplayBetCount()+d.getInplayBetCount());
+//            total.setInplayBetAmount(total.getInplayBetAmount().add(d.getInplayBetAmount()));
+//            total.setTodayBetCount(total.getTodayBetCount()+d.getTodayBetCount());
+//            total.setTodayBetAmount(total.getTodayBetAmount().add(d.getTodayBetAmount()));
+//            total.setEarlyBetCount(total.getEarlyBetCount()+d.getEarlyBetCount());
+//            total.setEarlyBetAmount(total.getEarlyBetAmount().add(d.getEarlyBetAmount()));
+//        });
+        List<OverviewDetailResp> list = _initList();
+        list.forEach(d->{
+            OverviewDetailResp v = map.get(d.getSport());
+            if (v != null) {
+                d.setInplayBetCount(v.getInplayBetCount());
+                d.setInplayBetAmount(v.getInplayBetAmount());
+                d.setTodayBetCount(v.getTodayBetCount());
+                d.setTodayBetAmount(v.getTodayBetAmount());
+                d.setEarlyBetCount(v.getEarlyBetCount());
+                d.setEarlyBetAmount(v.getEarlyBetAmount());
+
+                total.setInplayBetCount(total.getInplayBetCount()+d.getInplayBetCount());
+                total.setInplayBetAmount(total.getInplayBetAmount().add(d.getInplayBetAmount()));
+                total.setTodayBetCount(total.getTodayBetCount()+d.getTodayBetCount());
+                total.setTodayBetAmount(total.getTodayBetAmount().add(d.getTodayBetAmount()));
+                total.setEarlyBetCount(total.getEarlyBetCount()+d.getEarlyBetCount());
+                total.setEarlyBetAmount(total.getEarlyBetAmount().add(d.getEarlyBetAmount()));
+            }
+
         });
-        List<OverviewDetailResp> list = new ArrayList<>(all.size()+1);
-        list.add(total);
-        list.addAll(detailRespList);
+
         resp.setDetails(list);
 
         resp.setBetAmount(total.getEarlyBetAmount().add(total.getTodayBetAmount()).add(total.getInplayBetAmount()));
         resp.setBetCount(total.getEarlyBetCount()+total.getTodayBetCount()+total.getInplayBetCount());
 
         return resp;
+    }
+
+    private List<OverviewDetailResp> _initList() {
+        List<OverviewDetailResp> res = new ArrayList<>(Sport.values().length);
+        for (Sport s: Sport.values()) {
+            OverviewDetailResp d = new OverviewDetailResp();
+            d.setSport(s.getCode());
+            d.setInplayBetCount(0L);
+            d.setInplayBetAmount(BigDecimal.ZERO);
+            d.setTodayBetCount(0L);
+            d.setTodayBetAmount(BigDecimal.ZERO);
+            d.setEarlyBetCount(0L);
+            d.setEarlyBetAmount(BigDecimal.ZERO);
+            res.add(d);
+
+        }
+        return res;
+
     }
 
     private BigDecimal _calTypeAmount(OrderInfo order, Integer type) {

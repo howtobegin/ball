@@ -25,8 +25,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,7 +99,9 @@ public class AccountController {
     @ApiOperation("查询额度修改记录")
     @RequestMapping(value = "modifyRecord",method = {RequestMethod.GET,RequestMethod.POST})
     public PageResult<AccountModifyResp> modifyRecord(@RequestBody @Valid AccountModifyReq req) {
-        LocalDateTime timeStart = LocalDateTime.now().truncatedTo(ChronoUnit.MONTHS).minusMonths(req.getMonths());;
+        LocalDateTime timeStart = LocalDateTime.of(LocalDate.from(LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth())), LocalTime.MIN);
+        timeStart = timeStart.minusMonths(req.getMonths());
+
         LocalDateTime timeEnd = timeStart.plusMonths(1);
         PageResult<BizAssetAdjustmentOrder> result = iBizAssetAdjustmentOrderService.pageQuery(
                 iBizAssetAdjustmentOrderService.lambdaQuery().eq(BizAssetAdjustmentOrder::getUserNo,UserContext.getUserNo())
@@ -130,8 +136,8 @@ public class AccountController {
         SettlementPeriod period = iSettlementPeriodService.currentPeriod();
         if (period != null) {
             resp.setCurrentPeriod(String.format("%s - %s", DateUtil.formatDateHasSlash(period.getStartDate()), DateUtil.formatDateHasSlash(period.getEndDate())));
-            LocalDateTime now = LocalDateTime.now();
-            resp.setPeriodLeftDays(Math.max(0,Duration.between(now,period.getEndDate()).toDays()));
+            LocalDateTime now = LocalDateTime.of(LocalDate.now(),LocalTime.MIN);
+            resp.setPeriodLeftDays(Math.max(0,Duration.between(now,period.getEndDate()).toDays()+1));
             resp.setPeriodFinishedDays(Math.min(Duration.between(period.getStartDate(),now).toDays(),
                     Duration.between(period.getStartDate(),period.getEndDate()).toDays()));
             // 统计会员数
