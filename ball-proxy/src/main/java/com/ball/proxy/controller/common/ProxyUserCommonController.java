@@ -9,6 +9,7 @@ import com.ball.proxy.service.UserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,6 +75,9 @@ public class ProxyUserCommonController {
     }
 
     private String getLike(String proxyInfo, String current) {
+        if (StringUtils.isEmpty(proxyInfo)) {
+            return current + Const.SQL_LIKE;
+        }
         String[] info = proxyInfo.split(Const.RELATION_SPLIT);
         StringBuilder sb = new StringBuilder();
         for (String s : info) {
