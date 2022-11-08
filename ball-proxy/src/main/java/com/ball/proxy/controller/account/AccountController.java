@@ -104,7 +104,8 @@ public class AccountController {
 
         LocalDateTime timeEnd = timeStart.plusMonths(1);
         PageResult<BizAssetAdjustmentOrder> result = iBizAssetAdjustmentOrderService.pageQuery(
-                iBizAssetAdjustmentOrderService.lambdaQuery().eq(BizAssetAdjustmentOrder::getUserNo,UserContext.getUserNo())
+                iBizAssetAdjustmentOrderService.lambdaQuery()
+                        .eq(BizAssetAdjustmentOrder::getUserNo,req.getUserNo())
                         .between(BizAssetAdjustmentOrder::getCreateTime, timeStart, timeEnd),req);
 
 

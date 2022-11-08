@@ -19,5 +19,7 @@ public class OverviewReq {
     @NotNull
     private Integer type;
 
+    @ApiModelProperty("开始时间")
+    @NotNull
     private LocalDateTime time;
 }

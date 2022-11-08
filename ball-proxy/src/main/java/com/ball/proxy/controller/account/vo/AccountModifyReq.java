@@ -21,4 +21,8 @@ public class AccountModifyReq extends Paging {
     @Min(0)
     @Max(1)
     private Integer months;
+
+    @ApiModelProperty("用户id")
+    @NotNull
+    private Long userNo;
 }

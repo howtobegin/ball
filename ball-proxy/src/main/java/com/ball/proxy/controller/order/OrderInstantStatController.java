@@ -73,6 +73,9 @@ public class OrderInstantStatController {
             BigDecimal earlyBetAmount = BigDecimal.ZERO;
 
             for (OrderInfo o: e.getValue()) {
+                if (o.getOddsType() == null) {
+                    continue;
+                }
                 OddsType oddsType = OddsType.parse(o.getOddsType());
                 switch (oddsType) {
                     case IN_PLAY_ODDS:
