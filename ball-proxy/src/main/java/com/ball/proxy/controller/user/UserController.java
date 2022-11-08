@@ -10,7 +10,9 @@ import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
+import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
+import com.ball.biz.user.service.IUserExtendService;
 import com.ball.biz.user.service.IUserInfoService;
 import com.ball.proxy.controller.common.vo.UserNoReq;
 import com.ball.proxy.controller.user.vo.AddUserReq;
@@ -47,6 +49,9 @@ public class UserController {
 
     @Autowired
     private IUserAccountService userAccountService;
+
+    @Autowired
+    private IUserExtendService userExtendService;
 
     @ApiOperation("添加会员")
     @PostMapping("add")
@@ -94,6 +99,8 @@ public class UserController {
         UserInfoResp resp = BeanUtil.copy(userInfo, UserInfoResp.class);
         resp.setCurrency(account.getCurrency());
         resp.setBalance(account.getBalance().subtract(account.getFreezeAmount()));
+        UserExtend userExtend = userExtendService.getByUid(req.getUserNo());
+        resp.setHandicapType(userExtend.getHandicapType());
         return resp;
     }
 }

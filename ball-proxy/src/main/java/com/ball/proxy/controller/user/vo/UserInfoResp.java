@@ -53,6 +53,12 @@ public class UserInfoResp {
     @ApiModelProperty("密码修改时间")
     private Long changePasswordTime;
 
+    @ApiModelProperty("盘口类型")
+    private String handicapType;
+
+    @ApiModelProperty("代理账号")
+    private String proxyAccount;
+
     public void setId(Long id) {
         userNo = id;
     }
