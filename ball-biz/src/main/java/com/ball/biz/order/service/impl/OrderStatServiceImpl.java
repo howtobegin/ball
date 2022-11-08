@@ -3,11 +3,14 @@ package com.ball.biz.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.account.service.ICurrencyService;
+import com.ball.biz.bet.enums.OrderStatus;
+import com.ball.biz.enums.CurrencyEnum;
 import com.ball.biz.exception.BizErrCode;
 import com.ball.biz.order.bo.OrderStatUniqBo;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.entity.OrderStat;
 import com.ball.biz.order.mapper.OrderStatMapper;
+import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.order.service.IOrderStatService;
 import com.ball.biz.util.InsertHelper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -34,6 +38,43 @@ import java.util.List;
 public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat> implements IOrderStatService {
     @Autowired
     private ICurrencyService currencyService;
+    @Autowired
+    private IOrderInfoService orderInfoService;
+
+    @Override
+    public void init() {
+        try {
+            // 如果没数据，重新统计写入
+            OrderStat one = lambdaQuery().last("limit 1").one();
+            log.info("exists {}", one != null);
+            if (one != null) {
+                return;
+            }
+            // 可能很慢，只需执行一次
+            QueryWrapper<OrderInfo> query = new QueryWrapper<>();
+            query.select("proxy1,proxy2,proxy3,bet_date,user_id,bet_currency," +
+                    "sum(bet_amount) bet_amount," +
+                    "sum(result_amount) result_amount," +
+                    "sum(valid_amount) valid_amount," +
+                    "sum(proxy1_amount) proxy1_amount," +
+                    "sum(proxy2_amount) proxy2_amount," +
+                    "sum(proxy3_amount) proxy3_amount," +
+                    "sum(backwater_amount) backwater_amount," +
+                    // id接收投注数量
+                    "sum(1) id")
+                    .eq("status", OrderStatus.FINISH.getCode())
+                    .groupBy("proxy1,proxy2,proxy3,bet_date,user_id,bet_currency").orderByAsc("bet_date");
+            List<OrderInfo> orders = orderInfoService.getBaseMapper().selectList(query);
+            log.info("orders's size {}", orders.size());
+            // 初始化
+            List<OrderStat> orderStats = orders.stream().map(o -> buildOrderStat(o, o.getId())).collect(Collectors.toList());
+            log.info("orderStats's size {}", orders.size());
+            saveBatch(orderStats);
+            log.info("init end");
+        } catch (Exception e) {
+            log.info("init error {}", e.getMessage(), e);
+        }
+    }
 
     @Override
     public OrderStat queryOne(OrderStatUniqBo uniqBo) {
@@ -141,7 +182,13 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         return queryOne(buildUniqWhere(order));
     }
 
-    private OrderStat buildOrderStat(OrderInfo order) {
+    @Override
+    public OrderStat buildOrderStat(OrderInfo order) {
+        return buildOrderStat(order, 1L);
+    }
+
+    @Override
+    public OrderStat buildOrderStat(OrderInfo order, Long betCount) {
         String betCurrency = order.getBetCurrency();
         return new OrderStat()
                 .setBetDate(order.getBetDate())
@@ -150,6 +197,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .setProxy3(order.getProxy3())
                 .setUserId(order.getUserId())
                 .setBetCurrency(betCurrency)
+
                 .setBetAmount(order.getBetAmount())
                 .setBetRmbAmount(calcRmb(order.getBetAmount(), betCurrency))
                 .setResultAmount(order.getResultAmount())
@@ -164,7 +212,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 .setProxy3RmbAmount(calcRmb(order.getProxy3Amount(), betCurrency))
                 .setBackwaterAmount(order.getBackwaterAmount())
                 .setBackwaterRmbAmount(calcRmb(order.getBackwaterAmount(), betCurrency))
-                .setBetCount(1L);
+                .setBetCount(betCount);
     }
 
     @Override
@@ -205,13 +253,14 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
     }
 
     @Override
-    public List<OrderStat> sumRmbGroupByProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3) {
-        String groupBy = "proxy1";
-        if (proxy2 != null) {
-            groupBy += ",proxy2";
-        }
-        if (proxy3 != null) {
-            groupBy += ",proxy3";
+    public List<OrderStat> sumRmbGroupByProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, int level) {
+        String groupBy = "";
+        if (level == 1) {
+            groupBy = "proxy1";
+        } else if (level == 2) {
+            groupBy = "proxy1, proxy2";
+        } else if (level == 3) {
+            groupBy = "proxy1, proxy2, proxy3";
         }
         return sumRmbGroupBy(start, end, proxy1, proxy2, proxy3, groupBy);
     }
@@ -224,7 +273,7 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         BizAssert.notNull(proxy2, BizErrCode.PARAM_ERROR_DESC,"proxy2");
         BizAssert.notNull(proxy3, BizErrCode.PARAM_ERROR_DESC,"proxy3");
 
-        return sumRmbGroupBy(start, end, proxy1, proxy2, proxy3, "userId");
+        return sumRmbGroupBy(start, end, proxy1, proxy2, proxy3, "user_id");
     }
 
     private List<OrderStat> sumRmbGroupBy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, String groupBy) {
@@ -250,11 +299,15 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
         return value.stripTrailingZeros().toPlainString();
     }
 
-    private BigDecimal calcRmb(BigDecimal value, String betCurrenct) {
+    private BigDecimal calcRmb(BigDecimal value, String betCurrency) {
         if (value == null) {
             return BigDecimal.ZERO;
         }
-        BigDecimal rmbRate = currencyService.getRmbRate(betCurrenct);
+        if (CurrencyEnum.RMB.name().equalsIgnoreCase(betCurrency)) {
+            return value;
+        }
+
+        BigDecimal rmbRate = currencyService.getRmbRate(betCurrency);
         return value.multiply(rmbRate);
     }
 }

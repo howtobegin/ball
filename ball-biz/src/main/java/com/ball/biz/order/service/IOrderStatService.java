@@ -20,6 +20,8 @@ import java.util.List;
  */
 public interface IOrderStatService extends IService<OrderStat>, IBaseService {
 
+    void init();
+
     OrderStat queryOne(OrderStatUniqBo uniqBo);
 
     OrderStatUniqBo buildUniqWhere(OrderInfo order);
@@ -29,6 +31,10 @@ public interface IOrderStatService extends IService<OrderStat>, IBaseService {
     void newOrderCreate(OrderInfo order);
 
     void newOrderFinish(OrderInfo order);
+
+    OrderStat buildOrderStat(OrderInfo order);
+
+    OrderStat buildOrderStat(OrderInfo order, Long betCount);
 
     /**
      * 根据日期，代理分组求和
@@ -45,9 +51,10 @@ public interface IOrderStatService extends IService<OrderStat>, IBaseService {
      * @param proxy1    不能为空
      * @param proxy2
      * @param proxy3
+     * @param level     报表层级 1或2
      * @return
      */
-    List<OrderStat> sumRmbGroupByProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3);
+    List<OrderStat> sumRmbGroupByProxy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, int level);
 
     /**
      * 参数都不能为空
