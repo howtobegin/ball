@@ -32,6 +32,9 @@ public class BaseReportReq {
     @NotNull
     private Integer sport;
 
+    @ApiModelProperty("登1（点击账号进入下一级报表时，必传）")
+    private Long proxy1Id;
+
     @ApiModelProperty("登2（点击账号进入下一级报表时，必传）")
     private Long proxy2Id;
 

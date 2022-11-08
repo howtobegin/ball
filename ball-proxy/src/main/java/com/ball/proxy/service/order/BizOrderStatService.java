@@ -53,7 +53,10 @@ public class BizOrderStatService {
     private static final String KEY_FOUR_ONE_VALID_AMOUNT = "VALID_AMOUNT";
     private static final String KEY_FOUR_ONE_RESULT_AMOUNT = "RESULT_AMOUNT";
 
-
+    /**
+     * 赛事结果概要（key:YESTERDAY 昨天；TODAY 今天）
+     * @return
+     */
     public Map<String, List<OrderSummaryResp>> summary() {
         LocalDate today = LocalDate.now();
 

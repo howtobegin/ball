@@ -61,16 +61,18 @@ public class ProxyReportService {
 
     /**
      * 代理1和代理2显示一样的数据项
-     * 1-1，都不传
-     * 1-2，proxy2Id
-     * 1-3，proxy2Id，proxy3Id
-     * 第一级，显示登1或登2数据
      * @param req
      * @return
      */
     public List<Proxy2ReportResp> proxyReportLevel1(BaseReportReq req) {
-        List<OrderStat> list = proxyReportData(req);
-        return translateToProxy2Report(list, UserContext.getUserType());
+        int level = 1;
+        if (UserTypeEnum.PROXY_ONE.isMe(UserContext.getUserType())) {
+            level = req.getProxy1Id() == null ? level : 2;
+        } else if (UserTypeEnum.PROXY_TWO.isMe(UserContext.getUserType())) {
+            level = 2;
+        }
+        List<OrderStat> list = proxyReportData(req, level);
+        return translateToProxy2Report(list, level);
     }
 
     /**
@@ -78,28 +80,17 @@ public class ProxyReportService {
      * @param req
      * @return
      */
-    public List<Proxy3ReportResp> proxyReportLevel2(BaseReportReq req) {
-        Integer userType = UserContext.getUserType();
-        if (!UserTypeEnum.PROXY_TWO.isMe(userType)) {
-            BizAssert.notNull(req.getProxy2Id(), BizErrCode.PARAM_ERROR_DESC, "proxy2Id");
-        }
-        return translateToProxy3Report(proxyReportData(req));
+    public List<Proxy3ReportResp> proxyReportLevel3(BaseReportReq req) {
+        int level = 3;
+        return translateToProxy3Report(proxyReportData(req, level));
     }
 
     /**
-     * 第三级，显示某个登3下会员数据
+     * 第四级，显示某个登3下会员数据
      * @param req
      * @return
      */
-    public List<Proxy3UserReportResp> proxyReportLevel3(BaseReportReq req) {
-        Integer userType = UserContext.getUserType();
-        if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
-            BizAssert.notNull(req.getProxy2Id(), BizErrCode.PARAM_ERROR_DESC, "proxy2Id");
-            BizAssert.notNull(req.getProxy3Id(), BizErrCode.PARAM_ERROR_DESC, "proxy3Id");
-        }
-        if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
-            BizAssert.notNull(req.getProxy3Id(), BizErrCode.PARAM_ERROR_DESC, "proxy3Id");
-        }
+    public List<Proxy3UserReportResp> proxyReportLevel4(BaseReportReq req) {
         // 当前代理用户
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
         log.info("userId {} proxy {}", UserContext.getUserNo(), proxy);
@@ -113,11 +104,11 @@ public class ProxyReportService {
     }
 
     /**
-     * 第四级，某个会员的详细投注
+     * 第五级，某个会员的详细投注
      * @param req
      * @return
      */
-    public List<UserReportResp> userReport(BaseReportReq req) {
+    public List<UserReportResp> userReportLevel5(BaseReportReq req) {
         log.info("req {}",JSON.toJSONString(req));
         BizAssert.notNull(req.getUserId(), BizErrCode.PARAM_ERROR_DESC,"userId");
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
@@ -126,7 +117,7 @@ public class ProxyReportService {
             return Lists.newArrayList();
         }
 
-        List<OrderInfo> orders = orderInfoService.queryUserFinish(req.getStart(), req.getEnd(), proxy.get(0), proxy.get(3), proxy.get(2), req.getUserId(), req.isHasResult());
+        List<OrderInfo> orders = orderInfoService.queryUserFinish(req.getStart(), req.getEnd(), proxy.get(0), proxy.get(1), proxy.get(2), req.getUserId(), req.isHasResult());
         if (orders.isEmpty()) {
             return Lists.newArrayList();
         }
@@ -135,7 +126,7 @@ public class ProxyReportService {
         return translateToUserReportResp(orders, matchIdToSchedules, req.isHasResult());
     }
 
-    private List<OrderStat> proxyReportData(BaseReportReq req) {
+    private List<OrderStat> proxyReportData(BaseReportReq req, int level) {
         // 当前代理用户
         Long userNo = UserContext.getUserNo();
         Integer userType = UserContext.getUserType();
@@ -150,33 +141,33 @@ public class ProxyReportService {
         }
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
 
-        return orderStatService.sumRmbGroupByProxy(req.getStart(), req.getEnd(), proxyOne, proxyTwo, proxyThree);
+        return orderStatService.sumRmbGroupByProxy(req.getStart(), req.getEnd(), proxyOne, proxyTwo, proxyThree, level);
     }
 
-    private Map<Long, UserInfo> proxyIdToUser(List<OrderStat> list, Integer userType) {
+    private Map<Long, UserInfo> proxyIdToUser(List<OrderStat> list, Integer level) {
         if (list.isEmpty()) {
             return Maps.newHashMap();
         }
-        List<Long> ids = userIds(list, userType);
+        List<Long> ids = userIds(list, level);
         List<UserInfo> users = userInfoService.lambdaQuery().in(UserInfo::getId, ids).list();
         return users.stream().collect(Collectors.toMap(UserInfo::getId, Function.identity()));
     }
 
-    private Map<Long, BigDecimal> proxyToRate(List<OrderStat> list, Integer userType) {
+    private Map<Long, BigDecimal> proxyToRate(List<OrderStat> list, Integer level) {
         if (list.isEmpty()) {
             return Maps.newHashMap();
         }
-        List<Long> ids = userIds(list, userType);
+        List<Long> ids = userIds(list, level);
         return userExtendService.getByUid(ids).stream().collect(Collectors.toMap(UserExtend::getId, UserExtend::getProxyRate));
     }
 
-    private List<Long> userIds(List<OrderStat> list, Integer userType) {
+    private List<Long> userIds(List<OrderStat> list, Integer level) {
         return list.stream().map(stat -> {
-            if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+            if (level == 1) {
                 return stat.getProxy1();
-            } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
+            } else if (level == 2) {
                 return stat.getProxy2();
-            } else if (UserTypeEnum.PROXY_THREE.isMe(userType)) {
+            } else if (level == 3) {
                 return stat.getProxy3();
             } else {
                 return stat.getUserId();
@@ -184,19 +175,19 @@ public class ProxyReportService {
         }).distinct().collect(Collectors.toList());
     }
 
-    private List<Proxy2ReportResp> translateToProxy2Report(List<OrderStat> list, Integer userType) {
+    private List<Proxy2ReportResp> translateToProxy2Report(List<OrderStat> list, Integer level) {
         if (list.isEmpty()) {
             return Lists.newArrayList();
         }
-        Map<Long, UserInfo> proxy2IdToUser = proxyIdToUser(list, userType);
-        Map<Long, BigDecimal> proxy2Rate = proxyToRate(list, userType);
-        return list.stream().map(stat -> translateToProxy2ReportOne(stat, proxy2IdToUser, proxy2Rate, userType)).collect(Collectors.toList());
+        Map<Long, UserInfo> proxy2IdToUser = proxyIdToUser(list, level);
+        Map<Long, BigDecimal> proxy2Rate = proxyToRate(list, level);
+        return list.stream().map(stat -> translateToProxy2ReportOne(stat, proxy2IdToUser, proxy2Rate, level)).collect(Collectors.toList());
     }
 
-    private Proxy2ReportResp translateToProxy2ReportOne(OrderStat stat, Map<Long, UserInfo> userIdToUser, Map<Long, BigDecimal> proxy2Rate, Integer userType) {
+    private Proxy2ReportResp translateToProxy2ReportOne(OrderStat stat, Map<Long, UserInfo> userIdToUser, Map<Long, BigDecimal> proxy2Rate, Integer level) {
         Proxy2ReportResp resp = BeanUtil.copy(stat, Proxy2ReportResp.class);
         // 只有登1和登2用
-        Long proxyId = UserTypeEnum.PROXY_ONE.isMe(userType) ? stat.getProxy1() : stat.getProxy2();
+        Long proxyId = level == 1 ? stat.getProxy1() : stat.getProxy2();
         UserInfo user = userIdToUser.get(proxyId);
         resp.setProxyId(proxyId);
         if (user != null) {
@@ -336,5 +327,50 @@ public class ProxyReportService {
         }
         BigDecimal rmbRate = currencyService.getRmbRate(currency);
         return amount.multiply(rmbRate).setScale(1, BigDecimal.ROUND_DOWN);
+    }
+
+    /**
+     *  * 登1，一条登1数据，无，Proxy2ReportResp
+     *  *  点登1，登1下登2数据，proxy1Id，Proxy2ReportResp
+     *  *  点登2，登2下登3数据，proxy2Id，Proxy3ReportResp
+     *  *  点登3，登3下会员数据，proxy3Id，Proxy3UserReportResp
+     *  *  点会员，会员下投注数据，userId，UserReportResp
+     *  *
+     *  * 登2，一条登2数据，无
+     *  *  点登2，登2下登3数据，proxy2Id
+     *  *  点登3，登3下会员数据，proxy3Id
+     *  *  点会员，会员下投注数据，userId
+     *  * 登3，一条登3数据，无
+     *  *  点登3，登3下会员数据，proxy3Id
+     *  *  点会员，会员下投注数据，userId
+     * @param req
+     * @return
+     */
+    private int anlyzeLevel(BaseReportReq req) {
+        Integer userType = UserContext.getUserType();
+        log.info("userType {}", userType);
+        if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+            int level = 1;
+            if (req.getProxy1Id() != null) {
+                level++;
+            }
+            if (req.getProxy2Id() != null) {
+                level++;
+            }
+            if (req.getProxy3Id() != null) {
+                level++;
+            }
+            if (req.getUserId() != null) {
+                level++;
+            }
+            return level;
+        } else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
+            return req.getProxy1Id() == null ? 1 : 2;
+        } else if (UserTypeEnum.PROXY_ONE.isMe(userType)) {
+            return req.getProxy1Id() == null ? 1 : 2;
+        }
+
+
+        return 1;
     }
 }

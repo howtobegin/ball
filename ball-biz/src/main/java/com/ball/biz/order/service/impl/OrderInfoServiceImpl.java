@@ -217,8 +217,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         List<String> statusCodes = finish ? Lists.newArrayList(OrderStatus.FINISH.getCode()) : OrderStatus.finishCodes(false);
         return lambdaQuery()
                 .eq(OrderInfo::getProxy1, proxy1)
-                .eq(OrderInfo::getProxy2, proxy2)
-                .eq(OrderInfo::getProxy3, proxy3)
+                .eq(proxy2 != null, OrderInfo::getProxy2, proxy2)
+                .eq(proxy3 != null, OrderInfo::getProxy3, proxy3)
                 .eq(OrderInfo::getUserId, userId)
                 .ge(OrderInfo::getBetDate, start)
                 .le(OrderInfo::getBetDate, end)

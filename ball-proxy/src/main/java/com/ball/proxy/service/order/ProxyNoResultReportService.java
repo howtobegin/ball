@@ -3,11 +3,15 @@ package com.ball.proxy.service.order;
 import com.alibaba.fastjson.JSON;
 import com.ball.base.context.UserContext;
 import com.ball.biz.bet.enums.OrderStatus;
+import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.service.IUserInfoService;
-import com.ball.proxy.controller.order.vo.stat.*;
+import com.ball.proxy.controller.order.vo.stat.BaseReportReq;
+import com.ball.proxy.controller.order.vo.stat.Proxy2ReportResp;
+import com.ball.proxy.controller.order.vo.stat.Proxy3ReportResp;
+import com.ball.proxy.controller.order.vo.stat.Proxy3UserReportResp;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -38,42 +42,43 @@ public class ProxyNoResultReportService {
 
     /**
      * 代理1和代理2显示一样的数据项
-     * 1-1，都不传
-     * 1-2，proxy2Id
-     * 1-3，proxy2Id，proxy3Id
-     * 第一级，显示登1或登2数据
      * @param req
      * @return
      */
     public List<Proxy2ReportResp> proxyReportLevel1(BaseReportReq req) {
-        List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
-        List<OrderInfo> orders = sum(req, proxy);
+        List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());int level = 1;
+        if (UserTypeEnum.PROXY_ONE.isMe(UserContext.getUserType())) {
+            level = req.getProxy1Id() == null ? level : 2;
+        } else if (UserTypeEnum.PROXY_TWO.isMe(UserContext.getUserType())) {
+            level = 2;
+        }
+        List<OrderInfo> orders = sum(req, proxy, level);
         return translateToProxy2ReportResp(orders, proxy);
     }
 
     /**
-     * 第二级，显示某个登2下登3数据
+     * 显示某个登2下登3数据
      * @param req
      * @return
      */
-    public List<Proxy3ReportResp> proxyReportLevel2(BaseReportReq req) {
+    public List<Proxy3ReportResp> proxyReportLevel3(BaseReportReq req) {
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
-        List<OrderInfo> orders = sum(req, proxy);
+        List<OrderInfo> orders = sum(req, proxy, 3);
         return translateToProxy3ReportResp(orders);
     }
 
     /**
-     * 第三级，显示某个登3下会员数据
+     * 显示某个登3下会员数据
      * @param req
      * @return
      */
-    public List<Proxy3UserReportResp> proxyReportLevel3(BaseReportReq req) {
+    public List<Proxy3UserReportResp> proxyReportLevel4(BaseReportReq req) {
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
-        List<OrderInfo> orders = sum(req, proxy);
+        List<OrderInfo> orders = sum(req, proxy, 4);
         return translateToProxy3UserReportResp(orders);
     }
 
-    private List<OrderInfo> sum(BaseReportReq req, List<Long> proxy) {
+    private List<OrderInfo> sum(BaseReportReq req, List<Long> proxy, int level) {
         Integer userType = UserContext.getUserType();
         log.info("req {} userId {} userType {} proxy {}", JSON.toJSONString(req), UserContext.getUserNo(), userType, proxy);
         if (proxy == null) {
@@ -82,11 +87,12 @@ public class ProxyNoResultReportService {
         Long proxy1 = proxy.get(0), proxy2 = proxy.get(1), proxy3 = proxy.get(2);
 
         String groupBy = "proxy1";
-        if (proxy2 != null) {
-            groupBy += ",proxy2";
-        }
-        if (proxy3 != null) {
-            groupBy += ",proxy3";
+        if (level == 2) {
+            groupBy = "proxy1,proxy2";
+        } else if (level == 3) {
+            groupBy = "proxy1,proxy2,proxy3";
+        } else if (level == 4) {
+            groupBy = "proxy1,proxy2,proxy3,user_id";
         }
 
         QueryWrapper<OrderInfo> query = new QueryWrapper<>();
