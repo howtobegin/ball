@@ -54,5 +54,7 @@ public interface IOrderInfoService extends IService<OrderInfo>, IBaseService {
     /**
      * 查询用户已完成订单，参数都必传
      */
-    List<OrderInfo> queryUserFinish(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, Long userId);
+    List<OrderInfo> queryUserFinish(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, Long userId, boolean finish);
+
+
 }

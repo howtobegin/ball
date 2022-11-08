@@ -126,13 +126,13 @@ public class ProxyReportService {
             return Lists.newArrayList();
         }
 
-        List<OrderInfo> orders = orderInfoService.queryUserFinish(req.getStart(), req.getEnd(), proxy.get(0), proxy.get(3), proxy.get(2), req.getUserId());
+        List<OrderInfo> orders = orderInfoService.queryUserFinish(req.getStart(), req.getEnd(), proxy.get(0), proxy.get(3), proxy.get(2), req.getUserId(), req.isHasResult());
         if (orders.isEmpty()) {
             return Lists.newArrayList();
         }
         List<String> matchIds = orders.stream().map(OrderInfo::getMatchId).distinct().collect(Collectors.toList());
         Map<String, Schedules> matchIdToSchedules = schedulesService.batchQuery(matchIds).stream().collect(Collectors.toMap(Schedules::getMatchId, Function.identity()));
-        return translateToUserReportResp(orders, matchIdToSchedules);
+        return translateToUserReportResp(orders, matchIdToSchedules, req.isHasResult());
     }
 
     private List<OrderStat> proxyReportData(BaseReportReq req) {
@@ -290,7 +290,7 @@ public class ProxyReportService {
         return translateList;
     }
 
-    private List<UserReportResp> translateToUserReportResp(List<OrderInfo> orders, Map<String, Schedules> matchIdToSchedules) {
+    private List<UserReportResp> translateToUserReportResp(List<OrderInfo> orders, Map<String, Schedules> matchIdToSchedules, boolean hasResult) {
         if (orders.isEmpty()) {
             return Lists.newArrayList();
         }
@@ -298,7 +298,8 @@ public class ProxyReportService {
         for (OrderInfo order : orders) {
             Schedules s = matchIdToSchedules.get(order.getMatchId());
             String currency = order.getBetCurrency();
-            ret.add(UserReportResp.builder()
+
+            UserReportResp resp = UserReportResp.builder()
                     .userId(order.getUserId())
                     .betTime(order.getCreateTime())
                     .orderId(order.getOrderId())
@@ -311,14 +312,17 @@ public class ProxyReportService {
                     .instantHandicap(order.getInstantHandicap())
                     // 以下金额，都换成RMB
                     .betAmount(order.getBetRmbAmount())
-                    .validAmount(calcRmb(order.getValidAmount(), currency))
-                    .resultAmount(calcRmb(order.getResultAmount(), currency))
-                    .betResult(order.getBetResult())
-                    .homeScore(order.getHomeLastScore())
-                    .awayScore(order.getAwayLastScore())
-                    .proxy3Amount(calcRmb(order.getProxy3Amount(), currency))
-                    .proxy2Amount(calcRmb(order.getProxy2Amount(), currency))
-                    .build());
+                    .build();
+            if (hasResult) {
+                resp.setValidAmount(calcRmb(order.getValidAmount(), currency))
+                        .setResultAmount(calcRmb(order.getResultAmount(), currency))
+                        .setBetResult(order.getBetResult())
+                        .setHomeScore(order.getHomeLastScore())
+                        .setAwayScore(order.getAwayLastScore())
+                        .setProxy3Amount(calcRmb(order.getProxy3Amount(), currency))
+                        .setProxy2Amount(calcRmb(order.getProxy2Amount(), currency));
+            }
+            ret.add(resp);
         }
         return ret;
     }

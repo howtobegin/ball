@@ -101,22 +101,27 @@ public class BizOrderStatService {
             end = start.plusDays(-1);
             SummaryReportResp beforeDay = summaryByDate(start, end, req.getProxyUserId());
             log.info("beforeDay {}", JSON.toJSONString(beforeDay));
-            BigDecimal beforeProfitRate = Optional.ofNullable(resp.getProfitRate()).orElse(BigDecimal.ZERO);
-            resp.setProfitRateCompareYesterday(beforeProfitRate.subtract(beforeDay.getProfitRate()));
-            resp.setWinAmountCompareYesterday(resp.getWinAmount().subtract(beforeDay.getWinAmount()));
-            resp.setValidAmountCompareYesterday(resp.getValidAmount().subtract(beforeDay.getValidAmount()));
+            resp.setProfitRateCompareYesterday(subtract(resp.getProfitRate(), beforeDay.getProfitRate()));
+            resp.setWinAmountCompareYesterday(subtract(resp.getWinAmount(), beforeDay.getWinAmount()));
+            resp.setValidAmountCompareYesterday(subtract(resp.getValidAmount(), beforeDay.getValidAmount()));
         }
         // 如果是上周，需要和前一周做比较
         else if (req.getDateType() == 2) {
             start = start.plusWeeks(-1);
             end = end.plusWeeks(-1);
             SummaryReportResp beforeWeek = summaryByDate(start, end, req.getProxyUserId());
-            resp.setProfitRateCompareYesterday(resp.getProfitRate().subtract(beforeWeek.getProfitRate()));
-            resp.setWinAmountCompareYesterday(resp.getWinAmount().subtract(beforeWeek.getWinAmount()));
-            resp.setValidAmountCompareYesterday(resp.getValidAmount().subtract(beforeWeek.getValidAmount()));
+            resp.setProfitRateCompareYesterday(subtract(resp.getProfitRate(), beforeWeek.getProfitRate()));
+            resp.setWinAmountCompareYesterday(subtract(resp.getWinAmount(), beforeWeek.getWinAmount()));
+            resp.setValidAmountCompareYesterday(subtract(resp.getValidAmount(), beforeWeek.getValidAmount()));
         }
 
         return resp;
+    }
+
+    private BigDecimal subtract(BigDecimal a, BigDecimal b) {
+        a = Optional.ofNullable(a).orElse(BigDecimal.ZERO);
+        b = Optional.ofNullable(b).orElse(BigDecimal.ZERO);
+        return a.subtract(b);
     }
 
     private SummaryReportResp summaryByDate(LocalDate start, LocalDate end, Long proxyUserId) {
@@ -130,7 +135,7 @@ public class BizOrderStatService {
         else if (UserTypeEnum.PROXY_TWO.isMe(userType)) {
             proxy = proxy(null, proxyUserId);
         } else {
-            return SummaryReportResp.builder().build();
+            proxy = proxy(null, null);
         }
         if (proxy == null) {
             return SummaryReportResp.builder().build();

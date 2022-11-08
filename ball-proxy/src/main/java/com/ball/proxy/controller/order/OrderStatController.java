@@ -2,6 +2,7 @@ package com.ball.proxy.controller.order;
 
 import com.ball.proxy.controller.order.vo.stat.*;
 import com.ball.proxy.service.order.BizOrderStatService;
+import com.ball.proxy.service.order.ProxyNoResultReportService;
 import com.ball.proxy.service.order.ProxyReportService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +28,8 @@ public class OrderStatController {
     private BizOrderStatService bizOrderStatService;
     @Autowired
     private ProxyReportService proxyReportService;
+    @Autowired
+    private ProxyNoResultReportService proxyNoResultReportService;
 
     @ApiOperation("赛事结果概要（key:YESTERDAY 昨天；TODAY 今天）")
     @PostMapping(value = "summary" )
@@ -37,22 +40,22 @@ public class OrderStatController {
     @ApiOperation("注单报表 - 登1或登2，第一级")
     @PostMapping(value = "proxy2/report" )
     public List<Proxy2ReportResp> proxy2Report(@RequestBody @Valid BaseReportReq req){
-        return proxyReportService.proxyReportLevel1(req);
+        return req.isHasResult() ? proxyReportService.proxyReportLevel1(req) : proxyNoResultReportService.proxyReportLevel1(req);
     }
 
     @ApiOperation("注单报表 - 第二级，内容是登3的统计信息")
     @PostMapping(value = "proxy3/report" )
     public List<Proxy3ReportResp> proxy3Report(@RequestBody @Valid BaseReportReq req){
-        return proxyReportService.proxyReportLevel2(req);
+        return req.isHasResult() ? proxyReportService.proxyReportLevel2(req) : proxyNoResultReportService.proxyReportLevel2(req);
     }
 
-    @ApiOperation("注单报表 - 第三级，内容是登3的统计信息")
+    @ApiOperation("注单报表 - 第三级，内容是登3的会员统计信息")
     @PostMapping(value = "proxy3/user/report" )
     public List<Proxy3UserReportResp> proxy3UserReport(@RequestBody @Valid BaseReportReq req){
-        return proxyReportService.proxyReportLevel3(req);
+        return req.isHasResult() ? proxyReportService.proxyReportLevel3(req) : proxyNoResultReportService.proxyReportLevel3(req);
     }
 
-    @ApiOperation("注单报表 - 会员")
+    @ApiOperation("注单报表 - 第四级，会员")
     @PostMapping(value = "user/report" )
     public List<UserReportResp> userReport(@RequestBody @Valid BaseReportReq req){
         return proxyReportService.userReport(req);

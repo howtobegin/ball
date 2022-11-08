@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 @ApiModel("注单报表-登3返回信息")
 public class Proxy3ReportResp {
     @ApiModelProperty("登3ID")
@@ -59,4 +60,22 @@ public class Proxy3ReportResp {
 
     @ApiModelProperty("总代理结果")
     private BigDecimal proxyResultAmount3;
+
+    @Builder
+    public Proxy3ReportResp(Long proxyId, String proxyAccount, String proxyName, Long betCount, BigDecimal betAmount, BigDecimal validAmount, BigDecimal userWinAmount, BigDecimal proxyCurrencyAmount, BigDecimal proxyResultAmount, BigDecimal proxyAmount, BigDecimal proxyResultAmount2, BigDecimal proxyValidAmount, BigDecimal proxy3Rate, BigDecimal proxyResultAmount3) {
+        this.proxyId = proxyId;
+        this.proxyAccount = proxyAccount;
+        this.proxyName = proxyName;
+        this.betCount = betCount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.userWinAmount = userWinAmount;
+        this.proxyCurrencyAmount = proxyCurrencyAmount;
+        this.proxyResultAmount = proxyResultAmount;
+        this.proxyAmount = proxyAmount;
+        this.proxyResultAmount2 = proxyResultAmount2;
+        this.proxyValidAmount = proxyValidAmount;
+        this.proxy3Rate = proxy3Rate;
+        this.proxyResultAmount3 = proxyResultAmount3;
+    }
 }

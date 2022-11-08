@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +17,8 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
+@Accessors(chain = true)
 @ApiModel("注单报表-用户返回信息")
 public class UserReportResp {
     @ApiModelProperty("会员ID")
@@ -71,4 +74,26 @@ public class UserReportResp {
 
     @ApiModelProperty("总代理占成")
     private BigDecimal proxy2Amount;
+
+    @Builder
+    public UserReportResp(Long userId, LocalDateTime betTime, String orderId, int sport, String leagueName, String homeName, String awayName, String betOption, String handicapType, String instantHandicap, BigDecimal betAmount, BigDecimal validAmount, BigDecimal resultAmount, String betResult, Integer homeScore, Integer awayScore, BigDecimal proxy3Amount, BigDecimal proxy2Amount) {
+        this.userId = userId;
+        this.betTime = betTime;
+        this.orderId = orderId;
+        this.sport = sport;
+        this.leagueName = leagueName;
+        this.homeName = homeName;
+        this.awayName = awayName;
+        this.betOption = betOption;
+        this.handicapType = handicapType;
+        this.instantHandicap = instantHandicap;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.resultAmount = resultAmount;
+        this.betResult = betResult;
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
+        this.proxy3Amount = proxy3Amount;
+        this.proxy2Amount = proxy2Amount;
+    }
 }

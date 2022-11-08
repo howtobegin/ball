@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 @ApiModel("注单报表-登3返回信息")
 public class Proxy3UserReportResp {
     @ApiModelProperty("会员ID")
@@ -46,4 +47,18 @@ public class Proxy3UserReportResp {
 
     @ApiModelProperty("代理商结果A")
     private BigDecimal proxy3Amount;
+
+    @Builder
+    public Proxy3UserReportResp(Long userId, String userAccount, String userName, Long betCount, BigDecimal betAmount, BigDecimal validAmount, BigDecimal userWinAmount, BigDecimal userCurrencyAmount, BigDecimal proxy3Percent, BigDecimal proxy3Amount) {
+        this.userId = userId;
+        this.userAccount = userAccount;
+        this.userName = userName;
+        this.betCount = betCount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.userWinAmount = userWinAmount;
+        this.userCurrencyAmount = userCurrencyAmount;
+        this.proxy3Percent = proxy3Percent;
+        this.proxy3Amount = proxy3Amount;
+    }
 }

@@ -2,7 +2,9 @@ package com.ball.proxy.controller.order.vo.stat;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -14,6 +16,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @ApiModel("注单报表-登1/登2返回信息")
 public class Proxy2ReportResp {
     @ApiModelProperty("登2ID")
@@ -51,4 +54,20 @@ public class Proxy2ReportResp {
 
     @ApiModelProperty("总代理百分比")
     private BigDecimal proxyRate;
+
+    @Builder
+    public Proxy2ReportResp(Long proxyId, String proxyAccount, String proxyName, Long betCount, BigDecimal betAmount, BigDecimal validAmount, BigDecimal userWinAmount, BigDecimal proxyResultAmount, BigDecimal proxyResultAmount2, BigDecimal proxyResultAmount3, BigDecimal proxyValidAmount, BigDecimal proxyRate) {
+        this.proxyId = proxyId;
+        this.proxyAccount = proxyAccount;
+        this.proxyName = proxyName;
+        this.betCount = betCount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.userWinAmount = userWinAmount;
+        this.proxyResultAmount = proxyResultAmount;
+        this.proxyResultAmount2 = proxyResultAmount2;
+        this.proxyResultAmount3 = proxyResultAmount3;
+        this.proxyValidAmount = proxyValidAmount;
+        this.proxyRate = proxyRate;
+    }
 }

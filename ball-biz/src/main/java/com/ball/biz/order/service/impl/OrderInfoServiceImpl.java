@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -212,7 +213,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public List<OrderInfo> queryUserFinish(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, Long userId) {
+    public List<OrderInfo> queryUserFinish(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, Long userId, boolean finish) {
+        List<String> statusCodes = finish ? Lists.newArrayList(OrderStatus.FINISH.getCode()) : OrderStatus.finishCodes(false);
         return lambdaQuery()
                 .eq(OrderInfo::getProxy1, proxy1)
                 .eq(OrderInfo::getProxy2, proxy2)
@@ -220,7 +222,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 .eq(OrderInfo::getUserId, userId)
                 .ge(OrderInfo::getBetDate, start)
                 .le(OrderInfo::getBetDate, end)
-                .eq(OrderInfo::getStatus, OrderStatus.FINISH.getCode())
+                .in(OrderInfo::getStatus, statusCodes)
                 .list()
                 ;
     }
