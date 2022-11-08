@@ -101,6 +101,7 @@ public class ProxyNoResultReportService {
                 .eq(proxy1 != null, "proxy1", proxy1)
                 .eq(proxy2 != null, "proxy2", proxy2)
                 .eq(proxy3 != null, "proxy3", proxy3)
+                .eq(req.getUserId() != null, "user_id", req.getUserId())
                 .ge("bet_date", req.getStart())
                 .le("bet_date", req.getEnd())
                 .eq("sport", req.getSport())
@@ -162,6 +163,7 @@ public class ProxyNoResultReportService {
         return list.stream().map(o -> {
             UserInfo p = userIdToUser.get(o.getProxy3());
             return Proxy3UserReportResp.builder()
+                    .userId(o.getUserId())
                     .userAccount(Optional.ofNullable(p).map(UserInfo::getAccount).orElse(null))
                     .userName(Optional.ofNullable(p).map(UserInfo::getUserName).orElse(null))
                     .betCount(o.getId())
