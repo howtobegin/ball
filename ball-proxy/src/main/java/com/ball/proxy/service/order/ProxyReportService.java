@@ -301,6 +301,7 @@ public class ProxyReportService {
                     .betOption(order.getBetOption())
                     .handicapType(order.getHandicapType())
                     .instantHandicap(order.getInstantHandicap())
+                    .betOdds(order.getBetOdds())
                     // 以下金额，都换成RMB
                     .betAmount(order.getBetRmbAmount())
                     .build();
