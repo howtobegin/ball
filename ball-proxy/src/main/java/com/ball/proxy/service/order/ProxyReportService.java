@@ -220,8 +220,8 @@ public class ProxyReportService {
         if (list.isEmpty()) {
             return Lists.newArrayList();
         }
-        Map<Long, UserInfo> proxy3IdToUser = proxyIdToUser(list, UserTypeEnum.PROXY_THREE.v);
-        Map<Long, BigDecimal> proxy3Rate = proxyToRate(list, UserTypeEnum.PROXY_THREE.v);
+        Map<Long, UserInfo> proxy3IdToUser = proxyIdToUser(list, 3);
+        Map<Long, BigDecimal> proxy3Rate = proxyToRate(list, 3);
 
         List<Proxy3ReportResp> translateList = Lists.newArrayList();
         for (OrderStat stat : list) {
