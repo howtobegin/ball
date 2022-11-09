@@ -230,7 +230,7 @@ public class OrderInstantStatController {
             leagueMatchResp.setLeague(league);
             leagueMatchResp.setBetCount(0L);
             leagueMatchResp.setBetAmount(BigDecimal.ZERO);
-
+            leagueMatchResp.setId(e.getKey());
 
             leagueMatchResp.setMatchList(e.getValue().stream().collect(Collectors.groupingBy(OrderInfo::getMatchId)).entrySet().stream().map(m->{
                 MatchResp match = new MatchResp();

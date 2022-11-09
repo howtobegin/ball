@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -220,8 +221,8 @@ public class ProxyReportService {
         if (list.isEmpty()) {
             return Lists.newArrayList();
         }
-        Map<Long, UserInfo> proxy3IdToUser = proxyIdToUser(list, UserTypeEnum.PROXY_THREE.v);
-        Map<Long, BigDecimal> proxy3Rate = proxyToRate(list, UserTypeEnum.PROXY_THREE.v);
+        Map<Long, UserInfo> proxy3IdToUser = proxyIdToUser(list, 3);
+        Map<Long, BigDecimal> proxy3Rate = proxyToRate(list, 3);
 
         List<Proxy3ReportResp> translateList = Lists.newArrayList();
         for (OrderStat stat : list) {
@@ -282,7 +283,8 @@ public class ProxyReportService {
     }
 
     private List<UserReportResp> translateToUserReportResp(List<OrderInfo> orders, Map<String, Schedules> matchIdToSchedules, boolean hasResult) {
-        if (orders.isEmpty()) {
+        log.info("start list size {} hasResult {}",orders.size(), hasResult);
+        if (CollectionUtils.isEmpty(orders)) {
             return Lists.newArrayList();
         }
         List<UserReportResp> ret = Lists.newArrayList();
@@ -301,6 +303,7 @@ public class ProxyReportService {
                     .betOption(order.getBetOption())
                     .handicapType(order.getHandicapType())
                     .instantHandicap(order.getInstantHandicap())
+                    .betOdds(order.getBetOdds())
                     // 以下金额，都换成RMB
                     .betAmount(order.getBetRmbAmount())
                     .build();
@@ -308,6 +311,8 @@ public class ProxyReportService {
                 resp.setValidAmount(calcRmb(order.getValidAmount(), currency))
                         .setResultAmount(calcRmb(order.getResultAmount(), currency))
                         .setBetResult(order.getBetResult())
+                        .setHomeCurrentScore(order.getHomeCurrentScore())
+                        .setAwayCurrentScore(order.getAwayCurrentScore())
                         .setHomeScore(order.getHomeLastScore())
                         .setAwayScore(order.getAwayLastScore())
                         .setProxy3Amount(calcRmb(order.getProxy3Amount(), currency))
