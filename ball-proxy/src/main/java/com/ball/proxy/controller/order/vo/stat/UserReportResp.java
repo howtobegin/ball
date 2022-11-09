@@ -51,6 +51,12 @@ public class UserReportResp {
     @ApiModelProperty("内容 - 即时赔率，例如：0/0.5")
     private String instantHandicap;
 
+    @ApiModelProperty("内容 - 投注时主队比分")
+    private Integer homeCurrentScore;
+
+    @ApiModelProperty("内容 - 投注时客队比分")
+    private Integer awayCurrentScore;
+
     @ApiModelProperty("下注金额")
     private BigDecimal betAmount;
 
@@ -76,7 +82,7 @@ public class UserReportResp {
     private BigDecimal proxy2Amount;
 
     @Builder
-    public UserReportResp(Long userId, LocalDateTime betTime, String orderId, int sport, String leagueName, String homeName, String awayName, String betOption, String handicapType, String instantHandicap, BigDecimal betAmount, BigDecimal validAmount, BigDecimal resultAmount, String betResult, Integer homeScore, Integer awayScore, BigDecimal proxy3Amount, BigDecimal proxy2Amount) {
+    public UserReportResp(Long userId, LocalDateTime betTime, String orderId, int sport, String leagueName, String homeName, String awayName, String betOption, String handicapType, String instantHandicap, Integer homeCurrentScore, Integer awayCurrentScore, BigDecimal betAmount, BigDecimal validAmount, BigDecimal resultAmount, String betResult, Integer homeScore, Integer awayScore, BigDecimal proxy3Amount, BigDecimal proxy2Amount) {
         this.userId = userId;
         this.betTime = betTime;
         this.orderId = orderId;
@@ -87,6 +93,8 @@ public class UserReportResp {
         this.betOption = betOption;
         this.handicapType = handicapType;
         this.instantHandicap = instantHandicap;
+        this.homeCurrentScore = homeCurrentScore;
+        this.awayCurrentScore = awayCurrentScore;
         this.betAmount = betAmount;
         this.validAmount = validAmount;
         this.resultAmount = resultAmount;

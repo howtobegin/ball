@@ -308,6 +308,8 @@ public class ProxyReportService {
                 resp.setValidAmount(calcRmb(order.getValidAmount(), currency))
                         .setResultAmount(calcRmb(order.getResultAmount(), currency))
                         .setBetResult(order.getBetResult())
+                        .setHomeCurrentScore(order.getHomeCurrentScore())
+                        .setAwayCurrentScore(order.getAwayCurrentScore())
                         .setHomeScore(order.getHomeLastScore())
                         .setAwayScore(order.getAwayLastScore())
                         .setProxy3Amount(calcRmb(order.getProxy3Amount(), currency))
