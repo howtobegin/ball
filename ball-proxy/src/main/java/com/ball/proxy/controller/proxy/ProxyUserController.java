@@ -84,7 +84,7 @@ public class ProxyUserController {
                 .setTokenName(HttpSessionConfig.TOKEN_NAME)
                 .setUserNo(userInfo.getId())
                 .setChangePasswordFlag(userInfo.getChangePasswordFlag())
-                .setChangeAccountFlag(userInfo.getAccount().equals(userInfo.getLoginAccount()) ? YesOrNo.NO.v : YesOrNo.NO.v);
+                .setChangeAccountFlag(userInfo.getAccount().equals(userInfo.getLoginAccount()) ? YesOrNo.NO.v : YesOrNo.YES.v);
     }
 
 
