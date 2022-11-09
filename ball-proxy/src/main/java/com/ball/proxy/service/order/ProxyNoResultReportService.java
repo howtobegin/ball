@@ -46,7 +46,8 @@ public class ProxyNoResultReportService {
      * @return
      */
     public List<Proxy2ReportResp> proxyReportLevel1(BaseReportReq req) {
-        List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());int level = 1;
+        List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
+        int level = 1;
         if (UserTypeEnum.PROXY_ONE.isMe(UserContext.getUserType())) {
             level = req.getProxy1Id() == null ? level : 2;
         } else if (UserTypeEnum.PROXY_TWO.isMe(UserContext.getUserType())) {
@@ -111,6 +112,10 @@ public class ProxyNoResultReportService {
     }
 
     public List<Proxy2ReportResp> translateToProxy2ReportResp(List<OrderInfo> list, List<Long> proxy) {
+        log.info("start list size {}",list.size());
+        if (CollectionUtils.isEmpty(list)) {
+            return Lists.newArrayList();
+        }
         List<Long> userIds = Lists.newArrayList();
         if (proxy.get(1) != null) {
             userIds = list.stream().map(OrderInfo::getProxy2).distinct().collect(Collectors.toList());
@@ -137,6 +142,10 @@ public class ProxyNoResultReportService {
     }
 
     public List<Proxy3ReportResp> translateToProxy3ReportResp(List<OrderInfo> list) {
+        log.info("start list size {}",list.size());
+        if (CollectionUtils.isEmpty(list)) {
+            return Lists.newArrayList();
+        }
         List<Long> userIds = list.stream().map(OrderInfo::getProxy3).distinct().collect(Collectors.toList());
         List<UserInfo> users = userInfoService.lambdaQuery().in(UserInfo::getId, userIds).list();
         Map<Long, UserInfo> userIdToUser = users.stream().collect(Collectors.toMap(UserInfo::getId, Function.identity()));
@@ -153,6 +162,10 @@ public class ProxyNoResultReportService {
     }
 
     public List<Proxy3UserReportResp> translateToProxy3UserReportResp(List<OrderInfo> list) {
+        log.info("start list size {}",list.size());
+        if (CollectionUtils.isEmpty(list)) {
+            return Lists.newArrayList();
+        }
         List<Long> userIds = list.stream().map(OrderInfo::getUserId).distinct().collect(Collectors.toList());
         log.info("userIds size {}", userIds.size());
         List<UserInfo> users = Lists.newArrayList();

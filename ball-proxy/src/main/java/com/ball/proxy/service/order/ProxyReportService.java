@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -282,7 +283,8 @@ public class ProxyReportService {
     }
 
     private List<UserReportResp> translateToUserReportResp(List<OrderInfo> orders, Map<String, Schedules> matchIdToSchedules, boolean hasResult) {
-        if (orders.isEmpty()) {
+        log.info("start list size {} hasResult {}",orders.size(), hasResult);
+        if (CollectionUtils.isEmpty(orders)) {
             return Lists.newArrayList();
         }
         List<UserReportResp> ret = Lists.newArrayList();
