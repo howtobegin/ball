@@ -63,31 +63,36 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
 
     @Override
     public boolean executeOne(OrderInfo data) {
-        log.info("orderId {}", data.getOrderId());
-        BetResult betResult = BetResult.parse(data.getBetResult());
-        if (betResult == null) {
-            log.warn("orderId {} betResult {}", data.getOrderId(), betResult);
-            return false;
+        try {
+            log.info("orderId {}", data.getOrderId());
+            BetResult betResult = BetResult.parse(data.getBetResult());
+            if (betResult == null) {
+                log.warn("orderId {} betResult {}", data.getOrderId(), betResult);
+                return false;
+            }
+            CalcResult calcResult = CalculatorHolder.get(betResult).calc(buildCalcBo(data));
+            String orderId = data.getOrderId();
+            Long userId = data.getUserId();
+            // 用户输赢
+            BigDecimal userWinAmount = calcResult.getResultAmount();
+            // 计算代理占成
+            ProxyAmount proxyAmount = calcResult.getProxyAmount();
+            OrderFinishBo orderFinishBo = buildOrderFinishBo(orderId, calcResult, proxyAmount);
+            // 退水
+            BigDecimal backwaterAmount = calcResult.getBackwaterAmount();
+            orderFinishBo.setBackwaterAmount(backwaterAmount);
+
+            transactionSupport.execute(()->{
+                handleUserAmount(userId, orderId, calcResult.getResult(), userWinAmount, backwaterAmount);
+                // 订单完成，更新对应数据
+                orderInfoService.finish(orderFinishBo);
+
+            });
+            return true;
+        } catch (Exception e) {
+            log.error("{} {}", e.getMessage(), e);
         }
-        CalcResult calcResult = CalculatorHolder.get(betResult).calc(buildCalcBo(data));
-        String orderId = data.getOrderId();
-        Long userId = data.getUserId();
-        // 用户输赢
-        BigDecimal userWinAmount = calcResult.getResultAmount();
-        // 计算代理占成
-        ProxyAmount proxyAmount = calcResult.getProxyAmount();
-        OrderFinishBo orderFinishBo = buildOrderFinishBo(orderId, calcResult, proxyAmount);
-        // 退水
-        BigDecimal backwaterAmount = calcResult.getBackwaterAmount();
-        orderFinishBo.setBackwaterAmount(backwaterAmount);
-
-        transactionSupport.execute(()->{
-            handleUserAmount(userId, orderId, calcResult.getResult(), userWinAmount, backwaterAmount);
-            // 订单完成，更新对应数据
-            orderInfoService.finish(orderFinishBo);
-
-        });
-        return true;
+        return false;
     }
 
     private void userWinAmountCheck(BetResult betResult, BigDecimal userWinAmount) {
