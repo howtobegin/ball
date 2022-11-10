@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.ball.proxy.controller.assist.ProxyAssist.getLike;
+
 /**
  * @author JimChery
  * @since 2022-11-02 14:56
@@ -74,19 +76,5 @@ public class ProxyUserCommonController {
         }
     }
 
-    private String getLike(String proxyInfo, String current) {
-        if (StringUtils.isEmpty(proxyInfo)) {
-            return current + Const.SQL_LIKE;
-        }
-        String[] info = proxyInfo.split(Const.RELATION_SPLIT);
-        StringBuilder sb = new StringBuilder();
-        for (String s : info) {
-            sb.append(s);
-            if (s.equals(current)) {
-                break;
-            }
-        }
-        sb.append(Const.SQL_LIKE);
-        return sb.toString();
-    }
+
 }

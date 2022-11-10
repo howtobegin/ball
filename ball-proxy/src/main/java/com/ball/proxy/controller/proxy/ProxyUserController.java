@@ -220,7 +220,7 @@ public class ProxyUserController {
         // 查询周期内新增会员
         SettlementPeriod period = settlementPeriodService.currentPeriod();
         if (period != null) {
-            Integer count = userExtMapper.selectProxyStatisticsPeriod(userInfo.getId(), period.getStartDate(), period.getEndDate());
+            Integer count = userExtMapper.selectProxyStatisticsPeriodThree(userInfo.getId(), period.getStartDate(), period.getEndDate());
             resp.setPeriodUserCount(count);
         }
         return resp;

@@ -20,6 +20,18 @@
 
     <select id="selectProxyStatisticsPeriod" resultType="java.lang.Integer">
         select count(1) from user_info
+        where proxy_info like #{proxyUid}
+        and user_type = 1
+        <if test="start != null">
+            and create_time &gt;= #{start}
+        </if>
+        <if test="end != null">
+            and create_time &lt;= #{end}
+        </if>
+    </select>
+
+    <select id="selectProxyStatisticsPeriodThree" resultType="java.lang.Integer">
+        select count(1) from user_info
         where proxy_user_id = #{proxyUid}
         <if test="start != null">
             and create_time &gt;= #{start}
@@ -28,6 +40,7 @@
             and create_time &lt;= #{end}
         </if>
     </select>
+
 
     <select id="selectProxyChildrenBalance" resultType="com.ball.biz.user.bo.ProxyChildrenBalance">
         select t1.status, sum(t2.allowance) as allowance, sum(t2.balance) as balance,

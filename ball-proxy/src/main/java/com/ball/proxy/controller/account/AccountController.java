@@ -34,6 +34,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ball.proxy.controller.assist.ProxyAssist.getLike;
+
 /**
  * @author fanyongpeng
  * @date 10/28/22
@@ -142,8 +144,8 @@ public class AccountController {
             resp.setPeriodFinishedDays(Math.min(Duration.between(period.getStartDate(),now).toDays(),
                     Duration.between(period.getStartDate(),period.getEndDate()).toDays()));
             // 统计会员数
-            Integer userCount = userExtMapper.selectProxyStatisticsPeriod(UserContext.getUserNo(),
-                    period.getStartDate(), period.getEndDate());
+            Integer userCount = userExtMapper.selectProxyStatisticsPeriod(getLike(UserContext.getProxyInfo(),
+                    UserContext.getUserNo().toString()), period.getStartDate(), period.getEndDate());
             resp.setPeriodUserCount(userCount);
             resp.setPeriod(BeanUtil.copy(period,SettlementPeriodResp.class));
             resp.getPeriod().setPeriod(DateUtil.formatDate(period.getStartDate())+" ~ " + DateUtil.formatDate(period.getEndDate()));

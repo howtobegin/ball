@@ -19,9 +19,13 @@ public interface UserExtMapper {
 
     List<ProxyStatistics> selectProxyStatistics(@Param("proxyUid") Long proxyUid);
 
-    Integer selectProxyStatisticsPeriod(@Param("proxyUid") Long proxyUid,
+    Integer selectProxyStatisticsPeriod(@Param("proxyUid") String proxyUid,
                                   @Param("start") LocalDateTime start,
                                   @Param("end") LocalDateTime end);
+
+    Integer selectProxyStatisticsPeriodThree(@Param("proxyUid") Long proxyUid,
+                                             @Param("start") LocalDateTime start,
+                                             @Param("end") LocalDateTime end);
 
     List<ProxyChildrenBalance> selectProxyChildrenBalance(@Param("proxyUid") Long proxyUid);
 
