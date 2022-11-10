@@ -41,6 +41,7 @@ public class OddsScoreServiceImpl extends ServiceImpl<OddsScoreMapper, OddsScore
         return lambdaQuery().in(OddsScore::getMatchId, matchIds)
                 .eq(type != null, OddsScore::getType, type)
                 .eq(status != null, OddsScore::getStatus, status)
+                .gt(OddsScore::getOdds, "0")
                 .list();
     }
 }

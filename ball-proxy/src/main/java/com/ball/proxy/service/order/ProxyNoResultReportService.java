@@ -54,7 +54,7 @@ public class ProxyNoResultReportService {
             level = 2;
         }
         List<OrderInfo> orders = sum(req, proxy, level);
-        return translateToProxy2ReportResp(orders, proxy);
+        return translateToProxy2ReportResp(orders, proxy, level);
     }
 
     /**
@@ -111,27 +111,28 @@ public class ProxyNoResultReportService {
         return orderInfoService.getBaseMapper().selectList(query);
     }
 
-    public List<Proxy2ReportResp> translateToProxy2ReportResp(List<OrderInfo> list, List<Long> proxy) {
+    public List<Proxy2ReportResp> translateToProxy2ReportResp(List<OrderInfo> list, List<Long> proxy, int level) {
         log.info("start list size {}",list.size());
         if (CollectionUtils.isEmpty(list)) {
             return Lists.newArrayList();
         }
         List<Long> userIds = Lists.newArrayList();
-        if (proxy.get(1) != null) {
-            userIds = list.stream().map(OrderInfo::getProxy2).distinct().collect(Collectors.toList());
-        } else if (proxy.get(0) != null) {
+        if (level == 1) {
             userIds = list.stream().map(OrderInfo::getProxy1).distinct().collect(Collectors.toList());
+        } else if (level == 2) {
+            userIds = list.stream().map(OrderInfo::getProxy2).distinct().collect(Collectors.toList());
         }
         List<UserInfo> users = userInfoService.lambdaQuery().in(UserInfo::getId, userIds).list();
         Map<Long, UserInfo> userIdToUser = users.stream().collect(Collectors.toMap(UserInfo::getId, Function.identity()));
         return list.stream().map(o -> {
             UserInfo p = null;
-            if (proxy.get(1) != null) {
-                p = userIdToUser.get(o.getProxy2());
-            } else if (proxy.get(0) != null) {
+            if (level == 1) {
                 p = userIdToUser.get(o.getProxy1());
+            } else if (level == 2) {
+                p = userIdToUser.get(o.getProxy2());
             }
             return Proxy2ReportResp.builder()
+                    .proxyId(Optional.ofNullable(p).map(UserInfo::getId).orElse(null))
                     .proxyAccount(Optional.ofNullable(p).map(UserInfo::getAccount).orElse(null))
                     .proxyName(Optional.ofNullable(p).map(UserInfo::getUserName).orElse(null))
                     .betCount(o.getId())
@@ -152,6 +153,7 @@ public class ProxyNoResultReportService {
         return list.stream().map(o -> {
             UserInfo p = userIdToUser.get(o.getProxy3());
             return Proxy3ReportResp.builder()
+                    .proxyId(o.getProxy3())
                     .proxyAccount(Optional.ofNullable(p).map(UserInfo::getAccount).orElse(null))
                     .proxyName(Optional.ofNullable(p).map(UserInfo::getUserName).orElse(null))
                     .betCount(o.getId())
@@ -174,7 +176,7 @@ public class ProxyNoResultReportService {
         }
         Map<Long, UserInfo> userIdToUser = users.stream().collect(Collectors.toMap(UserInfo::getId, Function.identity()));
         return list.stream().map(o -> {
-            UserInfo p = userIdToUser.get(o.getProxy3());
+            UserInfo p = userIdToUser.get(o.getUserId());
             return Proxy3UserReportResp.builder()
                     .userId(o.getUserId())
                     .userAccount(Optional.ofNullable(p).map(UserInfo::getAccount).orElse(null))

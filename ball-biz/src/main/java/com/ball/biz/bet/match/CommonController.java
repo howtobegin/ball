@@ -58,7 +58,7 @@ public class CommonController implements Controller {
         if (!canBetCodes(handicapType).contains(status)) {
             return true;
         }
-        // 判定比赛时间，是否应该不关闭
+        // 判定比赛时间，是否应该关闭
         Integer halfStartTime = schedules.getHalfStartTime();
         if (halfStartTime != null) {
             int diffSecond = LocalDateTime.now().getSecond() - halfStartTime;

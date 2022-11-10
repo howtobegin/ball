@@ -67,6 +67,7 @@ public abstract class AbstractCalculator implements Calculator, InitializingBean
      * 计算代理占成
      */
     protected CalcResult calcProxyAmount(Long userId, CalcResult calcResult) {
+        log.info("userId {} calcResult {}", userId, JSON.toJSONString(calcResult));
         BigDecimal resultAmount = getResultAmount(calcResult);
         if (calcResult.getResult() == BetResult.DRAW) {
             calcResult.setProxyAmount(ProxyAmount.init());
@@ -99,6 +100,7 @@ public abstract class AbstractCalculator implements Calculator, InitializingBean
     }
 
     protected void calcBackwaterAmount(CalcBo bo, CalcResult calcResult) {
+        log.info("bo {} calcResult {}", JSON.toJSONString(bo), JSON.toJSONString(calcResult));
         HandicapType type = HandicapType.parse(bo.getHandicapType());
         PlayTypeEnum playTypeEnum = OrderHelper.getPlayTypeEnum(type, bo.getOddsType());
         // 计算退水的基础金额
@@ -133,11 +135,12 @@ public abstract class AbstractCalculator implements Calculator, InitializingBean
     }
 
     protected void calcCheck(BigDecimal betAmount, BigDecimal odds) {
+        log.info("betAmount {} odds {}", betAmount, odds);
         BizAssert.notNull(betAmount, BizErrCode.PARAM_ERROR_DESC,"betAmount");
         BizAssert.notNull(odds, BizErrCode.PARAM_ERROR_DESC,"rate");
 
         BizAssert.isTrue(betAmount.compareTo(BigDecimal.ZERO) > 0, BizErrCode.PARAM_ERROR_DESC,"betAmount");
-        BizAssert.isTrue(odds.compareTo(BigDecimal.ZERO) > 0, BizErrCode.PARAM_ERROR_DESC,"rate");
+        BizAssert.isTrue(odds.compareTo(BigDecimal.ZERO) >= 0, BizErrCode.PARAM_ERROR_DESC,"rate");
     }
 
     protected BigDecimal handleScale(BigDecimal amount) {
