@@ -4,6 +4,7 @@ import com.ball.base.model.Paging;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 /**
  * @author JimChery
@@ -18,11 +19,18 @@ public class QueryUserReq extends Paging {
     @ApiModelProperty("状态 1:正常 0:锁定")
     private Integer status;
 
+    @ApiModelProperty("账号")
+    private String account;
+
     public boolean hasProxy() {
         return proxyUid != null;
     }
 
     public boolean hasStatus() {
         return status != null;
+    }
+
+    public boolean hasAccount() {
+        return StringUtils.hasText(account);
     }
 }

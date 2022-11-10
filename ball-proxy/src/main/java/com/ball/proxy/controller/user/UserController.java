@@ -71,6 +71,7 @@ public class UserController {
         PageResult<UserInfoResp> resp = userInfoService.pageQuery(userInfoService.lambdaQuery()
                 .eq(UserInfo::getProxyUserId, req.getProxyUid())
                 .eq(req.hasStatus(), UserInfo::getStatus, req.getStatus())
+                .like(req.hasAccount(), UserInfo::getAccount, req.getAccount())
                 .orderByDesc(UserInfo::getId), req, UserInfoResp.class);
         if (resp.hasResult()) {
             DecimalHandler handler = DecimalHandler.instance();
