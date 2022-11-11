@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @ApiModel("即时注单 - 投注请求信息")
 public class BetReq {
     @ApiModelProperty("开始时间")
-    @NotNull(message = "开始时间不能为空")
+//    @NotNull(message = "开始时间不能为空")
     private LocalDateTime time;
 
     @ApiModelProperty("比赛ID")

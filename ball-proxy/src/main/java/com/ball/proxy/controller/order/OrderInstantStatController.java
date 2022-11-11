@@ -382,7 +382,6 @@ public class OrderInstantStatController {
     private List<OrderInfo> _queryAlOrder(BetReq req){
         LambdaQueryChainWrapper<OrderInfo> wrapper =orderInfoService.lambdaQuery()
                 .eq(OrderInfo::getMatchId,req.getMatchId())
-                .ge(OrderInfo::getCreateTime, req.getTime())
                 .eq(OrderInfo::getOddsType, req.getOddsType());
 
         if (req.getBetAmount() != null && req.getBetAmount().compareTo(BigDecimal.ZERO) > 0) {
