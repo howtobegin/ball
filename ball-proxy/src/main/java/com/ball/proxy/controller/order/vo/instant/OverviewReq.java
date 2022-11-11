@@ -20,6 +20,6 @@ public class OverviewReq {
     private Integer dataType;
 
     @ApiModelProperty("开始时间")
-    @NotNull
+//    @NotNull
     private LocalDateTime time;
 }

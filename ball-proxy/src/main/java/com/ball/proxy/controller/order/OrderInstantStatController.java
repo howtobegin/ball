@@ -3,6 +3,8 @@ package com.ball.proxy.controller.order;
 import com.ball.base.context.UserContext;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
+import com.ball.biz.account.entity.SettlementPeriod;
+import com.ball.biz.account.service.ISettlementPeriodService;
 import com.ball.biz.bet.enums.OddsType;
 import com.ball.biz.bet.enums.Sport;
 import com.ball.biz.enums.UserTypeEnum;
@@ -49,18 +51,23 @@ public class OrderInstantStatController {
     @Autowired
     ISchedulesService iSchedulesService;
 
+    @Autowired
+    ISettlementPeriodService settlementPeriodService;
+
     @ApiOperation("总览")
     @PostMapping(value = "overview" )
     public OverviewResp overview(@RequestBody @Valid OverviewReq req){
         Integer userType = UserContext.getUserType();
+        SettlementPeriod period = settlementPeriodService.currentPeriod();
+        BizAssert.notNull(period,BizErrCode.ACCOUNT_PERIOD_NOT_FOUND);
         List<OrderInfo> all = null;
         if (userType == UserTypeEnum.PROXY_ONE.v) {
-            all = orderInfoService.lambdaQuery().eq(OrderInfo::getProxy1, UserContext.getUserNo()).ge(OrderInfo::getCreateTime, req.getTime()).list();
+            all = orderInfoService.lambdaQuery().eq(OrderInfo::getProxy1, UserContext.getUserNo()).ge(OrderInfo::getCreateTime, period.getStartDate()).list();
         } else if (userType == UserTypeEnum.PROXY_TWO.v) {
-            all = orderInfoService.lambdaQuery().eq(OrderInfo::getProxy2, UserContext.getUserNo()).ge(OrderInfo::getCreateTime, req.getTime()).list();
+            all = orderInfoService.lambdaQuery().eq(OrderInfo::getProxy2, UserContext.getUserNo()).ge(OrderInfo::getCreateTime, period.getStartDate()).list();
 
         } else if (userType == UserTypeEnum.PROXY_THREE.v) {
-            all = orderInfoService.lambdaQuery().eq(OrderInfo::getProxy3, UserContext.getUserNo()).ge(OrderInfo::getCreateTime, req.getTime()).list();
+            all = orderInfoService.lambdaQuery().eq(OrderInfo::getProxy3, UserContext.getUserNo()).ge(OrderInfo::getCreateTime, period.getStartDate()).list();
         }
 
         OverviewResp resp = new OverviewResp();
@@ -260,8 +267,11 @@ public class OrderInstantStatController {
     }
 
     private List<OrderInfo> _queryAlOrder(RealtimeMatchReq req){
+        SettlementPeriod period = settlementPeriodService.currentPeriod();
+        BizAssert.notNull(period,BizErrCode.ACCOUNT_PERIOD_NOT_FOUND);
+
         LambdaQueryChainWrapper<OrderInfo> wrapper =orderInfoService.lambdaQuery()
-                .ge(OrderInfo::getCreateTime, req.getTime()).eq(OrderInfo::getSport, req.getSport())
+                .ge(OrderInfo::getCreateTime, period.getStartDate()).eq(OrderInfo::getSport, req.getSport())
                 .eq(OrderInfo::getOddsType, req.getOddsType());
 
         if (StringUtil.isNotBlank(req.getLeagueIds())) {
