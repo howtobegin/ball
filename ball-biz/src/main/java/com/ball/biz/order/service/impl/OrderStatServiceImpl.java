@@ -290,7 +290,8 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
     }
 
     private String sumRmbSelect() {
-        return "sum(bet_rmb_amount) bet_rmb_amount, sum(result_rmb_amount) result_rmb_amount, " +
+        return "sum(bet_amount) bet_amount, sum(bet_rmb_amount) bet_rmb_amount, " +
+                "sum(result_amount) result_amount, sum(result_rmb_amount) result_rmb_amount, " +
                 "sum(valid_amount) valid_amount,sum(valid_rmb_amount) valid_rmb_amount, " +
                 "sum(proxy1_rmb_amount) proxy1_rmb_amount, sum(proxy2_rmb_amount) proxy2_rmb_amount, " +
                 "sum(proxy3_rmb_amount) proxy3_rmb_amount, sum(backwater_rmb_amount) backwater_rmb_amount, " +
