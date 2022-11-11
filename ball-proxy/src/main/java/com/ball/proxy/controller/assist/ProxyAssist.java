@@ -12,22 +12,6 @@ public class ProxyAssist {
         if (StringUtils.isEmpty(proxyInfo)) {
             return current + Const.SQL_LIKE;
         }
-        String[] info = proxyInfo.split(Const.RELATION_SPLIT);
-        boolean hasMe = false;
-        StringBuilder sb = new StringBuilder();
-        for (String s : info) {
-            sb.append(s);
-            if (s.equals(current)) {
-                hasMe = true;
-                break;
-            }
-            sb.append(Const.RELATION_SPLIT);
-        }
-        if (!hasMe) {
-            sb.append(current);
-        } else {
-            sb.append(Const.SQL_LIKE);
-        }
-        return sb.toString();
+        return proxyInfo + Const.RELATION_SPLIT + current + Const.SQL_LIKE;
     }
 }
