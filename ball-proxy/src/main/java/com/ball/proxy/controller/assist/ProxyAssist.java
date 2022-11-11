@@ -13,15 +13,21 @@ public class ProxyAssist {
             return current + Const.SQL_LIKE;
         }
         String[] info = proxyInfo.split(Const.RELATION_SPLIT);
+        boolean hasMe = false;
         StringBuilder sb = new StringBuilder();
         for (String s : info) {
             sb.append(s);
             if (s.equals(current)) {
+                hasMe = true;
                 break;
             }
             sb.append(Const.RELATION_SPLIT);
         }
-        sb.append(Const.SQL_LIKE);
+        if (!hasMe) {
+            sb.append(current);
+        } else {
+            sb.append(Const.SQL_LIKE);
+        }
         return sb.toString();
     }
 }
