@@ -42,10 +42,10 @@ public class Proxy3UserReportResp {
     @ApiModelProperty("会员币值")
     private BigDecimal userCurrencyAmount;
 
-    @ApiModelProperty("代理商占成")
+    @ApiModelProperty("代理商占成 = 占成和")
     private BigDecimal proxy3Percent;
 
-    @ApiModelProperty("代理商结果A")
+    @ApiModelProperty("代理商结果A = 输赢和")
     private BigDecimal proxy3Amount;
 
     @Builder

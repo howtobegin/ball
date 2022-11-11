@@ -14,7 +14,6 @@ import com.ball.biz.order.entity.OrderInfo;
 import com.ball.biz.order.entity.OrderStat;
 import com.ball.biz.order.service.IOrderInfoService;
 import com.ball.biz.order.service.IOrderStatService;
-import com.ball.biz.user.bo.ProxyRateInfo;
 import com.ball.biz.user.entity.UserExtend;
 import com.ball.biz.user.entity.UserInfo;
 import com.ball.biz.user.proxy.ProxyUserService;
@@ -230,7 +229,7 @@ public class ProxyReportService {
                     // 输赢+退水
                     .userWinAmount(stat.getResultRmbAmount().add(stat.getBackwaterRmbAmount()))
                     // 不区分币种
-                    .proxyCurrencyAmount(stat.getValidAmount())
+                    .proxyCurrencyAmount(stat.getResultAmount())
                     .proxyResultAmount(stat.getResultRmbAmount())
                     .proxyAmount(stat.getProxy3RmbAmount())
                     .proxyResultAmount2(stat.getResultRmbAmount())
@@ -254,8 +253,6 @@ public class ProxyReportService {
 
         List<Proxy3UserReportResp> translateList = Lists.newArrayList();
         for (OrderStat stat : list) {
-            ProxyRateInfo proxyRate = proxyUserService.getProxyRateByUid(stat.getUserId());
-
             UserInfo proxy = idToUser.get(stat.getUserId());
             translateList.add(Proxy3UserReportResp.builder()
                     .userId(stat.getUserId())
@@ -267,9 +264,11 @@ public class ProxyReportService {
                     // 输赢+退水
                     .userWinAmount(stat.getResultRmbAmount().add(stat.getBackwaterRmbAmount()))
                     // 不区分币种
-                    .userCurrencyAmount(stat.getValidAmount())
-                    .proxy3Percent(Optional.ofNullable(proxyRate).map(ProxyRateInfo::getProxyThreeRate).orElse(BigDecimal.ZERO))
-                    .proxy3Amount(stat.getProxy3RmbAmount())
+                    .userCurrencyAmount(stat.getResultAmount())
+                    // 改成占成
+                    .proxy3Percent(stat.getProxy3RmbAmount())
+                    // 改成输赢和
+                    .proxy3Amount(stat.getResultRmbAmount())
                     .build());
         }
         return translateList;

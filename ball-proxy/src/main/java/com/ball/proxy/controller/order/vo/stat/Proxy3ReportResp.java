@@ -40,7 +40,7 @@ public class Proxy3ReportResp {
     @ApiModelProperty("会员 - 会员输赢分值+退水 RMB")
     private BigDecimal userWinAmount;
 
-    @ApiModelProperty("代理商币值 sum(原始币种的有效金额)")
+    @ApiModelProperty("代理商币值 sum(原始币种的输赢值)")
     private BigDecimal proxyCurrencyAmount;
 
     @ApiModelProperty("代理商 下线输赢和")

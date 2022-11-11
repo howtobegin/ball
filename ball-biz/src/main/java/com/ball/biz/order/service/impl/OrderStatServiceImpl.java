@@ -278,7 +278,8 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
 
     private List<OrderStat> sumRmbGroupBy(LocalDate start, LocalDate end, Long proxy1, Long proxy2, Long proxy3, String groupBy) {
         QueryWrapper<OrderStat> query = new QueryWrapper<>();
-        query.select(groupBy + "," + sumRmbSelect())
+        String sumRmbSelect = groupBy + "," + sumRmbSelect();
+        query.select(sumRmbSelect)
                 .eq(proxy1 != null, "proxy1", proxy1)
                 .eq(proxy2 != null, "proxy2", proxy2)
                 .eq(proxy3 != null, "proxy3", proxy3)
