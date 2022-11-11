@@ -128,13 +128,6 @@ public class ProxyReportService {
     }
 
     private List<OrderStat> proxyReportData(BaseReportReq req, int level) {
-        // 当前代理用户
-        Long userNo = UserContext.getUserNo();
-        Integer userType = UserContext.getUserType();
-        if (!UserTypeEnum.PROXY_ONE.isMe(userType) && !UserTypeEnum.PROXY_TWO.isMe(userType)) {
-            log.warn("userId {} userType {} is not PROXY_ONE or TWO", userNo, userType);
-            return Lists.newArrayList();
-        }
         List<Long> proxy = bizOrderStatService.proxy(req.getProxy2Id(), req.getProxy3Id());
         log.info("proxy {}", proxy);
         if (proxy == null) {
