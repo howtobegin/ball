@@ -1,7 +1,6 @@
 package com.ball.proxy.controller.common;
 
 import com.ball.base.context.UserContext;
-import com.ball.base.model.Const;
 import com.ball.biz.user.bo.UserStatusBO;
 import com.ball.biz.user.mapper.ext.UserExtMapper;
 import com.ball.proxy.controller.common.vo.*;
@@ -9,7 +8,6 @@ import com.ball.proxy.service.UserOperationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

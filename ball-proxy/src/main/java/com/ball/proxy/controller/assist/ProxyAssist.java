@@ -19,6 +19,7 @@ public class ProxyAssist {
             if (s.equals(current)) {
                 break;
             }
+            sb.append(Const.RELATION_SPLIT);
         }
         sb.append(Const.SQL_LIKE);
         return sb.toString();
