@@ -214,7 +214,6 @@ public class ProxyReportService {
             return Lists.newArrayList();
         }
         Map<Long, UserInfo> proxy3IdToUser = proxyIdToUser(list, 3);
-        Map<Long, BigDecimal> proxy3Rate = proxyToRate(list, 3);
 
         List<Proxy3ReportResp> translateList = Lists.newArrayList();
         for (OrderStat stat : list) {
@@ -231,10 +230,15 @@ public class ProxyReportService {
                     // 不区分币种
                     .proxyCurrencyAmount(stat.getResultAmount())
                     .proxyResultAmount(stat.getResultRmbAmount())
+                    // 代理商占成 sum(proxy3Amount)
                     .proxyAmount(stat.getProxy3RmbAmount())
+                    // 代理商结果 下线输赢和
                     .proxyResultAmount2(stat.getResultRmbAmount())
+                    // 代理商实货量
                     .proxyValidAmount(stat.getValidRmbAmount())
-                    .proxy3Rate(proxy3Rate.get(stat.getProxy3()))
+                    // 总代理占成
+                    .proxy3Rate(stat.getProxy2RmbAmount())
+                    // 总代理结果
                     .proxyResultAmount3(stat.getResultRmbAmount())
                     .build());
         }
