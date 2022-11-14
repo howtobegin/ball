@@ -140,7 +140,11 @@ public class ProxyUserController {
                 o.setUserCount(proxyUserCountMap.get(o.getUserNo()));
                 UserAccount account = userAccountMap.get(o.getUserNo());
                 if (account != null) {
-                    o.setBalance(handler.add(account.getBalance()).subtract(account.getFreezeAmount()).getValue());
+                    if (AllowanceModeEnum.BALANCE.name().equals(account.getAllowanceMode())) {
+                        o.setBalance(handler.add(account.getBalance()).subtract(account.getFreezeAmount()).getValue());
+                    } else {
+                        o.setBalance(account.getAllowance());
+                    }
                 }
                 handler.clear();
             });

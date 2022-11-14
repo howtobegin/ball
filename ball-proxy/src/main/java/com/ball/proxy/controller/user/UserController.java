@@ -7,6 +7,7 @@ import com.ball.base.model.PageResult;
 import com.ball.base.util.BeanUtil;
 import com.ball.base.util.BizAssert;
 import com.ball.biz.account.entity.UserAccount;
+import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.enums.UserTypeEnum;
 import com.ball.biz.exception.BizErrCode;
@@ -83,7 +84,11 @@ public class UserController {
                 UserAccount account = userAccountMap.get(o.getUserNo());
                 if (account != null) {
                     o.setCurrency(account.getCurrency());
-                    o.setBalance(handler.add(account.getBalance()).subtract(account.getFreezeAmount()).getValue());
+                    if (AllowanceModeEnum.BALANCE.name().equals(account.getAllowanceMode())) {
+                        o.setBalance(handler.add(account.getBalance()).subtract(account.getFreezeAmount()).getValue());
+                    } else {
+                        o.setBalance(account.getAllowance());
+                    }
                 }
                 handler.clear();
             });
