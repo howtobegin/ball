@@ -80,7 +80,7 @@ public class BizAssetAdjustmentOrderServiceImpl extends ServiceImpl<BizAssetAdju
             switch (m) {
                 case BALANCE://余额模式。直接改动余额
 
-                    adjustAmount = allowance.subtract(userAccount.getBalance());
+                    adjustAmount = allowance.subtract(userAccount.getBalance().subtract(userAccount.getFreezeAmount()));
                     fromUserAdjustAmount=adjustAmount.negate().multiply(rate);
                     if (fromUserAdjustAmount.compareTo(BigDecimal.ZERO) >= 0) {
                         fromUserAdjustAmount=fromUserAdjustAmount.setScale(0,RoundingMode.CEILING);
