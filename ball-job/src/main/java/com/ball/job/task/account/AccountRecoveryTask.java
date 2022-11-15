@@ -29,7 +29,7 @@ public class AccountRecoveryTask extends BaseBizTask {
         this.enabled = enabled;
     }
 
-    @Value("${job.account.recovery.expression:0 * * */1 * ?}")
+    @Value("${job.account.recovery.expression:1 0 0 * * ?}")
     public void setExpression(String expression) {
         super.setExpression(expression);
     }
