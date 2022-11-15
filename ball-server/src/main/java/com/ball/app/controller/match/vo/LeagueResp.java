@@ -70,4 +70,7 @@ public class LeagueResp {
 
     @ApiModelProperty("国家中文")
     private String countryZh;
+
+    @ApiModelProperty("联赛分组，比如A小组")
+    private String leagueGroup;
 }

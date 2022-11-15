@@ -84,4 +84,9 @@ public class SchedulesServiceImpl extends ServiceImpl<SchedulesMapper, Schedules
                 .orderByAsc(Schedules::getMatchTime)
                 .list();
     }
+
+    @Override
+    public List<Schedules> queryByLeagueId(String leagueId) {
+        return lambdaQuery().eq(Schedules::getLeagueId, leagueId).list();
+    }
 }

@@ -38,4 +38,6 @@ public interface ISchedulesService extends IService<Schedules>, IBaseService {
      * @return
      */
     List<Schedules> queryEarly(List<String> leagueIds, String matchId);
+
+    List<Schedules> queryByLeagueId(String leagueId);
 }
