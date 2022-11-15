@@ -145,8 +145,8 @@ public class BizOrderStatService {
         }
         Long proxyOne = proxy.get(0), proxyTwo = proxy.get(1), proxyThree = proxy.get(2);
         OrderStat stat = orderStatService.sumRmbByDateAndProxy(start, end, proxyOne, proxyTwo, proxyThree);
-        BigDecimal resultAmount =Optional.ofNullable(stat).map(OrderStat::getResultAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
-        BigDecimal validAmount = Optional.ofNullable(stat).map(OrderStat::getValidAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
+        BigDecimal resultAmount =Optional.ofNullable(stat).map(OrderStat::getResultRmbAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
+        BigDecimal validAmount = Optional.ofNullable(stat).map(OrderStat::getValidRmbAmount).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_DOWN);
         BigDecimal profitRate = BigDecimal.ZERO.setScale(2);
         if (validAmount.compareTo(BigDecimal.ZERO) != 0) {
             profitRate = resultAmount.multiply(Const.HUNDRED).divide(validAmount, 2, BigDecimal.ROUND_DOWN);
