@@ -68,7 +68,7 @@
                                     <artifactId>ball-proxy</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <destFileName>ball-ballProxy.jar</destFileName>
+                                    <destFileName>hami-ballProxy.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>../target/</outputDirectory>
