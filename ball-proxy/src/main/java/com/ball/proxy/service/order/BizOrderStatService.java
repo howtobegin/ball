@@ -242,7 +242,8 @@ public class BizOrderStatService {
     private FourOneReportResp translate2BetCountReport(OrderStat stat) {
         return FourOneReportResp.builder()
                 .date(stat.getBetDate())
-                .amount(stat.getBetCount().toString())
+                // 统计语句里面用id接收的count值
+                .amount(stat.getId().toString())
                 .build();
     }
 

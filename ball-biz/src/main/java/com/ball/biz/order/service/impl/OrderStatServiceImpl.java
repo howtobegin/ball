@@ -295,7 +295,8 @@ public class OrderStatServiceImpl extends ServiceImpl<OrderStatMapper, OrderStat
                 "sum(valid_amount) valid_amount,sum(valid_rmb_amount) valid_rmb_amount, " +
                 "sum(proxy1_rmb_amount) proxy1_rmb_amount, sum(proxy2_rmb_amount) proxy2_rmb_amount, " +
                 "sum(proxy3_rmb_amount) proxy3_rmb_amount, sum(backwater_rmb_amount) backwater_rmb_amount, " +
-                "sum(bet_count) bet_count";
+                // id接收count值
+                "sum(bet_count) bet_count,count(user_id) id";
     }
 
     private String toPlainString(BigDecimal value) {
