@@ -5,7 +5,9 @@ import com.ball.base.model.PageResult;
 import com.ball.base.model.enums.YesOrNo;
 import com.ball.base.transaction.TransactionSupport;
 import com.ball.base.util.BizAssert;
+import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
+import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.BetResult;
 import com.ball.biz.bet.enums.OrderStatus;
@@ -164,9 +166,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         OrderStatus status = OrderStatus.parse(order.getStatus());
         log.info("status {}", status);
         BizAssert.notNull(status, BizErrCode.PARAM_ERROR_DESC,"status");
-
+        UserAccount userAccount = userAccountService.query(order.getUserId());
+        AllowanceModeEnum allowanceMode = AllowanceModeEnum.valueOf(userAccount.getAllowanceMode());
         transactionSupport.execute(()->{
-            userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+            if (AllowanceModeEnum.BALANCE == allowanceMode) {
+                userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+            }
             updateStatus(orderId, status, OrderStatus.CANCEL, reason);
         });
     }
@@ -180,8 +185,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             log.info("betFail {}", betFail);
             return;
         }
+        UserAccount userAccount = userAccountService.query(order.getUserId());
+        AllowanceModeEnum allowanceMode = AllowanceModeEnum.valueOf(userAccount.getAllowanceMode());
         transactionSupport.execute(()->{
-            userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+            if (AllowanceModeEnum.BALANCE == allowanceMode) {
+                userAccountService.unfreeze(orderId, AccountTransactionType.TRADE);
+            }
             updateStatus(orderId, OrderStatus.INIT, OrderStatus.BET_FAIL, reason);
         });
     }

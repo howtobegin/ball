@@ -2,7 +2,9 @@ package com.ball.biz.bet.order.job;
 
 import com.alibaba.fastjson.JSON;
 import com.ball.base.transaction.TransactionSupport;
+import com.ball.biz.account.entity.UserAccount;
 import com.ball.biz.account.enums.AccountTransactionType;
+import com.ball.biz.account.enums.AllowanceModeEnum;
 import com.ball.biz.account.service.ITradeConfigService;
 import com.ball.biz.account.service.IUserAccountService;
 import com.ball.biz.bet.enums.BetResult;
@@ -69,8 +71,12 @@ public class OrderAwardService extends BaseJobService<OrderInfo> {
             // 退水
             orderFinishBo.setBackwaterAmount(calcResult.getBackwaterAmount());
 
+            UserAccount userAccount = userAccountService.query(data.getUserId());
+            AllowanceModeEnum allowanceMode = AllowanceModeEnum.valueOf(userAccount.getAllowanceMode());
             transactionSupport.execute(()->{
-                handleUserAmount(userId, orderId, calcResult);
+                if (AllowanceModeEnum.BALANCE == allowanceMode) {
+                    handleUserAmount(userId, orderId, calcResult);
+                }
                 // 订单完成，更新对应数据
                 orderInfoService.finish(orderFinishBo);
 
