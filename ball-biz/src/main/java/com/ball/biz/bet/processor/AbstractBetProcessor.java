@@ -117,12 +117,11 @@ public abstract class AbstractBetProcessor implements BetProcessor, Initializing
         try {
             betCheck(bo, true);
             String orderNo = IDCreator.get();
-            BigDecimal fee = BigDecimal.ZERO;
             // 构建订单信息，状态待确认
             order = buildOrder(bo, orderNo);
             transactionSupport.execute(()->{
-                // 冻结
-                userAccountService.freeze(bo.getUserNo(), bo.getBetAmount(), orderNo, fee, AccountTransactionType.TRADE);
+                // 直接扣
+                userAccountService.payout(bo.getUserNo(), bo.getBetAmount(), orderNo, AccountTransactionType.TRADE);
                 // 保存订单信息
                 orderInfoService.save(order);
                 // 增加历史
