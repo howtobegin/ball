@@ -104,21 +104,29 @@ public class BizOrderStatService {
             end = start.plusDays(-1);
             SummaryReportResp beforeDay = summaryByDate(start, end, req.getProxyUserId());
             log.info("beforeDay {}", JSON.toJSONString(beforeDay));
-            resp.setProfitRateCompareYesterday(subtract(resp.getProfitRate(), beforeDay.getProfitRate()));
-            resp.setWinAmountCompareYesterday(subtract(resp.getWinAmount(), beforeDay.getWinAmount()));
-            resp.setValidAmountCompareYesterday(subtract(resp.getValidAmount(), beforeDay.getValidAmount()));
+            resp.setProfitRateCompareYesterday(calcCompare(resp.getProfitRate(), beforeDay.getProfitRate()));
+            resp.setWinAmountCompareYesterday(calcCompare(resp.getWinAmount(), beforeDay.getWinAmount()));
+            resp.setValidAmountCompareYesterday(calcCompare(resp.getValidAmount(), beforeDay.getValidAmount()));
         }
         // 如果是上周，需要和前一周做比较
         else if (req.getDateType() == 2) {
             start = start.plusWeeks(-1);
             end = end.plusWeeks(-1);
             SummaryReportResp beforeWeek = summaryByDate(start, end, req.getProxyUserId());
-            resp.setProfitRateCompareYesterday(subtract(resp.getProfitRate(), beforeWeek.getProfitRate()));
-            resp.setWinAmountCompareYesterday(subtract(resp.getWinAmount(), beforeWeek.getWinAmount()));
-            resp.setValidAmountCompareYesterday(subtract(resp.getValidAmount(), beforeWeek.getValidAmount()));
+            resp.setProfitRateCompareYesterday(calcCompare(resp.getProfitRate(), beforeWeek.getProfitRate()));
+            resp.setWinAmountCompareYesterday(calcCompare(resp.getWinAmount(), beforeWeek.getWinAmount()));
+            resp.setValidAmountCompareYesterday(calcCompare(resp.getValidAmount(), beforeWeek.getValidAmount()));
         }
 
         return resp;
+    }
+
+    private BigDecimal calcCompare(BigDecimal a, BigDecimal b) {
+        BigDecimal subtract = subtract(a, b);
+        if (b == null || b.compareTo(BigDecimal.ZERO) == 0) {
+            return subtract.multiply(Const.HUNDRED);
+        }
+        return subtract.multiply(Const.HUNDRED).divide(b, 2, BigDecimal.ROUND_HALF_UP);
     }
 
     private BigDecimal subtract(BigDecimal a, BigDecimal b) {
