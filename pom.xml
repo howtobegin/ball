@@ -65,23 +65,23 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.seg.kofo</groupId>
-            <artifactId>kofo-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hibernate.validator</groupId>
-                    <artifactId>hibernate-validator</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>io.seg.kofo</groupId>-->
+            <!--<artifactId>kofo-common</artifactId>-->
+            <!--<version>1.0-SNAPSHOT</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.hibernate.validator</groupId>-->
+                    <!--<artifactId>hibernate-validator</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.web3j</groupId>
-            <artifactId>core</artifactId>
-            <version>4.4.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.web3j</groupId>-->
+            <!--<artifactId>core</artifactId>-->
+            <!--<version>4.4.0</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -315,29 +315,29 @@
             <name>Spring Milestones</name>
             <url>https://repo.spring.io/milestone</url>
         </repository>
-        <repository>
-            <id>nexus-releases</id>
-            <name>nexus-releases</name>
-            <url>http://maven.corp.kofo.io:8081/repository/maven-releases/</url>
-        </repository>
-        <repository>
-            <id>nexus-snapshots</id>
-            <name>nexus-snapshots</name>
-            <url>http://maven.corp.kofo.io:8081/repository/maven-snapshots/</url>
-        </repository>
+        <!--<repository>-->
+            <!--<id>nexus-releases</id>-->
+            <!--<name>nexus-releases</name>-->
+            <!--<url>http://maven.corp.kofo.io:8081/repository/maven-releases/</url>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>nexus-snapshots</id>-->
+            <!--<name>nexus-snapshots</name>-->
+            <!--<url>http://maven.corp.kofo.io:8081/repository/maven-snapshots/</url>-->
+        <!--</repository>-->
     </repositories>
 
     <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <name>nexus-releases</name>
-            <url>http://maven.corp.kofo.io:8081/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <name>nexus-snapshots</name>
-            <url>http://maven.corp.kofo.io:8081/repository/maven-snapshots/</url>
-        </snapshotRepository>
+        <!--<repository>-->
+            <!--<id>nexus-releases</id>-->
+            <!--<name>nexus-releases</name>-->
+            <!--<url>http://maven.corp.kofo.io:8081/repository/maven-releases/</url>-->
+        <!--</repository>-->
+        <!--<snapshotRepository>-->
+            <!--<id>nexus-snapshots</id>-->
+            <!--<name>nexus-snapshots</name>-->
+            <!--<url>http://maven.corp.kofo.io:8081/repository/maven-snapshots/</url>-->
+        <!--</snapshotRepository>-->
     </distributionManagement>
 
 </project>
